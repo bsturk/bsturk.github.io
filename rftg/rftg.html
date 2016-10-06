@@ -1,0 +1,1798 @@
+<!doctype html>
+<html lang="en-us" manifest="rftg.appcache">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="icon" type="image/png" href="launcher-icon-2x.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="manifest" href="rftg.manifest.json">
+    <meta name="viewport" content="width=1500, user-scalable=yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>RFTG AI</title>
+    <style>
+@font-face {
+    font-family: Oswald;
+    src: url(fonts/Oswald-Regular.ttf);
+}
+@font-face {
+    font-family: Oswald;
+    src: url(fonts/Oswald-DemiBold.ttf);
+    font-weight: bold;
+}
+body {
+    font-family: Oswald, arial;
+    margin: 0;
+    padding: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+img {
+    -webkit-touch-callout: none;
+}
+@-webkit-keyframes popmove {
+    from { -webkit-transform: scale(1.4);}
+    to { -webkit-transform: scale(1);}
+}
+
+@keyframes popmove {
+    from { transform: scale(1.4);}
+    to { transform: scale(1);}
+}
+.modified {
+  animation: popmove 1s;
+  -webkit-animation: popmove 1s;
+}
+
+img.cardface {
+    width:200px;
+    height: 280px;
+    position:absolute;
+}
+div.vptooltip {
+    position:absolute;
+    background-color: white;
+    left:51px;
+    top:27px;
+    width:13px;
+    height:19px;
+    text-align: center;
+    font-size: 15px;
+}
+div.tradevalue {
+    color: white;
+    position:absolute;
+    left:55px;
+    top:75px;
+    width:25px;
+    height:20px;
+    text-align: center;
+    font-size: 18px;
+}
+img.good {
+    width:150px;
+    position:absolute;
+    left:50px;
+    top:70px;
+    border:1px solid #444;
+    border-radius: 7px;
+    transition: top .5s linear;
+}
+img.good.selected {
+    border:1px solid yellow;
+}
+img.discard {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    display: none;
+}
+.card.selected img.discard {
+    display: block;
+}
+div.card {
+    position: absolute;
+    display: block;
+    overflow: hidden;
+    border:2px solid #444;
+    border-radius: 10px;
+    width: 200px;
+    height: 280px;
+    transition: left 1s linear, top 1s linear;
+}
+div.card.selected {
+    border:2px solid yellow;
+}
+div.card.disabled {
+    filter: grayscale(1) brightness(.4);
+    -webkit-filter: grayscale(1) brightness(.4);
+}
+.player0 { background-color: #88a; }
+.player1 { background-color: #a88; }
+.player2 { background-color: #8a8; }
+.player3 { background-color: #aa8; }
+.player4 { background-color: #8aa; }
+.player5 { background-color: #a8a; }
+#loadingscreen {
+    font-size: 50px;
+    text-align: center;
+}
+#aboutscreen {
+    font-size: 30px;
+}
+#menuscreen {
+    font-size: 30px;
+    text-align: center;
+}
+#settingsscreen {
+    font-size: 30px;
+    text-align: center;
+}
+#cardpopup {
+    text-align: center;
+}
+#cardpopup img {
+    border-radius: 5% / 3.5%;
+    height: 100%;
+}
+#cardpopup .centeredscreen_i {
+    height: 95%;
+    width: 95%;
+}
+#gameoverpopup {
+    text-align: center;
+    font-size: 32px;
+}
+#gameoverpopup table {
+    margin: 0 auto;
+    border: 2px solid black;
+    border-collapse: collapse;
+}
+#gameoverpopup tr.player0 {
+    font-size: 40px;
+}
+#gameoverpopup tr.head {
+    font-size: 20px;
+    background-color: #777;
+}
+#gameoverpopup td {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border: 1px solid #777;
+}
+#gameoverpopup tr span {
+    position: relative;
+}
+#gameoverpopup tr img {
+    position: absolute;
+    width: 46px;
+    height: 46px;
+    top: 2px; left: 2px;
+}
+
+.centeredscreen_o {
+    width: 100%;
+    height: 100%;
+    background: #aaa;
+    position: fixed;
+    top: 0;
+}
+.popup.centeredscreen_o {
+    background: rgba(128,128,128,.7);
+}
+.centeredscreen_i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50%;
+    transform: translate(-50%,-50%);
+    -webkit-transform: translate(-50%,-50%);
+}
+#progress {
+    width: 100%;
+    height: 50px;
+    border: 3px solid black;
+    padding: 3px;
+    margin: 0 auto;
+}
+#progressbar {
+    height: 100%;
+    width: 0;
+    background-color: black;
+}
+#promptcontainer {
+    font-size: 30px;
+    text-align: center;
+    width: auto;
+}
+.deck {
+    height: 290px;
+    position: relative;
+}
+table {
+    width: auto;
+}
+td {
+    vertical-align: center;
+    padding: 0;
+}
+td.icon, th.icon {
+    position:relative;
+    background-size:cover;
+    background-repeat:no-repeat;
+    width:50px;
+    height:50px;
+    text-shadow: -1px -1px #ccc, -1px 1px #ccc, 1px -1px #ccc, 1px 1px #ccc;
+    text-align:center;
+    border: 2px solid rgba(0,0,0,0);
+}
+td.goal img {
+    height:50px;
+    border-radius:5px;
+}
+td.goal1 {
+    filter: grayscale(1) brightness(.8);
+    -webkit-filter: grayscale(1) brightness(.8);
+}
+.icon.inactiveaction {
+    opacity: .33;
+    filter: grayscale(1);
+    -webkit-filter: grayscale(1);
+}
+.icon.currentaction {
+    border: 2px solid red;
+    border-radius: 6px;
+}
+.icon.p_used {
+    filter: grayscale(1) brightness(2.5);
+    -webkit-filter: grayscale(1) brightness(2.5);
+}
+.icon.p_leader.p_turn {
+    border: 2px solid white;
+    border-radius: 50%;
+}
+span.modalopt {
+display: inline-block;
+}
+button, select, .menu, span.modalopt {
+border: 2px solid #333; background: #666;
+border-radius: 10px;
+color: #ccc;
+padding: 0 10px;
+margin: 1px;
+font-size: 30px;
+font-family: Oswald, arial;
+cursor: default;
+}
+button:hover, .menu div:hover, span.modalopt:hover {
+background: #88a;
+}
+span.modalopt.selected, button.selected {
+background: #88a;
+border: 2px solid yellow;
+}
+button:disabled {
+border: 2px solid #999; background: #aaa;
+color: #999;
+}
+img.buttonicon {
+height:40px;
+vertical-align:text-bottom;
+margin: 0 -8px;
+}
+.buttonicon_container {
+position:relative;
+}
+img.buttonicon_prestige {
+position:absolute;
+height:20px;
+right:-8px;
+bottom:0;
+display:none;
+}
+img.prestige_icon {
+position:absolute;
+height:24px;
+right:0;
+bottom:0;
+}
+.modalopt.selected_1 img.buttonicon_prestige {
+display:inline-block;
+}
+.gamelog {
+text-align: left;
+border: 2px solid #333; background: rgba(100,100,100,0.95);
+border-radius: 10px;
+color: #ccc;
+padding: 0 10px;
+margin: 1px;
+font-size: 16px;
+font-family: Oswald, arial;
+-webkit-user-select: text;
+-moz-user-select: text;
+-ms-user-select: text;
+user-select: text;
+height:640px;
+width:400px;
+overflow-y:scroll;
+position:absolute;
+right:0;
+z-index:1;
+}
+.logline.em {
+text-align: center;
+font-weight:bold;
+color: #f66;
+}
+.logline.phase {
+text-align: center;
+color: #f66;
+}
+.logline.discard, .logline.draw, .logline.verbose {
+color: #888;
+}
+#goals {
+text-align: left;
+border: 2px solid #333; background: rgba(100,100,100,0.95);
+border-radius: 10px;
+position:absolute;
+right:0;
+z-index:1;
+}
+#goals img {
+  width: 120px;
+  border-radius: 10px;
+  margin: 3px;
+}
+#goals th.claimed img {
+  filter: grayscale(1) brightness(0.8);
+  -webkit-filter: grayscale(1) brightness(0.8);
+}
+#goals th {
+padding: 0px;
+vertical-align: bottom;
+}
+#goals td {
+color: #000;
+text-align: left;
+font-size: 20px;
+}
+#goals span {
+display: inline-block;
+text-align: right;
+border-radius: 10px;
+}
+#goals span.player0 {
+background-color: #44a;
+color: #fff;
+}
+.player {
+overflow: hidden;
+position: relative;
+width: 100%;
+}
+#status_over {
+position: fixed;
+bottom: 0;
+width: 100%;
+}
+h1 {
+text-align: center;
+}
+#cachecontainer {
+position: fixed;
+top: 0;
+border: 2px solid black;
+margin: 2px;
+background-color: white;
+color: black;
+font-size: 22px;
+width: 100px;
+height: 30px;
+z-index: 1000;
+text-align: center;
+}
+#cacheprogress {
+position: absolute;
+height: 100%;
+background-color: black;
+overflow: hidden;
+}
+#cacheprogress div {
+color: white;
+width: 100px;
+}
+    </style>
+  </head>
+  <body>
+<div class="screen centeredscreen_o" id="loadingscreen">
+   <div class="centeredscreen_i">
+<svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 1000 1000">
+<path style="fill:#daa566" d="m500,500v-500a500,500 0 0,1 500,500z" />
+<path style="fill:#fff200" d="m500,500h500a500,500 0 0,1 -500,500z" />
+<path style="fill:#80cc28" d="m500,500v500a500,500 0 0,1 -500,-500z" />
+<path style="fill:#80d6f7" d="m500,500h-500a500,500 0 0,1 500,-500z" />
+<g><animateTransform attributeType="xml" attributeName="transform" type="rotate" from="0 500 500" to="360 500 500" dur="4s" repeatCount="indefinite" />
+<path style="fill:#231f20" d="m500,150a350,350 0 0,0 0,700z" />
+<path style="fill:#ed1c24" d="m500,150a350,350 0 0,1 0,700z" />
+</g>
+<circle style="fill:#fff" cx="500" cy="500" r="225" />
+</svg>
+   <div id="progress">
+    <div id="progressbar">
+    </div>
+   </div>
+   <div id="loadingmsg">Loading...</div>
+   </div>
+</div>
+<div class="screen" id="gamescreen" hidden>
+<div style="text-align:right">
+<button id="restart_undo" data-accel="ctrl-90" onclick="GUI.do_undo(GUI.RESTART.UNDO)">Undo</button>
+<span style="position:relative;display:inline-block">
+<button onclick="var m=document.getElementById('goals');m.hidden=!m.hidden;m.scrollTop=m.scrollHeight" id="goalsbutton" hidden>Goals</button><div id="goals" hidden>
+</div></span>
+<span style="position:relative;display:inline-block">
+<button onclick="var m=document.getElementById('gamelog');m.hidden=!m.hidden;m.scrollTop=m.scrollHeight">Log</button><div class="gamelog" id="gamelog" hidden>
+<table id="gamelogtext"></table>
+</div></span>
+<span style="position:relative;display:inline-block" onclick="var m=document.getElementById('menu');m.hidden=!m.hidden">
+<button id="menu_button"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="2 2 20 20">
+<path style="fill:#ccc" d="M6,15h12c0.553,0,1,0.447,1,1v1c0,0.553-0.447,1-1,1H6c-0.553,0-1-0.447-1-1v-1C5,15.447,5.447,15,6,15z M5,11v1
+    c0,0.553,0.447,1,1,1h12c0.553,0,1-0.447,1-1v-1c0-0.553-0.447-1-1-1H6C5.447,10,5,10.447,5,11z M5,6v1c0,0.553,0.447,1,1,1h12
+    c0.553,0,1-0.447,1-1V6c0-0.553-0.447-1-1-1H6C5.447,5,5,5.447,5,6z"/>
+</svg>
+</button><div class="menu" id="menu" hidden style="position:absolute;right:0;z-index:1;width:160px">
+<div data-accel="ctrl-shift-90" onclick="GUI.do_undo(GUI.RESTART.UNDO_ROUND)">Undo Round</div>
+<div onclick="GUI.do_undo(GUI.RESTART.UNDO_GAME)">Restart Game</div>
+<div data-accel="ctrl-78" onclick="GUI.do_undo(GUI.RESTART.NEW)">New Game</div>
+<div data-accel="27" onclick="GUI.set_screen('menuscreen')">Exit Game</div>
+<div onclick="GUI.set_screen('settingsscreen')">Settings</div>
+<div data-accel="ctrl-83" onclick="window.open('data:text/plain;base64,'+window.btoa(localStorage['autosave.rftg']),'_blank')">Export Save</div>
+<div onclick="GUI.set_screen('aboutscreen')">About</div>
+</div></span>
+</div>
+<table><tr><td><table><tr id="game_status"></tr></table></td><td id="promptcontainer"><span id="actionprompt"></span> <button id="actionbutton" onclick="GUI.do_send()">Done</button></td></tr></table>
+<div id="board" onclick="GUI.do_click(event)">
+    <div id="player0" class="player player0">
+     <div class="deck" id="hand"></div>
+     <table><tr id="player_status0"></tr></table>
+     <div id="player_status0"></div>
+     <div class="deck" id="table0"></div>
+    </div>
+    <div id="player1" class="player player1"><table><tr id="player_status1"></tr></table><div class="deck" id="table1"></div></div>
+    <div id="player2" class="player player2"><table><tr id="player_status2"></tr></table><div class="deck" id="table2"></div></div>
+    <div id="player3" class="player player3"><table><tr id="player_status3"></tr></table><div class="deck" id="table3"></div></div>
+    <div id="player4" class="player player4"><table><tr id="player_status4"></tr></table><div class="deck" id="table4"></div></div>
+    <div id="player5" class="player player5"><table><tr id="player_status5"></tr></table><div class="deck" id="table5"></div></div>
+</div>
+<div id="status_over">
+    <div id="player_over1" class="player1"><table><tr id="player_status_over1"></tr></table></div>
+    <div id="player_over2" class="player2"><table><tr id="player_status_over2"></tr></table></div>
+    <div id="player_over3" class="player3"><table><tr id="player_status_over3"></tr></table></div>
+    <div id="player_over4" class="player4"><table><tr id="player_status_over4"></tr></table></div>
+    <div id="player_over5" class="player5"><table><tr id="player_status_over5"></tr></table></div>
+</div>
+</div>
+<div hidden class="screen centeredscreen_o" id="aboutscreen"><div class="centeredscreen_i">
+<p>This is a program to play Race for the Galaxy against AI players.  Rules
+for the game and expansions can be found at:
+<a href="http://riograndegames.com/getFile.php?id=273">Base Game</a>,
+<a href="http://riograndegames.com/getFile.php?id=293">The Gathering Storm</a>,
+<a href="http://riograndegames.com/getFile.php?id=393">Rebel vs Imperium</a>,
+<a href="http://riograndegames.com/getFile.php?id=506">The Brink of War</a>,
+<a href="http://riograndegames.com/getFile.php?id=1813">Alien Artifacts</a>.
+<p>This program was created by Keldon Jones keldon@keldon.net.  Many
+useful improvements, especially to the GUI, were made by B. Nordli (BGG user borgemik).
+<br>JavaScript/HTML port by nutki@BGG.
+<p>The source code is copyrighted and is placed under the GPL.
+<p>The original game of Race for the Galaxy was designed by Tom Lehmann and
+published by Rio Grande Games.  Permission to distribute the card and
+goal images has been granted by Rio Grande Games.
+<h1><button data-accel="27" onclick="GUI.set_screen('gamescreen')">Back</button></h1>
+</div></div>
+<div hidden class="screen centeredscreen_o" id="menuscreen"><div class="centeredscreen_i">
+<h1>RACE FOR THE GALAXY AI</h1>
+<select onchange="GUI.update_menu()" id="menu_exp_level">
+<option value="0">Base Game only</option>
+<option value="1">The Gathering Storm</option>
+<option value="2">Rebel vs Imperium</option>
+<option value="3">The Brink of War</option>
+<option value="4">Alien Artifacts</option>
+</select>
+<select onchange="GUI.update_menu()" id="menu_num_players">
+<option value="2">2 Players</option>
+<option value="3">3 Players</option>
+<option value="4">4 Players</option>
+<option value="5">5 Players</option>
+<option value="6">6 Players</option>
+</select><br>
+&nbsp;
+<button onclick="this.classList.toggle('selected')" id="menu_advanced">Advanced</button>
+<button onclick="this.classList.toggle('selected')" id="menu_goals">Goals</button>
+<button onclick="this.classList.toggle('selected')" id="menu_takeovers">Takeovers</button>
+&nbsp;
+<h1>
+<button data-accel="27" onclick="GUI.set_screen('gamescreen')">Return</button>
+<button data-accel="13" onclick="GUI.do_stargame()">Start Game</button>
+</h1>
+</div></div>
+<div hidden class="screen centeredscreen_o" id="settingsscreen"><div class="centeredscreen_i">
+<h2>Settings</h2>
+Card animations
+<select id="setting_anim">
+<option value="0">No</option>
+<option value="1">Yes</option>
+</select><br>
+Auto confirm actions <select id="setting_autoconfirm">
+<option value="0">No</option>
+<option value="1">Yes</option>
+</select><br>
+Keep status bars on screen <select id="setting_pullup">
+<option value="0">No</option>
+<option value="1">Yes</option>
+</select><br>
+Start world choice <select id="setting_revstart">
+<option value="0">Select</option>
+<option value="1">Discard</option>
+</select>
+<h2><button data-accel="13" onclick="GUI.save_settings();GUI.set_screen('gamescreen')">Return</button></h2>
+</div></div>
+<div hidden class="popup screen centeredscreen_o" id="cardpopup"><div class="centeredscreen_i">
+<img id="cardpopupimg" data-accel="27" onclick="GUI.set_screen('gamescreen')">
+</div></div>
+<div hidden class="popup screen centeredscreen_o" id="gameoverpopup"><div class="centeredscreen_i">
+<table id="gamesummary"></table><br>
+<button data-accel="27" onclick="GUI.set_screen('gamescreen')">Return</button>
+<button data-accel="ctrl-78" onclick="GUI.set_screen('gamescreen');GUI.do_undo(GUI.RESTART.NEW);">New Game</button>
+<button data-accel="13" onclick="GUI.set_screen('menuscreen');">Exit Game</button>
+</div></div>
+<div id="cachecontainer" hidden>
+<div id="cacheprogress"><div id="cachestatus1"></div></div>
+<div id="cachestatus2"></div>
+</div>
+<script>window.onerror = function(msg, src, line) { alert('ERROR ' + line + ': ' + msg); };</script>
+<script type='text/javascript'>
+var GUI = (function() {
+  var GUI = {};
+  var update_menu = GUI.update_menu = function() {
+    var ea = document.getElementById('menu_exp_level');
+    var eb = document.getElementById('menu_num_players');
+    var ec = document.getElementById('menu_advanced');
+    var ed = document.getElementById('menu_goals');
+    var ee = document.getElementById('menu_takeovers');
+    var maxp = [4, 5, 6, 6, 5][ea.value];
+    for (var i = 0; i < 5; i++)
+      eb.options[i].disabled = i + 2 > maxp;
+    if (eb.value > maxp) eb.selectedIndex = 0;
+    ec.hidden = eb.value > 2;
+    ed.hidden = [0, 1, 1, 1, 0][ea.value] === 0;
+    ee.hidden = [0, 0, 1, 1, 0][ea.value] === 0;
+  }
+
+  function init_menu() {
+    var ea = document.getElementById('menu_exp_level');
+    var eb = document.getElementById('menu_num_players');
+    var ec = document.getElementById('menu_advanced');
+    var ed = document.getElementById('menu_goals');
+    var ee = document.getElementById('menu_takeovers');
+    ea.selectedIndex = exp_level;
+    eb.selectedIndex = num_players - 2;
+    if (advanced) ec.classList.add('selected');
+    if (goals) ed.classList.add('selected');
+    if (goals) document.getElementById('goalsbutton').hidden = false;
+    update_menu();
+  }
+
+  var do_stargame = GUI.do_stargame = function() {
+    var ec = document.getElementById('menu_advanced');
+    var ed = document.getElementById('menu_goals');
+    var ee = document.getElementById('menu_takeovers');
+    var menu_num_players = document.getElementById('menu_num_players').value;
+    var menu_exp_level = document.getElementById('menu_exp_level').value;
+    var menu_advanced = !ec.hidden && ec.classList.contains('selected');
+    var menu_goals = !ed.hidden && ed.classList.contains('selected');
+    var menu_takeovers = !ee.hidden && ee.classList.contains('selected');
+    if (menu_exp_level == exp_level && menu_num_players == num_players &&
+      menu_advanced == advanced && menu_goals == goals) {
+      set_screen('gamescreen');
+      do_undo(RESTART.NEW);
+      return;
+    }
+    var loc = "#num_players=" + menu_num_players + '&exp_level=' + menu_exp_level;
+    if (menu_advanced) loc += '&advanced';
+    if (!menu_goals) loc += '&nogoals';
+    if (!menu_takeovers) loc += '&notakeovers';
+    location = loc;
+    location.reload();
+  }
+  var settings = {
+    animate: 1,
+    autoconfirm: true,
+    pullup: true,
+    revstart: true
+  };
+  var save_settings = GUI.save_settings = function() {
+    settings = {
+      animate: parseInt(document.getElementById('setting_anim').value),
+      autoconfirm: document.getElementById('setting_autoconfirm').value === "1",
+      pullup: document.getElementById('setting_pullup').value === "1",
+      revstart: document.getElementById('setting_revstart').value === "1",
+    }
+    if (localStorage)
+      localStorage.setItem('rftg.conf', JSON.stringify(settings));
+  }
+
+  function load_settings() {
+    var saved_settings = localStorage && localStorage.getItem('rftg.conf');
+    if (saved_settings)
+      settings = JSON.parse(saved_settings);
+    document.getElementById('setting_anim').selectedIndex = settings.animate;
+    document.getElementById('setting_autoconfirm').selectedIndex = settings.autoconfirm ? 1 : 0;
+    document.getElementById('setting_pullup').selectedIndex = settings.pullup ? 1 : 0;
+    document.getElementById('setting_revstart').selectedIndex = settings.revstart ? 1 : 0;
+  }
+
+  function card_popup(cid) {
+    document.getElementById('cardpopupimg').src = image_from_data(card_info[cid].image);
+    set_screen('cardpopup');
+  }
+  var set_screen = GUI.set_screen = function(s) {
+    update_key_accels(document.getElementById(s));
+    var popup = document.getElementById(s).classList.contains('popup');
+    if (popup) {
+      document.getElementById(s).hidden = false;
+      return;
+    }
+    var scrs = document.getElementsByClassName('screen');
+    for (var i = 0; i < scrs.length; i++) {
+      scrs[i].hidden = scrs[i].id !== s;
+    }
+    set_scroll();
+  }
+  var RESTART = GUI.RESTART = {
+    NEW: 1,
+    NONE: 2,
+    LOAD: 3,
+    RESTORE: 4,
+    UNDO: 5,
+    UNDO_ROUND: 6,
+    UNDO_GAME: 7,
+    REDO: 8,
+    REDO_ROUND: 9,
+    REDO_GAME: 10,
+    REPLAY: 11,
+    CURRENT: 12,
+  };
+  var CHOICE = {
+    ACTION: 0,
+    START: 1,
+    DISCARD: 2,
+    SAVE: 3,
+    DISCARD_PRESTIGE: 4,
+    PLACE: 5,
+    PAYMENT: 6,
+    SETTLE: 7,
+    TAKEOVER: 8,
+    DEFEND: 9,
+    TAKEOVER_PREVENT: 10,
+    UPGRADE: 11,
+    TRADE: 12,
+    CONSUME: 13,
+    CONSUME_HAND: 14,
+    GOOD: 15,
+    LUCKY: 16,
+    ANTE: 17,
+    KEEP: 18,
+    WINDFALL: 19,
+    PRODUCE: 20,
+    DISCARD_PRODUCE: 21,
+    SEARCH_TYPE: 22,
+    SEARCH_KEEP: 23,
+    OORT_KIND: 24,
+  }
+
+  var card_info = [];
+  var decks;
+  var game_status;
+  var num_players = 2;
+  var exp_level = 0;
+  var advanced = false;
+  var goals = false;
+  var images = [];
+  var images_data;
+  var game_over = false;
+  var select;
+  var selectable_cards;
+  var select_autoconfirm;
+  var save;
+  var params = [];
+  if (location.hash) {
+    var url_params = {};
+    location.hash.substring(1).split('&').forEach(function(e) {
+      var pair = e.split('=', 2);
+      if (pair[0]) url_params[pair[0]] = pair[1];
+    });
+    if (url_params.num_players) {
+      num_players = parseInt(url_params.num_players);
+      params.push('-p', url_params.num_players);
+    }
+    if (url_params.exp_level) {
+      exp_level = parseInt(url_params.exp_level);
+      params.push('-e', url_params.exp_level);
+    }
+    if ('advanced' in url_params && num_players == 2) {
+      advanced = true;
+      params.push('-a');
+    }
+    if (('nogoals' in url_params)) {
+      goals = false;
+      params.push('-nog');
+    } else {
+      goals = exp_level >= 1 && exp_level <= 3;
+    }
+    if (true || ('notakeovers' in url_params)) params.push('-not');
+    history.replaceState({}, document.title, window.location.pathname);
+  } else {
+    var s = localStorage && localStorage.getItem('autosave.rftg');
+    if (s) {
+      var m = s.match(/^RFTG Save\n0.9.4\n\d+\n(\d+) (\d+)\n(\d+) (\d+)/);
+      if (m) {
+        num_players = parseInt(m[1]);
+        exp_level = parseInt(m[2]);
+        advanced = m[3] === '1';
+        goals = exp_level >= 1 && exp_level <= 3 && m[4] !== '1';
+        save = s;
+      }
+    }
+  }
+  init_menu();
+  load_settings();
+  for (var i = num_players; i < 6; i++) {
+    document.getElementById('player' + i).hidden = true;
+    document.getElementById('player_over' + i).hidden = true;
+  }
+
+  function image_from_data(nr) {
+    var binary = '';
+    var len = images[nr].len;
+    for (var i = 0; i < len; i++) {
+      binary += String.fromCharCode(images_data[i + images[nr].pos]);
+    }
+    return 'data:image/jpeg;base64,' + window.btoa(binary);
+  }
+
+  function target_card(c) {
+    while (!c.id && c.parentNode) c = c.parentNode;
+    if (c.id && c.id.match(/^card\d+$/)) return c;
+    return undefined;
+  }
+  var do_click = GUI.do_click = function(ev) {
+    var c, t;
+    if (!(c = target_card(ev.target))) return;
+    if (!(t = selectable_cards[card_id(c)])) return;
+    if (t === 'good') {
+      var notsel = c.querySelector('.good:not(.selected)');
+      if (notsel) notsel.classList.add('selected');
+      else {
+        var good = c.querySelectorAll('.good');
+        for (var i = 0; i < good.length; i++) good[i].classList.remove('selected');
+      }
+    } else c.classList.toggle('selected');
+    update_action_sensitivity();
+  }
+  document.getElementById('board').addEventListener('contextmenu', function(ev) {
+    var c;
+    if (!(c = target_card(ev.target))) return;
+    card_popup(card_id(c));
+    ev.preventDefault();
+  });
+  var long_touch, long_touch_x, long_touch_y;
+  function do_touch(ev) {
+    if (ev.touches.length === 1) {
+      var c = target_card(ev.touches[0].target);
+      if (c) long_touch = window.setTimeout(function() {
+        card_popup(card_id(c));
+        long_touch = undefined;
+      }, 1000);
+      long_touch_x = ev.touches[0].clientX;
+      long_touch_y = ev.touches[0].clientY;
+    } else {
+      if (long_touch) window.clearTimeout(long_touch);
+      long_touch = undefined;
+    }
+  }
+  document.getElementById('board').addEventListener('touchstart', do_touch);
+  document.getElementById('board').addEventListener('touchend', do_touch);
+  document.getElementById('board').addEventListener('touchcancel', do_touch);
+  document.getElementById('board').addEventListener('touchmove', function(ev) {
+    if (Math.abs(long_touch_x - ev.touches[0].clientX) > 10 ||
+        Math.abs(long_touch_y - ev.touches[0].clientY) > 10) {
+      if (long_touch) window.clearTimeout(long_touch);
+      long_touch = undefined;
+    }
+  });
+
+  function set_prompt(txt) {
+    document.getElementById('actionprompt').innerHTML = txt;
+  }
+
+  function get_cards_selected(where, not) {
+    var src = document.getElementById(where || 'board');
+    var sel = not ? '.card:not(.selected)' : '.selected';
+    return Array.prototype.map.call(src.querySelectorAll(sel), card_id);
+  }
+
+  function card_id(e) {
+    return parseInt((e.id || e.parentNode.id).substring(4));
+  }
+
+  function plural(v) {
+    return v === 1 ? '' : 's';
+  }
+  var action_restrict, select_result;
+
+  function update_action_sensitivity(initial) {
+    var res = action_restrict();
+    var ac = select_autoconfirm && settings.autoconfirm;
+    document.getElementById('actionbutton').hidden = game_over || !res && ac;
+    document.getElementById('actionbutton').disabled = !res;
+    if (res && ac && !initial) do_send();
+  }
+
+  function restrict_num(action_min, action_max) {
+    if (action_max === 1) select_autoconfirm = true;
+    return function() {
+      var s = get_cards_selected().length;
+      return s >= action_min && s <= action_max;
+    };
+  }
+  var modalresult;
+  var modallimit;
+  var modalvalues;
+  var card_classes;
+  var onclick_modal = GUI.onclick_modal = function(idx) {
+    var i, j, v = modalvalues[idx],
+      pos = -1,
+      next;
+    for (i = 0; i < v.length; i++) {
+      pos = modalresult.indexOf(v[i]);
+      if (pos >= 0) break;
+    }
+    next = pos < 0 ? 0 : i + 1;
+    if (pos < 0) i = -1;
+    if (pos >= 0) modalresult.splice(pos, 1);
+    if (next < v.length) modalresult.unshift(v[next]);
+    modalresult.splice(modallimit, 1);
+    var opts = document.getElementsByClassName('modalopt');
+    for (i = 0; i < opts.length; i++) {
+      var ci = parseInt(opts[i].id.substring(8));
+      var s = modalvalues[ci];
+      opts[i].className = 'modalopt';
+      for (j = 0; j < modalvalues[ci].length; j++) {
+        if (modalresult.indexOf(modalvalues[ci][j]) >= 0) {
+          opts[i].classList.add('selected', 'selected_' + j);
+        }
+      }
+    }
+    update_action_sensitivity();
+  }
+
+  function gen_modal(options, num) {
+    modallimit = num || 1;
+    modalresult = [];
+    modalvalues = [];
+    var html = '';
+    options.forEach(function(e, i) {
+      modalvalues[i] = e.value instanceof Array ? e.value : [e.value];
+      html += '<span id="modalopt' + i + '" onclick="GUI.onclick_modal(' + i + ')" class="modalopt">' + e.name + '</span>';
+    });
+    return html;
+  }
+
+  function makebuttonicon(id) {
+    var has_prestige = id instanceof Array;
+    if (has_prestige) id = id[0];
+    if (id === 4 || id === 6) id--;
+    var txt = '<img class="buttonicon" src="' + image_from_data(3000 + id) + '">';
+    if (has_prestige) txt = '<span class="buttonicon_container">' + txt + '<img class="buttonicon_prestige" src="' + image_from_data(3014) + '"></span>';
+    return txt;
+  }
+
+  function no_select() {
+    selectable_cards = {};
+    card_classes = {};
+    select_autoconfirm = true;
+    action_restrict = function() {
+      return false;
+    };
+    set_prompt('Thinking...');
+  }
+  function do_select() {
+    selectable_cards = {};
+
+    function make_selectable(list, type) {
+      list.forEach(function(e) {
+        selectable_cards[e] = type || 'normal';
+      });
+    }
+
+    function make_inactive(where) {
+      decks[where].forEach(function(e) {
+        if (!selectable_cards[e.index]) card_classes[e.index] = 'disabled';
+      });
+    }
+    card_classes = {};
+    select_autoconfirm = false;
+    action_restrict = function() {
+      return true;
+    };
+    select_result = function() {
+      return {
+        list: get_cards_selected()
+      };
+    };
+    if (!select) {
+      set_prompt('<button onclick="GUI.set_screen(\'gameoverpopup\')">Game Over</button>');
+      set_screen('gameoverpopup');
+      action_restrict = function() {
+        return false;
+      };
+    } else if (select.type === CHOICE.DISCARD) {
+      var discard = select.arg1;
+      var select_all = 2 * discard - select.list.length > 1;
+      if (select_all)
+        select.list.forEach(function(e) {
+          card_classes[e] = 'selected';
+        });
+      set_prompt('Choose ' + discard + ' card' + plural(discard) + ' to discard');
+      make_selectable(select.list, 'discard');
+      make_inactive('hand');
+      action_restrict = restrict_num(discard, discard);
+    } else if (select.type === CHOICE.ACTION) {
+      var one = select.arg1;
+      var to_select = advanced && !one ? 2 : 1;
+      var can_prestige = Module._can_prestige();
+      var opts = advanced ? [1, 2, 3, 4, 5, 6, 7, 8, 9] : [1, 2, 3, 5, 7, 8, 9];
+      if (one === 2) {
+        var first = select.list[0];
+        opts = opts.filter(function(e) {
+          return e !== (first & 127);
+        });
+        if (!first || (first & 128)) can_prestige = 0;
+      }
+      if (can_prestige & 2) opts = opts.map(function(e) {
+        return [e, e | 128];
+      }); // Add prestige actions
+      if (can_prestige & 1) opts.unshift(0); // Add search action;
+      opts = opts.map(function(e) {
+        return {
+          name: makebuttonicon(e),
+          value: e
+        };
+      });
+      select_autoconfirm = !advanced && exp_level !== 3;
+      var name = advanced ? ['actions', 'first action', 'second action'][one] : 'action';
+      set_prompt('Choose ' + name + ': ' + gen_modal(opts, to_select));
+      action_restrict = function() {
+        var r = modalresult;
+        var prestige_action = r.filter(function(e) {
+          return (e & 128) || !e;
+        });
+        if (prestige_action.length > 1) return false; // No double prestige
+        return r.length === to_select;
+      }
+      select_result = function() {
+        var r = modalresult.slice();
+        if (one === 2) r.unshift(select.list[0]);
+        if (r.length === 1) r.push(-1);
+        // fix second develop or settle without the first
+        if ((r[0] === 4 || r[0] === 6) && r[1] !== r[0] - 1) r[0]--;
+        if ((r[1] === 4 || r[1] === 6) && r[0] !== r[1] - 1) r[1]--;
+        return {
+          result: one,
+          list: r
+        };
+      }
+    } else if (select.type === CHOICE.PLACE) {
+      var phase = select.arg1;
+      var special = select.arg2;
+      set_prompt('Choose card to ' + (phase === 2 ? 'develop' : 'settle') + (special >= 0 ? ' using ' + card_info[special].name : ''));
+      make_selectable(select.list);
+      make_inactive('hand');
+      action_restrict = restrict_num(0, 1);
+      select_result = function() {
+        var elms = get_cards_selected();
+        return {
+          result: elms.length ? elms[0] : -1
+        };
+      };
+    } else if (select.type === CHOICE.PAYMENT) {
+      var which = select.arg1;
+      var mil_only = select.arg2;
+      var mil_bonus = select.arg3;
+      set_prompt(Module.ccall('choose_pay_prompt', 'string', ['number', 'number', 'number'], [which, mil_only, mil_bonus]));
+      make_selectable(select.list, 'discard');
+      make_selectable(select.special);
+      make_inactive('hand');
+      make_inactive('table0');
+      action_restrict = function() {
+        var list = get_cards_selected('hand');
+        var special = get_cards_selected('table0');
+        var buf = Module._get_callbuffer();
+        list.forEach(function(e, i) {
+          Module.setValue(buf + 4 * i, e, 'i32');
+        });
+        special.forEach(function(e, i) {
+          Module.setValue(buf + 4 * (i + list.length), e, 'i32');
+        });
+        return Module._action_check_payment(which, list.length, special.length, mil_only, mil_bonus);
+      };
+      select_result = function() {
+        return {
+          list: get_cards_selected('hand'),
+          special: get_cards_selected('table0'),
+        }
+      };
+    } else if (select.type === CHOICE.GOOD) {
+      var c_idx = select.special[0];
+      var o_idx = select.special[1];
+      var goods = select.list;
+      var min = select.arg1;
+      var max = select.arg2;
+      set_prompt('Choose good' + plural(min * max) + ' to consume on ' + card_info[c_idx].name);
+      make_selectable(select.list, 'good');
+      make_inactive('table0');
+      select_autoconfirm = max === 1;
+      action_restrict = function() {
+        var list = get_cards_selected('table0');
+        if (list.length < min || list.length > max) return false;
+        var buf = Module._get_callbuffer();
+        list.forEach(function(e, i) {
+          Module.setValue(buf + 4 * i, e, 'i32');
+        });
+        return Module._action_check_goods(c_idx, o_idx, list.length);
+      }
+    } else if (select.type === CHOICE.TRADE) {
+      var no_bonus = select.arg1;
+      set_prompt("Choose good to trade" + (no_bonus ? " (no bonuses)" : ""));
+      make_selectable(select.list, 'good');
+      action_restrict = restrict_num(1, 1);
+    } else if (select.type === CHOICE.WINDFALL) {
+      set_prompt("Choose windfall world to produce");
+      make_selectable(select.list);
+      make_inactive('table0');
+      action_restrict = restrict_num(1, 1);
+    } else if (select.type === CHOICE.CONSUME || select.type === CHOICE.PRODUCE || select.type === CHOICE.SETTLE) {
+      var optional = select.type === CHOICE.SETTLE || select.type === CHOICE.CONSUME && select.arg1 > 0;
+      var action_name = select.type === CHOICE.SETTLE ? 'Settle' : select.type === CHOICE.CONSUME ? 'Consume' : 'Produce';
+      var list = select.list.map(function(e, i) {
+        return ({
+          card: select.list[i],
+          power: select.special[i]
+        });
+      });
+      list = list.sort(function(a, b) {
+        return card_info[b.card].powers[b.power].score - card_info[a.card].powers[a.power].score;
+      });
+      var opts = list.map(function(e, i) {
+        return '<option value="' + i + '">' + card_info[e.card].powers[e.power].name + '</option>';
+      }).join();
+      if (optional) opts += '<option value="-1">None (done with ' + action_name + ')</option>';
+      set_prompt('Choose ' + action_name + ' power <select id="powerselect">' + opts + '</select>');
+      select_result = function() {
+        var v = parseInt(document.getElementById('powerselect').value);
+        return v === -1 ? {} : {
+          list: [list[v].card],
+          special: [list[v].power]
+        };
+      }
+    } else if (select.type === CHOICE.CONSUME_HAND) {
+      var c_idx = select.arg1;
+      var o_idx = select.arg2;
+      set_prompt("Choose cards to consume on " + card_info[c_idx].name);
+      make_selectable(select.list, 'discard');
+      action_restrict = function() {
+        var list = get_cards_selected();
+        var buf = Module._get_callbuffer();
+        list.forEach(function(e, i) {
+          Module.setValue(buf + 4 * i, e, 'i32');
+        });
+        return Module._action_check_consume(c_idx, o_idx, list.length);
+      }
+    } else if (select.type === CHOICE.LUCKY) {
+      var opts = [1, 2, 3, 4, 5, 6, 7].map(function(e) {
+        return {
+          name: e,
+          value: e
+        };
+      });
+      select_autoconfirm = true;
+      set_prompt('Choose Number: ' + gen_modal(opts));
+      action_restrict = function() {
+        return modalresult.length === 1
+      };
+      select_result = function() {
+        return {
+          result: modalresult[0]
+        };
+      };
+    } else if (select.type === CHOICE.DISCARD_PRODUCE) {
+      set_prompt('Choose discard to produce');
+      make_selectable(select.list, 'discard')
+      make_selectable(select.special);
+      make_inactive('table0');
+      select_result = function() {
+        return {
+          list: get_cards_selected('hand'),
+          special: get_cards_selected('table0'),
+        }
+      };
+      action_restrict = function() {
+        var n = get_cards_selected('hand').length;
+        var ns = get_cards_selected('table0').length;
+        return n <= 1 && ns <= 1 && n === ns;
+      };
+    } else if (select.type === CHOICE.START) {
+      decks.table0 = select.special.map(function(e, i) {
+        return ({ index: e, sortkey: i });
+      });
+      set_prompt('Choose start world and hand discards');
+      make_selectable(select.list, 'discard');
+      make_selectable(select.special, settings.revstart ? 'discard' : 'normal');
+      select_result = function() {
+        return {
+          list: get_cards_selected('hand'),
+          special: get_cards_selected('table0', settings.revstart),
+        }
+      };
+      action_restrict = function() {
+        var list = get_cards_selected('hand');
+        var special = get_cards_selected('table0', settings.revstart);
+        var buf = Module._get_callbuffer();
+        list.forEach(function(e, i) {
+          Module.setValue(buf + 4 * i, e, 'i32');
+        });
+        special.forEach(function(e, i) {
+          Module.setValue(buf + 4 * (i + list.length), e, 'i32');
+        });
+        return Module._action_check_start(list.length, special.length);
+        // Note this just checks if n==2 and ns==1, Ancient Race is handled later
+      };
+    } else if (select.type === CHOICE.ANTE) {
+      set_prompt('Choose card to ante');
+      make_selectable(select.list, 'discard');
+      action_restrict = restrict_num(0, 1);
+      select_result = function() {
+        var elms = get_cards_selected();
+        return {
+          result: elms.length ? elms[0] : -1
+        };
+      }
+    } else if (select.type === CHOICE.KEEP) {
+      set_prompt('Choose card to keep');
+      decks.hand = decks.hand.concat(select.list.map(function(e, i) {
+        return ({ index: e, sortkey: i + 90000000 });
+      }));
+      make_selectable(select.list);
+      make_inactive('hand');
+      action_restrict = restrict_num(1, 1);
+      select_result = function() {
+        return {
+          result: get_cards_selected()[0]
+        };
+      }
+    } else if (select.type === CHOICE.SAVE) {
+      set_prompt('Choose card to save for later');
+      var inhand = decks.hand.map(function(e) {
+        return e.index;
+      });
+      var toadd = select.list.filter(function(e) {
+        return inhand.indexOf(e) < 0;
+      });
+      decks.hand = decks.hand.concat(toadd.map(function(e, i) {
+        return ({ index: e, sortkey: i + 90000000 });
+      }));
+      make_selectable(select.list);
+      make_inactive('hand');
+      action_restrict = restrict_num(1, 1);
+    } else if (select.type === CHOICE.UPGRADE) {
+      set_prompt('Choose world to replace');
+      make_selectable(select.list);
+      make_selectable(select.special, 'discard');
+      make_inactive('hand');
+      make_inactive('table0');
+      action_restrict = function() {
+        var list = get_cards_selected('hand');
+        var special = get_cards_selected('table0');
+        var n = list.length;
+        var ns = special.length;
+        if (!n && !ns) return true;
+        if (n !== 1 || ns !== 1) return false;
+        return Module._action_check_upgrade(list[0], special[0]) !== 0;
+      }
+      select_result = function() {
+        return {
+          list: get_cards_selected('hand'),
+          special: get_cards_selected('table0'),
+        }
+      };
+    } else if (select.type === CHOICE.DISCARD_PRESTIGE) {
+      set_prompt('Choose card to discard for prestige');
+      make_selectable(select.list, 'discard');
+      action_restrict = restrict_num(0, 1);
+    } else if (select.type === CHOICE.SEARCH_TYPE) {
+      var opts = [
+        "development providing +1 or +2 Military",
+        "military windfall with 1 or 2 defense",
+        "peaceful windfall with 1 or 2 cost",
+        "world with Chromosome symbol",
+        "world producing or coming with Alien good",
+        "card consuming two or more goods",
+        "military world with 5 or more defense",
+        "6-cost development giving ? VPs",
+        "card with takeover power"
+      ].map(function(e, i) {
+        return '<option value="' + i + '">' + e + '</option>';
+      }).join();
+      set_prompt('Choose Search category <select id="searchselect">' + opts + '</select>');
+      select_result = function() {
+        return {
+          result: parseInt(document.getElementById('searchselect').value)
+        };
+      }
+    } else if (select.type === CHOICE.SEARCH_KEEP) {
+      var which = select.arg1;
+      var opts = ['Discard (keep searching)', 'Keep card'].map(function(e, i) {
+        return '<option value="' + i + '">' + e + '</option>';
+      }).join();
+      set_prompt('Choose to keep/discard ' + card_info[which].name + ' <select id="searchselect">' + opts + '</select>');
+      decks.hand.push({ index: which, sortkey: 90000000 });
+      select_result = function() {
+        return { result: parseInt(document.getElementById('searchselect').value) };
+      }
+    } else if (select.type === CHOICE.OORT_KIND) {
+      var opts = ['Novelty', 'Rare', 'Genes', 'Alien'].map(function(e, i) {
+        return '<option value="' + (i + 2) + '">' + e + '</option>';
+      }).join();
+      set_prompt('Choose Alien Oort Cloud Refinery kind <select id="oortselect">' + opts + '</select>');
+      select_result = function() {
+        return {
+          result: parseInt(document.getElementById('oortselect').value)
+        };
+      }
+    } else {
+      set_prompt('Unknown select type: ' + select.type);
+      console.log(select);
+    }
+  }
+  function update_scroll() {
+    var bottom = window.innerHeight + (document.documentElement.scrollTop || document.body.scrollTop);
+    for (var i = 1; i < num_players; i++) {
+      var visible = bottom - document.getElementById('player' + i).offsetTop;
+      var pos = (num_players - i) * 58;
+      document.getElementById('player_over' + i).hidden = visible > pos;
+    }
+  }
+
+  function set_scroll() {
+    document.getElementById('status_over').hidden = !settings.pullup;
+    if (settings.pullup) {
+      window.addEventListener("scroll", update_scroll);
+      update_scroll();
+    } else {
+      window.removeEventListener("scroll", update_scroll);
+    }
+  }
+  var lastWidth = 0;
+  window.addEventListener("resize", function() {
+    if (window.innerWidth !== lastWidth) display();
+    update_scroll();
+  });
+  var keyAccels = {};
+  var update_key_accels = function (elem) {
+    var e = elem.querySelectorAll('[data-accel]');
+    keyAccels = {};
+    for (var i = 0; i < e.length; i++)
+      keyAccels[e[i].getAttribute('data-accel')] = e[i].onclick;
+  }
+  window.addEventListener("keydown", function(ev) {
+    var prefix = '';
+    if (ev.ctrlKey) prefix += 'ctrl-';
+    if (ev.shiftKey) prefix += 'shift-';
+    if (ev.altKey) prefix += 'alt-';
+    if (ev.metaKey) prefix += 'meta-';
+    var keycode = prefix + ev.keyCode;
+    if (keycode in keyAccels) {
+      keyAccels[keycode]();
+      ev.preventDefault();
+    }
+  });
+
+  var old_pos = {};
+  var old_goods = {};
+  var prev_game_status;
+
+  function display(animate) {
+    var ICON = {
+      NO_ACT: 10,
+      HANDSIZE: 11,
+      VP: 12,
+      MILITARY: 13,
+      PRESTIGE: 14,
+      WAITING: 15,
+      READY: 16,
+      OPTION: 17,
+      DISCARD: 18,
+      VP_EMPTY: 19,
+      DISCOUNT: 20,
+      DRAW: 21,
+      DRAW_EMPTY: 22,
+      EXPLORE: 23,
+      CONSUME: 24,
+    };
+    var new_pos = {};
+    animate = animate && settings.animate > 0;
+
+    function makeactionicon(id, enabled, current) {
+      var cl = "icon";
+      var has_prestige = (id & 128) === 128;
+      if (!enabled) cl += " inactiveaction";
+      if (current) cl += " currentaction";
+      id = id & 127;
+      if (id === 4 || id === 6) id--;
+      var content = has_prestige ? '<img class="prestige_icon" src="' + image_from_data(3014) + '">' : '&nbsp;';
+      return '<td class="' + cl + '" style="background-image: url(' + image_from_data(3000 + id) + ')">' + content + '</td>';
+    }
+
+    function makeicon(id, content, diff, et) {
+      var bg = id !== undefined ? ' style="background-image: url(' + image_from_data(3000 + id) + ')"' : '';
+      et = et ? ' ' + et.join(' ') : '';
+      if (diff && animate && content) content = '<div class="modified">' + content + '</div>';
+      return '<td class="icon' + et + '"' + bg + '>' + (content || '&nbsp;') + '</td>';
+    }
+    function makegoal(id, et) {
+      return '<td class="goal goal' + et + '"><img src="' + image_from_data(2000 + id) + '"></td>';
+    }
+
+    function makecard(c, i) {
+      var pos = i * cardspacing, top = 0, num_goods = c.num_goods;
+      new_pos[c.index] = {
+        left: pos,
+        row: j,
+        goods: num_goods
+      };
+      if (animate) {
+        var old = old_pos[c.index];
+        if (old) {
+          pos = old.left;
+          top = document.getElementById(old.row).offsetTop - document.getElementById(j).offsetTop;
+          num_goods = old.goods;
+        } else {
+          pos = cardelem.offsetWidth;
+        }
+      }
+      var extra = card_classes[c.index] ? ' ' + card_classes[c.index] : '';
+      var txt = '<div class="card' + extra + '" style="left:' + pos + 'px;top:' + top + 'px" id="card' + c.index + '"><img class="cardface" src="' + image_from_data(card_info[c.index].image) + '">';
+      for (var i = 0; i < c.num_goods || i < num_goods; i++) {
+        var gpos = 70 + i * 15;
+        if (i >= num_goods) gpos += 210;
+        txt += '<img class="good" style="top:' + gpos + 'px" src="' + image_from_data(1000) + '">';
+      }
+      if (selectable_cards[c.index] === 'discard')
+        txt += '<img class="discard" src="' + image_from_data(3000 + ICON.DISCARD) + '">';
+      if (c.vp !== undefined) txt += '<div class="vptooltip">'+c.vp+'</div>';
+      if (c.trade_value) txt += '<div class="tradevalue">$'+c.trade_value+'</div>';
+      txt += '</div>';
+      return txt;
+    }
+
+    function fill_game_summary() {
+      function makesumicon(id, content) {
+        var bg = id !== undefined ? '<img src="' + image_from_data(3000 + id) + '">' : '';
+        return '<td>' + bg + '<span>' + (content || '&nbsp;') + '</span></td>';
+      }
+      var t = '<tr class="head"><td></td>';
+      t += makesumicon(ICON.VP);
+      t += makesumicon(5);
+      t += makesumicon(3);
+      t += makesumicon(3, '6');
+      if (game_status.goals.length) t += '<td>Goals</td>';
+      if (exp_level === 3) t += makesumicon(ICON.PRESTIGE);
+      t += '<td>Sum</td>';
+      var players = [];
+      var player_tiebreak = [];
+      for (var i = 0; i < num_players; i++) {
+        player_tiebreak[i] = game_status.player[i].hand_size;
+        decks['table'+i].forEach(function (e) { player_tiebreak[i] += e.num_goods; });
+      }
+      var score = function(a) { return game_status.player[a].total_vp * 1000 + player_tiebreak[a]; };
+      for (var i = 0; i < num_players; i++) players.push(i);
+      players.sort(function(a, b) { return score(b) - score(a); });
+      t += players.map(function(e, i) {
+        var p = game_status.player[e];
+        var pos = players.filter(function(a) { return score(a) > score(e); }).length + 1;
+        var cells = [pos + '.', p.vp, p.world_vp, p.dev_vp, p.dev6_vp];
+        if (game_status.goals.length) cells.push(p.goal_vp);
+        if (exp_level === 3) cells.push(p.prestige);
+        cells.push(p.total_vp);
+        return '<tr class="player' + e + '">' + cells.map(function(e) { return '<td>' + e + '</td>'; }).join('');
+      }).join('');
+      document.getElementById('gamesummary').innerHTML = t;
+    }
+    lastWidth = window.innerWidth;
+    for (var j in decks) {
+      var cardelem = document.getElementById(j);
+      var cardspacing = decks[j].length > 1 ? (cardelem.offsetWidth - 210) / (decks[j].length - 1) : 0;
+      if (cardspacing > 210) cardspacing = 210;
+      decks[j] = decks[j].sort(function(a, b) { return a.sortkey - b.sortkey; });
+      cardelem.innerHTML = decks[j].map(makecard).join('');
+    }
+    if (animate) {
+      for (var j in new_pos) {
+        var card = document.getElementById('card' + j);
+        getComputedStyle(card).left;
+        card.style.left = new_pos[j].left + 'px';
+        card.style.top = '0px';
+        var goods = card.getElementsByClassName('good');
+        for (var k = 0; k < goods.length; k++) {
+          var gpos = 70 + k * 15;
+          if (k >= new_pos[j].goods) gpos += 210;
+          goods[k].style.top = gpos + 'px';
+        }
+      }
+      // for (var j in old_pos) if (!(j in new_pos)) { // Add discarded cards animation?
+      // }
+    }
+    old_pos = new_pos;
+    prev_game_status = prev_game_status || game_status;
+    function pdiff(s) { return game_status.player[j][s] - prev_game_status.player[j][s]; };
+    var txt = makeicon(ICON.DRAW, '<b>' + game_status.deck_size + '</b><br>Deck');
+    txt += makeicon(ICON.HANDSIZE, '<b>' + game_status.discard_size + '</b><br>Discard');
+    txt += makeicon(game_status.vp_stack > 0 ? ICON.VP : ICON.VP_EMPTY, '<b>' + game_status.vp_stack + '</b><br>VP');
+    txt += makeicon();
+    (advanced ? [23, 3, 3, 5, 5, 24, 9] : [23, 3, 5, 24, 9]).forEach(function(e, j) {
+      txt += makeactionicon(e, game_status.phases[j], j === game_status.current_phase);
+    });
+    txt += makeicon();
+    document.getElementById('game_status').innerHTML = txt;
+    var goal_progress = [];
+    var goal_claimed = [];
+    var goal_maximum = game_status.goals.map(function(e){return e.min;});
+    txt = '<table><tr>';
+    txt += game_status.goals.map(function(e,i){
+      var claimed = i < 4 && game_status.player.some(function (p) {return p.goals_claimed[i] > 0;});
+      var et = claimed ? ' class="claimed"' : '';
+      goal_claimed[i] = claimed;
+      game_status.player.forEach(function(e){
+        if (e.goals_progress[i] > goal_maximum[i]) goal_maximum[i] = e.goals_progress[i];
+      });
+      goal_progress[i] = game_status.player.map(function (e,i){return i;}).sort(function (a,b) {
+        return (game_status.player[b].goals_progress[i] * 4 + game_status.player[b].goals_claimed[i]) -
+               (game_status.player[a].goals_progress[i] * 4 + game_status.player[a].goals_claimed[i]);
+      });
+      return '<th'+et+'><img src="' + image_from_data(2000 + e.idx) + '"></th>';
+    }).join('');
+    for (var j = 0; j < num_players; j++) {
+      txt += '<tr>'
+      txt += game_status.goals.map(function(e,i){
+        var p_nr = goal_progress[i][j];
+        var p = game_status.player[p_nr];
+        if (p.goals_progress[i] <= 0 || goal_claimed[i]) return '<td></td>';
+        var perc = p.goals_progress[i] / goal_maximum[i] * 100;
+        return '<td><span style="width:'+perc+'%" class="player'+p_nr+'">'+p.goals_progress[i]+'&nbsp;</span></td>';
+      }).join('');
+    }
+    txt += '</table>';
+    document.getElementById('goals').innerHTML = txt;
+    for (var j = 0; j < num_players; j++) {
+      var p = game_status.player[j];
+      var txt = makeicon(ICON.VP, '<b style="font-size:20px">' + p.total_vp + '</b><br>' + p.vp, pdiff('total_vp'));
+      if (exp_level === 3) {
+        var et = [];
+        if (p.prestige_leader) et.push('p_leader');
+        if (p.prestige_used) et.push('p_used');
+        if (p.prestige_turn) et.push('p_turn');
+        txt += makeicon(ICON.PRESTIGE, '<b style="font-size:25px">' + p.prestige + '</b>', pdiff('prestige'), et);
+      }
+      txt += makeicon(ICON.DRAW, '<b style="font-size:25px">' + p.table_size + '</b>', pdiff('table_size'));
+      txt += makeicon(ICON.HANDSIZE, '<b style="font-size:25px">' + p.hand_size + '</b>', pdiff('hand_size'));
+      if (p.military) txt += makeicon(ICON.MILITARY, '<b style="font-size:25px;color:red">' + p.military + '</b>', pdiff('military'));
+      else txt += makeicon();
+      if (p.action >= 0) txt += makeactionicon(p.action, true, false);
+      else txt += makeicon();
+      if (advanced && p.second_action >= 0) txt += makeactionicon(p.second_action, true, false);
+      else if (advanced) txt += makeicon();
+      for (var i = 0; i < game_status.goals.length; i++)
+        if (p.goals_claimed[i])
+          txt += makegoal(game_status.goals[i].idx, p.goals_claimed[i]);
+      document.getElementById('player_status' + j).innerHTML = txt;
+      if (j) document.getElementById('player_status_over' + j).innerHTML = txt;
+    }
+    fill_game_summary();
+    update_action_sensitivity(true);
+    prev_game_status = game_status;
+  }
+
+  var do_send = GUI.do_send = function() {
+    var res = select_result();
+    var list = res.list || [];
+    var special = res.special || [];
+    var len = 4 + list.length + special.length;
+    var ptr = Module._selection_result(len);
+    var a = Module.HEAP32.subarray((ptr >> 2), (ptr >> 2) + len);
+    var i = 0;
+    a[i++] = select.type;
+    a[i++] = res.result || 0;
+    a[i++] = list.length;
+    list.forEach(function(e) { a[i++] = e; });
+    a[i++] = special.length;
+    special.forEach(function(e) { a[i++] = e; });
+    no_select();
+    display();
+    setTimeout(function() {
+      Module._continue_game(-1);
+      get_status();
+      display(true);
+    }, 50);
+  }
+  var do_undo = GUI.do_undo = function(v) {
+    //    if (!game_over && (v === RESTART.NEW || v === RESTART.UNDO_GAME))
+    //	if (!confirm(v === RESTART.NEW ? 'New Game' : 'Restart Game')) return;
+    game_over = false;
+    no_select();
+    display();
+    setTimeout(function() {
+      clear_log();
+      Module._continue_game(v);
+      get_status();
+      display();
+    }, 50);
+  }
+
+  function get_status() {
+    var MSG = {
+      CARDINFO:0,
+      GAMESTATE:1,
+      LOGLINE:2,
+      CHOICE:3,
+      GAMEOVER:4,
+    };
+    var ptr = Module._get_status_data();
+    var datasize = Module._get_status_data_size();
+    var array = Module.HEAP32.subarray((ptr >> 2), (ptr >> 2) + datasize);
+    var i = 0;
+    select = undefined;
+    while (i < datasize) {
+      var msgtype = array[i++];
+      if (msgtype == MSG.CHOICE) {
+        var nl = array[i + 1];
+        var ns = array[i + 2];
+        select = {
+          type: array[i],
+          arg1: array[i + 3],
+          arg2: array[i + 4],
+          arg3: array[i + 5],
+          list: [],
+          special: [],
+        }
+        i += 6;
+        for (var j = 0; j < nl; j++) select.list.push(array[i++]);
+        for (var j = 0; j < ns; j++) select.special.push(array[i++]);
+      } else if (msgtype == MSG.GAMEOVER) {
+        game_over = true;
+      } else if (msgtype == MSG.GAMESTATE) {
+        decks = { hand: [] };
+        for (var j = 0; j < num_players; j++) decks['table' + j] = [];
+        while (array[i] >= 0) {
+          var where = array[i + 2];
+          where = where < 0 ? 'hand' : 'table' + where;
+          var card = {
+            index: array[i],
+            image: array[i + 1],
+            sortkey: array[i + 3],
+            num_goods: array[i + 4] & 0xffff,
+            trade_value: array[i + 4] >> 16,
+            vp: array[i + 5] >= 0 ? array[i + 5] : undefined,
+          };
+          decks[where].push(card);
+          i += 6;
+        }
+        i++;
+        game_status = {
+          deck_size: array[i++],
+          discard_size: array[i++],
+          vp_stack: array[i++],
+          phases: [],
+          player: [],
+          goals: [],
+        }
+        for (var j = 0; j < (advanced ? 7 : 5); j++) {
+          var v = array[i++];
+          game_status.phases[j] = v > 0;
+          if (v > 1) game_status.current_phase = j;
+        }
+        while (array[i] >= 0) {
+          game_status.goals.push({
+            idx: array[i++],
+            min: array[i++],
+          });
+        }
+        i++;
+        for (var j = 0; j < num_players; j++) {
+          var t, p;
+          game_status.player.push(p = {
+            action: array[i++],
+            second_action: array[i++],
+            vp: array[i++],
+            total_vp: array[i++],
+            hand_size: array[i++],
+            military: array[i++],
+            prestige: (t = array[i++]) >> 3,
+            prestige_leader: (t & 4) !== 0,
+            prestige_turn: (t & 2) !== 0,
+            prestige_used: (t & 1) !== 0,
+            goal_vp: array[i++],
+            world_vp: array[i++],
+            dev_vp: array[i++],
+            dev6_vp: array[i++],
+            table_size: decks['table'+j].length,
+            goals_claimed: [],
+            goals_progress: [],
+          });
+          for (var k = 0; k < game_status.goals.length; k++) {
+            p.goals_claimed[k] = array[i++];
+            p.goals_progress[k] = array[i++];
+          }
+        }
+      } else if (msgtype == MSG.LOGLINE) {
+        add_log({
+          tag: Module.UTF8ToString(array[i++]),
+          msg: Module.UTF8ToString(array[i++])
+        });
+      } else if (msgtype == MSG.CARDINFO) {
+        var num = array[i++];
+        for (var k = 0; k < num; k++) {
+        var c = {
+          name: Module.UTF8ToString(array[i++]),
+          image: array[i++],
+          powers: []
+        };
+        var npow = array[i++];
+        for (var j = 0; j < npow; j++) {
+          c.powers[j] = {
+            name: Module.UTF8ToString(array[i++]),
+            score: array[i++]
+          };
+        }
+        card_info[k] = c;
+        }
+      } else {
+          console.log("Unknown message type: " + msgtype);
+          return;
+      }
+    }
+    do_select();
+    if (localStorage)
+      localStorage.setItem('autosave.rftg', FS.readFile('autosave.rftg', { encoding: 'utf8' }));
+  }
+  function add_log(line) {
+    var table = document.getElementById('gamelogtext');
+    var cell = table.insertRow(-1).insertCell(0);
+    cell.classList.add('logline');
+    if (line.tag) cell.classList.add(line.tag);
+    cell.innerHTML = line.msg;
+    var logdiv = document.getElementById('gamelog');
+    logdiv.scrollTop = logdiv.scrollHeight;
+  }
+  function clear_log() {
+    document.getElementById('gamelogtext').innerHTML = '';
+  }
+
+  function read_images(i8) {
+    var pos = 4;
+    while (i8[pos]) {
+      var t = i8[pos++];
+      var num = 0,
+        len = 0;
+      if (t !== 2)
+        while (i8[pos++]) num = num * 10 + i8[pos - 1] - 48;
+      while (i8[pos++]) len = len * 10 + i8[pos - 1] - 48;
+      images[(t - 1) * 1000 + num] = {
+        pos: pos,
+        len: len
+      };
+      pos += len;
+    }
+  }
+
+  GUI.print = function(text) {
+    if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+    console.log(text);
+  }
+  GUI.printErr = function(text) {
+    if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+    alert(text);
+    console.error(text);
+  }
+  GUI.params = function() {
+    return params;
+  }
+  GUI.initFS = function(FS) {
+    var net_name = exp_level + '.' + num_players;
+    if (advanced) net_name += 'a';
+    FS.createPreloadedFile('/', 'cards.txt', 'cards.txt', true, false);
+    FS.createPreloadedFile('/', 'campaign.txt', 'campaign.txt', true, false);
+    FS.mkdir('/network');
+    FS.createPreloadedFile('/network/', 'rftg.eval.' + net_name + '.net', 'network/rftg.eval.' + net_name + '.net', true, false);
+    FS.createPreloadedFile('/network/', 'rftg.role.' + net_name + '.net', 'network/rftg.role.' + net_name + '.net', true, false);
+    FS.createPreloadedFile('/', 'images.data', 'images.data', true, false);
+    if (save) FS.createDataFile('/', 'autosave.rftg', save, true, true);
+  }
+  GUI.firstRun = function() {
+    read_images(images_data = FS.readFile('images.data'));
+    set_screen('gamescreen');
+    get_status();
+    display();
+    if (game_over) set_screen('menuscreen');
+  }
+  return GUI;
+})();
+
+var Module = {
+  arguments: GUI.params(),
+  preRun: function() { GUI.initFS(FS); },
+  postRun: [GUI.firstRun],
+  print: GUI.print,
+  printErr: GUI.printErr,
+  setStatus: function(text) { document.getElementById('loadingmsg').innerHTML = text; },
+  totalDependencies: 0,
+  monitorRunDependencies: function(left) {
+    Module.setStatus('Loading...');
+    var bar = document.getElementById('progressbar');
+    this.totalDependencies = Math.max(this.totalDependencies, left);
+    var ratio = this.totalDependencies ? (this.totalDependencies - left) / this.totalDependencies : 0;
+    bar.style.width = ratio * 100 + '%';
+  }
+};
+
+(function (prefix) {
+  var appCache = window.applicationCache;
+  var con = document.getElementById(prefix+'container');
+  var prog = document.getElementById(prefix+'progress');
+  var elem1 = document.getElementById(prefix+'status1');
+  var elem2 = document.getElementById(prefix+'status2');
+  function appCacheMsg(m, proc, ready) {
+    if (!m) {
+      con.hidden = true;
+      return;
+    }
+    con.hidden = false;
+    prog.style.width = proc ? proc + '%' : 0; 
+    elem1.innerHTML = m;
+    elem2.innerHTML = m;
+  }
+  appCache.addEventListener('cached', function() {
+    appCacheMsg();
+  } , false);
+  appCache.addEventListener('progress', function(e) {
+    appCacheMsg('UPDATING', e.total ? Math.ceil(e.loaded*100/e.total) : 0)
+  }, false);
+  appCache.addEventListener('updateready', function() {
+    appCacheMsg('RESTART');
+    con.addEventListener('click', function() { location.reload(); }, false);
+  }, false);
+  appCache.addEventListener('error', function (e) {
+    appCacheMsg('ERROR');
+    con.addEventListener('click', function() { con.hidden = true; alert(e.message); }, false);
+    setTimeout(function() { con.hidden = true; }, 10000);
+    console.error('Failed updating cache.',e);
+  }, false);
+})('cache');
+
+</script>
+    <script async type="text/javascript" src="rftg.js"></script>
+  </body>
+</html>

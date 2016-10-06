@@ -1,0 +1,92 @@
+/*
+AUTHOR: Shawn A. Lambert
+DATE:   03/21/03
+*/
+
+/* BEGIN GENERAL STYLES */
+
+body 
+	{ 
+		background-color: #000000; 
+		FONT-FAMILY: verdana,arial,helvetica,sans-serif; 
+		scrollbar-face-color:#2E3774; 
+		scrollbar-arrow-color:#B0B0B0; 
+		scrollbar-track-color:#979BBA; 
+		scrollbar-shadow-color:#B0B0B0; 
+		scrollbar-highlight-color:#FFFFFF; 
+		scrollbar-3dlight-color:#e6e6e6; 
+		scrollbar-darkshadow-Color:#666666; 
+			
+	}
+
+/* BEGIN LINK COLORS*/  
+A	{
+		
+		FONT-FAMILY: verdana,arial,helvetica,sans-serif;
+	
+	}
+	
+  		/* Old color was COLOR: #FF8541; */
+A:link 
+  	{
+  		COLOR: #DE713A; 
+  		FONT-FAMILY: verdana,arial,helvetica,sans-serif;
+  	}
+ 
+A:ACTIVE
+	{
+		COLOR: purple;
+		FONT-FAMILY: verdana,arial,helvetica,sans-serif;
+	}
+	
+A:VISITED
+	{
+		COLOR: #AFAFAF;
+		FONT-FAMILY: verdana,arial,helvetica,sans-serif;
+	}
+
+.header
+	{
+		font-size:14px;
+		font-weight:bold;
+		FONT-FAMILY: verdana,arial,helvetica,sans-serif;
+		color:#FFFFFF;
+		text-decoration:none;
+		
+	}	
+.subheader
+	{
+		font-size:12px;
+		font-weight:bold;
+		FONT-FAMILY: verdana,arial,helvetica,sans-serif;
+		color:#FFFFFF;
+		text-decoration:none;
+		
+	}
+.sectionheaders
+	{
+		font-size:12px;
+		font-weight:bold;
+		FONT-FAMILY: arial,verdana,helvetica,sans-serif;
+		color:#333333;
+		text-decoration:none;
+		
+	}
+.sectionsubheaders
+	{
+		font-size:11px;
+		font-weight:bold;
+		FONT-FAMILY: arial,verdana,helvetica,sans-serif;
+		color:#000000;
+		text-decoration:none;
+		
+	}
+.text
+	{
+		font-size:10px;
+		font-weight:none;
+		FONT-FAMILY: arial,verdana,helvetica,sans-serif;
+		color:#666666;
+		text-decoration:none;
+		
+	}		

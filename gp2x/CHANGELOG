@@ -1,0 +1,1024 @@
+    ChangeLog
+    =========
+
+    This file contains a listing of modifications to gp2xmess.
+    Dates are included.  All changes by <bsturk@comcast.net> unless
+    noted.  New files are denoted w/ '+'.  Core xmess fixes are 
+    marked with (xmess).
+
+    04/11/07 - 0.14
+
+          * Fix O2 grid drawing and more collision register
+            changes.  Most carts that I have now work well.
+            There are a few that seem to use weird banking schemes
+            which still do not load.  odyssey2 driver is now
+            quite usable.
+
+                mess/vidhrdw/odyssey2.c  (xmess)
+
+          * More fixes for the Odyssey 2.  Collision detection
+            is working better.  Also, more games play such
+            as K.C. Munchkin and Pick Axe Pete.
+
+                mess/machine/odyssey2.c  (xmess)
+                mess/driver/odyssey2.c   (xmess)
+                mess/vidhrdw/odyssey2.c  (xmess)
+                mess/includes/odyssey2.h (xmess)
+
+          * Some fixes for the Odyssey 2 including bankswitching.
+            A bunch of 4k and 8k games are now playable or are 
+            quite close that weren't before.  These changes will 
+            be submitted back into MESS proper.  Feedback on how 
+            games work would be *greatly* appreciated!
+
+                4k carts
+                    Atlantis (partial)
+                    Clay Pigeon
+                    Demon Attack (partial)
+                    Great Wall St Fortune Hunt (partial)
+                    Smithereens
+                8k carts
+                    Killer Bees
+                    Looney Balloon
+                    Nightmare
+                    Speedway Spinout (partial)
+                    Turtles
+                    Tunankham (partial)
+
+                mess/machine/odyssey2.c  (xmess)
+                mess/driver/odyssey2.c   (xmess)
+                mess/vidhrdw/odyssey2.c  (xmess)
+                mess/includes/odyssey2.h (xmess)
+
+    04/04/07 - 0.13
+        
+          * Fix memory leak in vkeyb.  This was causing crash
+            after having virtual keyboard up for a certain amount
+            of time (and pressing buttons).  This did not show
+            up on my desktop because I have a lot more memory.  :)
+
+                gp2x/gp2x_sdl.c
+
+		  * Cleanup in vkeyb
+
+                gp2x/gp2x_vkeyb.[c/h]
+                gp2x/gp2x_joy.c
+                gp2x/gp2x_vid.c
+
+		  * Put most used instructions at top of switch/case.
+
+                src/cpu/hd6309/hd6309.c (xmess)
+
+		  * Removed some division from coco driver
+
+                mess/vidhrdw/dragon.c (xmess)
+
+		  * Added keycode shortcuts to cfg files for coleco and a7800.
+
+            For coleco:
+            The 'Start' key will press '1' in addition to it being
+            usable via the virtual keyboard.
+
+            For a7800:
+            The 'Select' key maps to the Select key on the Atari 7800
+
+                cfg/coleco.cfg
+                cfg/a7800.cfg
+
+		  * Added support for paging in initial file dialog.
+		    Left and Right joystick go up and down respectively.
+
+                gp2x/gp2x_fs_dlg.c
+
+		  * Changed more / to >> in functions used by apple2
+            driver according to gprof.
+
+                src/tilemap.c (xmess)
+
+		  * Changed / 8 to >> in hires memory reads, also
+            removed all notions of parallel processing which
+            was not utilized.  Nice speed up!
+
+                mess/vidhrdw/apple2.c (xmess)
+
+		  * Fixed bug in virtual keyboard when run on __GP2X_HOST__
+
+                gp2x/gp2x_vkeyb.c
+
+		  * Added some error handling to font rendering.  Also
+            added workaround for current TTF bug on Debian.
+
+                gp2x/gp2x_sdl.c
+                gp2x/gp2x_sysdep_keyb.c
+
+		  * Gutted out Mockingboard support.  This was chewing up
+            a large portion of the CPU when running.  Not sure
+            how to handle it for those who would like it.  Most
+            stuff runs at around 72% now w/ default FS, it was 
+            in the low 50s.
+
+                mess/systems/apple2.c (xmess)
+
+    04/01/07 - 0.12
+
+		  * Changed video code to always scale to the systems
+            resolution rather than try and accomodate w/ a larger
+            rez.  Now apple2 takes up whole screen.
+
+                gp2x/gp2x_vid.c
+
+		  * Added memset.S from gp2xmame
+
+			    gp2x/gp2x_memset.S+
+                gp2x/gp2x.mak
+
+		  * Remove "safety" measure in cpu_readop and ilk
+
+			    src/memory.h (xmess)	
+
+		  * Changed array init to memset, seems to be faster
+
+			    mess/vidhrdw/a7800.c (xmess)	
+
+		  * Updated the README with a FAQ section and more
+		    up to date info.
+
+				README
+
+          * Some optimization for A2 driver's soundchip
+
+		  		src/sound/ay8910.c (xmess)
+
+          * With my optimizations and the original gp2xmess source base I get
+            some good numbers (some better than others), FS is 'frameskip, the
+			higher the number the worse the emulation is.  Ideally you would
+			have 100% 0 FS and 60fps:
+
+                Colecovision Burgertime (gameplay)
+
+                    ver 0.11 FS 6 100% 19fps
+                    ver 0.12 FS 2 100% 41fps
+
+                    ver 0.11 FS 0 47% 28fps
+                    ver 0.12 FS 0 84% 50fps
+
+				TI99/4A (boot screen)
+
+                    ver 0.11 FS 8  93% 19fps
+                    ver 0.12 FS 5 100% 32fps
+
+                    ver 0.11 FS 0  47% 28fps
+                    ver 0.12 FS 0  76% 46fps
+
+                Atari 7800 Asteroids (gameplay)
+
+                    ver 0.11 FS 8 70% 14fps
+                    ver 0.12 FS 8 79% 16fps
+
+                    ver 0.11 FS 0 47% 28fps
+                    ver 0.12 FS 0 51% 31fps
+
+                Apple ][ (boot screen)
+
+                    ver 0.11 53% 11fps
+                    ver 0.12 55% 11fps
+
+                Coco (boot screen)
+
+                    ver 0.11 47% 9fps
+                    ver 0.12 54% 11fps
+
+          * Realized that apple2 and coco had taken a nose diver performance
+            wise with the move to xmess 0.106, reverted back to 0.102 with
+            my perf changes.  Unfortunately you have to kinda port to a new
+            version to find out it is slower.   :(
+
+          * Added Emerson Arcadia 2001 support by request
+
+                gp2x/gp2x_mess.mak
+                mess/system.c
+                arcadia.gpe
+                arcadia.cfg
+
+		  * Fixed stretching for drivers that use it (apple2, etc)
+            and greatly simplified video init.
+
+				gp2x/gp2x_vid.c
+
+		  * Added blit_normal_line_2_16_16 for odyssey2 driver
+		    it's now working again full screen.
+
+				gp2x/gp2x_blit_16_16.c
+
+          * Changed all text files to use DOS linefeeds.
+
+				CHANGELOG
+				README
+				THANKS
+				TODO
+
+          * More optimization in the blit path.  Managed
+		    to break odyssey2 and apple2 video display.   :)
+
+                gp2x/gp2x_blit_16_16.c
+
+		  * Removed -skip_disclaimer from all gpe files.  It has been
+		    removed from xmess.
+
+                gpes/coleco.gpe
+                gpes/adam.gpe
+                gpes/apple2c.gpe
+                gpes/apple2e.gpe
+                gpes/apple2.gpe
+                gpes/a7800.gpe
+                gpes/ti99_4a.gpe
+                gpes/coco.gpe
+                gpes/odyssey2.gpe
+
+		  * Generic optimization in memory reads when reading 8 bits.
+		    Removed calls to profiler (3 times for every read).
+
+		    coleco has sped up a lot by this fix and the blitting.
+
+			burgertime at 0 frameskip during gameplay
+
+			gp2xmess 0.11
+				47% speed 28fps
+
+			gp2xmess 0.12
+				82% speed 51fps
+
+		    Atari 7800 also got a slight boost from this change.
+			All systems seem to still be working with these changes.
+
+		  		src/memory.c (xmess)
+
+          * More Atari 7800 optimization.  This one is a hack but
+            it gives a significant speed up on non-Pokey carts which
+            is pretty much every game but Ballblazer, Beef Drop,
+            and Commando.  I couldn't for the life of me figure out
+            a way to conditionally add a sound chip based on the cart
+            header so I just put in a flag to keep the Pokey from 
+            processing if it's not a Pokey cart.  Not pretty but it
+            works.  Asteroids at the autoframeskip went from about 50%
+            to 75% with no overclocking.  This gets me back to where
+            0.11 was as far as performance.  No idea what changed 
+            in xmess .106.
+
+                src/sound/pokey.c (xmess)
+                mess/machine/a7800.c (xmess)
+
+          * General optimiation (blitting), moved xmess 16bpp blit
+            to gp2x tree.  Removed all div operations.  Blits are a wee
+            bit faster, probably more I can do here.
+
+                src/unix/blit/blit_16_16.c -> src/unix/blit/blit_16_16.unused (xmess)
+                gp2x/gp2x_blit_16_16.c+
+                gp2x/gp2x.mak
+
+          * Atari 7800 optimization in irq handler
+
+                mess/vidhrdw/a7800.c (xmess)
+
+          * Moved gprof target to a separate obj dir so I don't have to
+            rebuild the entire world when profiling
+
+                makefile.gp2x
+                gp2x/gp2x.mak
+
+          * Change compilation using HOST_CC to copying pre-built binary
+            due to dependency on x86 built archive.  I really should
+            build 2 .a files.
+
+                src/cpu/cpu.mak (xmess)
+
+          * Removed some unused cruft
+
+                gp2x/gp2x_ui.[c/h]
+                gp2x/gp2x_opt.[c/h]
+				src/usrintrf.c (xmess)
+
+          * Updated to xmess .106
+
+		  	Reverted cfg and gpe to xmess style.
+
+            Relevant fixes:
+
+                - [APPLE2P] Fixed BIOS.  (bug #820) [Nick Westgate]
+                - [COCO3] Fixed a timing bug in video rendering.  (bug #743) [Nate Woods]
+                - [COCO] Fixed joystick regression introduced in 0.105.  (bug #876) [Nate Woods]
+                - [COCO] Complete rewrite of both M6847 and GIME video code; timing and
+                  performance enhancements.  [Nate Woods]
+                - [COCO] Changed joystick key assignments from arrow keys to numeric keypad,
+                  as well as added mouse button assignments.  [Nate Woods]
+                - Fixed a file manager memory allocation bug.  [Brian Sturk aka telengard]
+                - Fixed a file manager bug that prevented the last item from being selected.  [telengard]
+
+          * Started migration to SDLMESS.  xmess seems to be dead.
+            Migrated to version 0.113.  Got far enough to find out
+            that the performance is unfortunately much worse than
+            xmess so this is going on hold for now.
+
+                makefile.sdl
+                src/osd/sdl/sdl.mak
+                src/osd/sdl/config.c
+                src/emu/cpu/x86drc.c
+                src/emu/cpu/cpu.mak:
+                src/osd/sdl/osinline.h
+                src/osd/sdl/keybled.c
+                src/osd/sdl/video.c
+                src/tools/tools.mak
+
+                Updated all .gpe files w/ new flags and removed
+                obsolete ones.
+
+          * Removed redirecting debugging output from gpes
+
+                gpes/adam.gpe
+                gpes/apple2c.gpe
+                gpes/apple2e.gpe
+                gpes/apple2.gpe
+
+    03/20/07 - 0.11
+
+          * Got my gp2x back with a D-Pad mod.  I'm kinda psyched.
+            
+          * Added keypad support for ColecoVision via virtual keyboard.
+
+                gp2x/gp2x_sysdep_keyb.[c/h]
+                gp2x/gp2x.c
+
+                cfg/coleco.cfg has been removed!
+
+    11/10/06 - 0.10
+
+          * It's been quite a while, not a lot of bug reports, I'm removing the
+            -beta.   :)   Hopefully I will get a D-pad mod for my gp2x and can
+            continue working on gp2xmess.
+
+          * Added Coleco Adam support
+
+                mess/system.c
+				gp2x/gp2x_mess.mak
+                gpes/coleco.gpe  +
+
+    02/11/06 - 0.9-beta
+
+		  * Re-enabled timer w/ HW accel SDL.  The issue seems to be fixed now.
+
+			gp2x/gp2x_sdl.c
+
+          * Added .gpe launchers for apple2, apple2e, and apple2c.
+
+		  	gpes/apple2.gpe  +
+		  	gpes/apple2e.gpe +
+		  	gpes/apple2c.gpe +
+
+          * Fixed virtual keyboard refresh issue by blitting the black rectangle
+		    twice, once for each surface (double buffered).
+
+			gp2x/gp2x_vid.c
+			gp2x/gp2x_vkeyb.c
+
+          * Added new font for the initial cart menu
+
+                res/fs_dlg.ttf
+
+          * Added libfreetype lib to list of libraries used for linking
+
+                gp2x/gp2x.mak
+
+          * Added a routine to convert from an int color to a SDL_Color
+
+                gp2x/gp2x_sdl[c/h]
+
+          * Modified text routines to use appropriate calls for determining font
+            width and height
+
+                gp2x/gp2x_vkeyb.c
+                gp2x/gp2x_fs_dlg.c
+
+          * Added SDL_ttf lib to list of libraries used for linking
+
+                gp2x/gp2x.mak
+
+          * Removed targa.c from gp2xmess, replaced by sdl_ttf
+
+                gp2x/gp2x.mak
+
+          * Removed previous font handling routines
+
+                gp2x/gp2x_sdl[c/h]
+                gp2x/gp2x_vid.c
+                gp2x/gp2x.c
+                gp2x/gp2x_fs_dlg.[c/h]
+
+          * Added fields for font name and font size and changed font surface to TTF_Font
+
+                gp2x/gp2x_vkeyb.h
+                gp2x/gp2x_sysdep_vkeyb.c
+
+          * Added routines for loading/unloading ttf fonts.
+
+                gp2x/gp2x_sdl.[c/h]
+
+          * Removed SDL_INIT_TIMER from SDL_Init call since it locks up the gp2x using
+            the HW accel SDL.  This means that scrolling in the initial cart dialog
+            is yet again not working.   :)
+
+                gp2x/gp2x.c
+
+          * Got the apple2 screen centered and looking good.  Had to go 
+            to an even multiple of 320x240 to get a good looking display.
+            The gp2xmess menu rect is missing the left side, but it 
+            still looks good.
+
+                gp2x/gp2x_vid.c
+
+          * Changes to support HW accel SDL on gp2x target
+
+                gp2x/gp2x_vid.c
+
+    01/27/06 - 0.8-beta
+
+          * Made use of sdl_gfx only used when compiling for gp2x *and* the 
+            target is xmess.  This allows me to use scaling code when host
+            debugging.
+
+                gp2x/gp2x.mak
+
+          * Added .gpe launcher for odyssey2.  Driver works but compatibility
+            with the current mess source low.  I was able to get
+            golf, hockey, bowling, skiing, and few others to work fine.
+            KC Munchkin and Pick Axe Pete do not.  Collision detection seems to
+            be spotty also.  I have downloaded the specs for the intel 8048 and other
+            related odyssey2 docs and hope to work on the actul driver.
+
+                gpes/odyssey2.gpe
+
+          * Added support for launching the "pre" file selection dialog for the
+            odyssey2 which needs a cart inserted before starting the emulation.
+
+                gp2x/gp2x.c
+
+          * Added coco2, apple2e, and apple2c to the drivers list.
+
+                mess/system.c
+
+          * Added keyboard support for coco2, coco3, apple2, apple2c, and
+            apple2e  drivers.
+
+                gp2x/gp2x.c
+
+          * Added code for scaling image down if driver's resolution is larger
+            than 320x240.  This allows apple2 and coco3 to display now.  It's 
+            a wicked CPU hog and there are some slight palette issues but I'm
+            hoping going to HW surfaces will speed this up.
+
+                gp2x/gp2x_vid.c
+
+          * Added SDL_gfx lib for stretch blits (quite slow in SW), will only be
+            used on gp2x host.
+
+                gp2x/gp2x.mak
+
+          * Added makefile define for GP2X
+
+                makefile.gp2x
+
+          * Switch to a newer gp2x libs package from theoddbot.  This one
+            includes SDL_gfx and SDL_ttf so I can add scaling and also
+            a better (smaller) font for the virtual keyboard.  I'm also hoping
+            this will fix the timer and vol down button issues I'm having.
+
+                N/A
+
+          * Added Odyssey 2 objects, CPUS, and driver info.  Compatibility
+            seems to be low.  driver is marked as non-working.  Baseball seemed
+            to work fine for me.
+
+                mess/system.c
+                gp2x/gp2x_mess.mak
+
+    01/18/06 - 0.7-beta
+
+          * Got the Exit Gp2xmess menu to work for all systems.  For some reason
+            it did not exit under coco.
+
+                src/usrintrf.c
+
+          * Fixed bug where joystick input was being sent to emulated system
+            when virtual keyboard was being shown.  On the coco garbage 
+            chars show up when you press the joystick buttons.  Also
+            added an entry for the joystick click button to the gp2x_buttons
+            array.
+
+                gp2x/gp2x_joy.c
+            
+          * Lowered virtual keyboard debounce tick time to 100 ticks
+
+                gp2x/gp2x_vkeyb.c
+
+          * Added .gpe launcher for coco
+
+                gpes/coco.gpe
+
+          * Fixed bug when pressing virtual keyboard mapped button for systems
+            that do not have a virtual keyboard.
+            
+                gp2x/gp2x_joy.c
+
+          * Put the per driver keyboard stuff aside since I realized 
+            doing the coco keyboard that I need to add the ability to
+            do implicit shifts when clicking a key.  Put a PC keyboard
+            in instead which will work well with the way mess works.
+
+            Also implemented the notion of togglable keys.
+
+                gp2x/gp2x_sysdep_keyb.c
+
+          * Added a 'shift' keyboard, will have to add a ctrl one too
+
+                gp2x/gp2x_sysdep_keyb.c
+
+          * Added back scroll-lock functionality now that the virtual
+            keyboard is working well.  Changed the default to be UI 
+            when gp2xmess starts.  All keyboards will have a <ui> key
+            which is mapped to the function of toggling between the UI
+            having focus and the emulated system.
+
+                mess/mesintrf.c
+
+          * Added a scroll lock key for going in and out of the xmess UI
+            from the virtual keyboard.
+
+                gp2x/gp2x_sysdep_keyb.c
+
+          * Added a new surface for blitting keyboard to so I could change
+            it's alpha value.  Added new routines for init'ing and cleaning up
+            keyboard so I don't have to allocate a surface on every draw.
+
+                gp2x/gp2x_vkeyb.[c/h]
+                gp2x/gp2x_joy.c
+
+          * Fixed a memory overwrite in the file manager code where there are
+            more than 255 entries in a directory. (xmess)
+
+                mess/filemngr.c
+
+          * Updated ti99_4a cfg to support buttons for 1 & 2 as well as having
+            1 and 2 be triggered by keyboard input.
+
+                cfg/ti99_4a.cfg
+
+          * Added file for system specific virtual keyboard definitions
+
+                gp2x/gp2x_sysdep_keyb.c +
+
+          * Moved virtual keyboard drawing code outside of the lock/unlock
+            of the surface.  Was causing SDL_BlitSurface to fail.  Also
+            added init'ing of virtual keyboard font if there is a keyboard
+            being used for the driver.
+
+                gp2x/gp2x_vid.c
+
+          * Added dummy joystick handling code for when __GP2X_HOST__
+            is defined.  Allows for testing on linux host w/ no joystick
+            attached.
+
+                gp2x/gp2x_joy.c
+
+          * Added check for new mappings being pressed in polling function
+
+                gp2x/gp2x_joy.c
+
+          * Added #defines mapping to IPT_OSD stuff
+
+                gp2x/gp2x_ui.h
+
+          * Implemented mapping controls for the virtual keyboard, volume up
+            and volume down using some of the 16 IPT_OSD slots.
+            Keyboard by default is mapped to right shoulder button, the
+            volume buttons are mapped to the ones on the gp2x.
+
+                src/unix/devices.c
+
+          * New fields for keyboard, keyboard codes, colors, and alpha
+            for virtual keyboard options.
+
+                gp2x/gp2x_opt.[c/h]
+
+          * Added hook for ti99_4a and setting it's keyboard in gp2x_options
+            struct
+
+                gp2x/gp2x.c
+
+          * Added virtual keyboard module makefile
+
+                gp2x/gp2x_mess.mak
+
+          * Added new files for virtual keyboard
+
+                gp2x/gp2x_vkeyb.[c/h] +
+
+          * Added coco and coco3 to driver list
+
+                mess/system.c
+
+          * Added coco objs etc to makefile
+
+                gp2x/gp2x_mess.mak
+
+          * Imported cpu speed stuff from Atari 800 and gutted non
+            needed parts of minlib.
+
+                gp2x/gp2x_cpu.[c/h] +
+                gp2x/gp2x_cpuctrl.[c/h] +
+                gp2x/gp2x_minlib.[c/h] +
+
+          * Added call in run hook to gp2x_reg_init for clock speed stuff
+
+                gp2x/gp2x.c
+
+          * Added exit hook and call to gp2x_deinit() for clock speed
+
+                gp2x/gp2x.[c/h]
+
+          * Added new files to show gp2x options menu.  Adding support
+            for clock speed, joystick config, keyboard, etc.
+
+                gp2x/gp2x_ui.[c/h] +
+                gp2x/gp2x.mak
+
+          * Added new files to handle gp2x options stuff.  Adding support
+            for clock speed, joystick config, keyboard, etc.
+
+                gp2x/gp2x_opt.[c/h] +
+                gp2x/gp2x.mak
+
+          * Added new menu item and routine for gp2xmess options.
+
+                src/usrintrf.c
+                mess/mui_text.[c/h]
+
+    01/11/06 - 0.6-alpha
+
+          * Added a .cfg for ti99_4a mapping the '1' and '2' keys
+            These can be remapped by the user.
+
+                cfgs/ti99_4a.cfg
+
+          * Removed .gpe from gp2xmess invocation in driver gpes.
+		    Also added sync calls to ensure users' cfg files are
+			stored to disk.  This is only done after gp2xmess exits.
+
+			    gpes/ti_99_4a.gpe
+			    gpes/a2600.gpe
+			    gpes/a7800.gpe
+			    gpes/coleco.gpe
+
+          * Removed logic testing for scroll lock press.  This will be
+            backed out once a virtual keyboard is implemented.  This
+            allows for modality.  Hitting esc in this mode will exit the
+            emulator whereas when turned on it won't and will be sent
+            to the emulated system.
+
+                mess/mesintrf.c
+
+          * Removed .gpe extension from gp2xmess executable to keep
+            users from selecting and running it.
+
+                makefile.gp2x
+                gp2x/gp2x.mak
+
+          * Added apple2 driver and ti99/4a drivers
+
+                mess/system.c
+            
+          * Added apple2 and ti99/4a objs/cpus/sound chips to makefile
+            so I can test them.  To support the apple driver means a significant
+            amount of effort to the video system which I'm working on.
+            xmess doesn't seem to support scaling an image down.  The default
+            resolution for the apple II series is 560x192 which is double
+            hi-res.  The gp2x is only 320x240.  I'm working on the video changes
+            in a new file which will be migrated over.
+
+                gp2x/gp2x_mess.mak
+
+                gp2x/gp2x_vid.c.new +
+
+          * Added block in driver definitions for gp2x so that I can
+            add single drivers @ a time.  TINY supports 1 driver.
+            This log is inside of the TINY macro area.
+
+                mess/system.c
+
+          * #ifdef'ed out keyboard handling in fs dlg to only be present
+            for __GP2X_HOST__.  Cut down on binary size a little bit.
+
+                gp2x/gp2x_fs_dlg.c
+
+          * Added volume control using the gp2x volume buttons.  The
+            volume down button doesn't register down events only up in
+            SDL at the moment.  So all that can be done is increase 
+            the volume.  I'm looking into this.
+            
+                gp2x/gp2x_snd.c +
+                gp2x/gp2x_snd.h +
+
+                gp2x/gp2x_joy.h
+
+          * Added #defines for xmess indexes for gp2x buttons.
+            
+                gp2x/gp2x_joy.h
+
+          * The tiny makefile seemed to have older core mess obj definitions.
+            Copied the core obj defs from the main mess makefile to the tiny
+            one.  Binary size is now a little over 3M.  It has all of mess'
+            support stuff in there, most of which is currently unused.
+            
+                gp2x/gp2x_mess.mak
+
+          * Migrated the 'tiny' makefile into the gp2x dir replacing
+            the full build for mess makefile.  This will slow down
+            build times and vastly decrease binary size.  From this point
+            on only drivers I've tested will be in the binary.
+
+                gp2x/gp2x_mess.mak
+
+          * The file selection dialog now starts in the directory that the
+            gp2xmess binary is started in.
+
+                gp2x/gp2x_fs_dlg.c
+
+    01/09/06 - 0.5-pre_alpha
+
+          * Added a cfg file for coleco mapping the '1' button to the Start
+            button.  This will help until I get a virtual keyboard going.
+
+                cfg/coleco.cfg
+
+          * Fixed a centering video issue seen while testing the coleco driver.
+
+                gp2x/gp2x_vid.c
+
+          * Fixed what seems to be a bug in the mess core when using the file-manager
+            You could never select the last entry. (xmess)
+
+                mess/filemngr.c
+
+          * Added a dummy blit after pouring over the xmame blit stuff.  This
+            was to test how much of the performance hit for a7800 was coming
+            from the video portion.  I'm firmly convinced now that it's purely
+            emulation that is keeping this particular driver from running full
+            speed.  In addition to the speed-ups I've done so far, a7800 runs
+            quite well when overclocked to 248 and using the auto frameskip
+            (which is the default).  Asteroids for example runs @ 94% speed.
+
+            Work on a7800 will continue but for now I'm punting (just for now)
+            on tweaking performance since it seems to all be in the 6502 and core a7800
+            code.  Running gprof pretty much shows this also.  I will revisit
+			this at some point in the future.
+
+                gp2x/gp2x_vid.c
+
+          * Created a cfg file for a2600 mapping the select and reset buttons
+
+                cfg/a2600.cfg
+
+          * Removed some of the code in the display_update routine that wasn't
+            applicable to the gp2x.
+
+                gp2x/gp2x_vid.c
+
+          * Not a src change, but I tried using HW accel SDL, gave very little
+            in the way of performance gains.  Emulation cpu usage seems to be
+            the big speed killer.
+
+          * Made the check more explicit for running without a cart for systems
+            that need one.  You can now run w/ -cart if desired to start w/ a game
+            and not get the file selection dlg.
+
+                gp2x/gp2x.c
+
+          * Fixed the volume down button not registering by giving
+            xmess the exact # of buttons 11.  Also added support for the joystick
+            'click', that now can be mapped also.
+
+                gp2x/gp2x_joy.c
+
+          * Added correct CFLAGS and LD flag options for gprof.  Commented out
+            by default
+
+                makefile.gp2x
+
+          * Added -finline-functions.  Gave a slight increase in speed.
+            Frameskip within emulation seems to have no effect at all on
+            performance.  Again, I will watch for odd errors.  So far it
+            seems fine.  I got about a 5% increase performance as seen in
+            the emulator @ default clock speed.  I also got an extra FPS.
+            These were tested in ballblazer on the a7800 driver.
+
+                w/ -O2            auto frameskip   60%  12/60 FPS    199 Mhz
+                w/ -O2 -finline   auto frameskip   65%  13/60 FPS    199 Mhz
+                w/ -O2            auto frameskip   75%  15/60 FPS    248 Mhz
+                w/ -O2 -finline   auto frameskip   85%  17/60 FPS    248 Mhz
+
+            Binary size is now just a tad over 10M.  Back up due to code
+            inlining.  I can trim the size down later using other methods.
+
+                makefile.gp2x
+
+          * Changed -O to -O2.  Binary size now down from 10.8M to 9.5M.
+            Will watch for adverse effects.
+
+                makefile.gp2x
+
+          * Removed CFLAGS.arm since I'm handling CFLAGS in main makefile
+
+                gp2x/gp2x.mak
+
+          * Added default config for the system as a whole
+
+                cfg/default.cfg
+
+          * Added a .gpe launcher for a2600.  It needs -ws 2 to use up
+            a good portion of the screen.  Atari 2600 emulation is way
+            to slow to play games right now though.
+
+                gpes/a2600.gpe
+
+          * Fixed centering of display.  Systems were always left justified
+            which looks very bad
+
+                gp2x/gp2x_vid.c
+
+          * Added display of the current directory to the file selection
+            dialog
+
+                gp2x/gp2x_fs_dlg.c
+
+          * Changed directory 'sentinal' from a leading '+' to a trailing
+            '/'
+
+                gp2x/gp2x_fs_dlg.c
+
+          * Added sorting by name to file selection dialog
+
+                gp2x/gp2x_dir.c
+
+    01/06/06 - 0.4-pre_alpha
+
+          * Added .gpe launcher for a7800
+
+                gpes/a7800.gpe
+
+          * Added support for 4 diagonals in xmess joystick handling
+
+                gp2x/gp2x_joy.c
+
+          * Added support for 4 diagonals in file selector dlg
+
+                gp2x/gp2x_fs_dlg.c
+
+          * Added menu item to exit out of gp2xmess
+
+                src/usrintrf.c
+                mess/mui_text.[c/h]
+
+    01/05/06 - 0.3-pre_alpha
+
+          * Added some support files.  Not 100% finished
+
+                README
+                TODO
+                THANKS
+
+          * Implmented a file chooser for systems that *have* to have a cart
+            inserted before starting emulation.  Of course the system I chose to
+            support first needed this (Atari 7800) so I had to do this first.
+
+                gp2x/gp2x_gui.c +
+                gp2x/gp2x_gui.h +
+                gp2x/gp2x_dir.c +
+                gp2x/gp2x_dir.h +
+                gp2x/targa.c +
+                gp2x/targa.h +
+                gp2x/simplefont.tga +
+
+          * Added support for being able to quit the emulator from the gp2x.
+          Mapped the right shoulder button to KEY_ESC.  Had to be hardcoded in
+          the source since you can't remap joystick buttons to keys via a
+          config.
+
+                  src/unix/devices.c
+
+          * More file shuffling and organizational changes.  File system dialog is now
+            pretty isolated except for the font stuff, although it is passed in.  I don't
+            know how it will work with other fonts.
+
+                gp2x/gp2x_gui.[c/h] -> moved to gp2x/gp2x_fs_dlg.[c/h]
+                gp2x/gp2x_joymap.h  -> moved to gp2x/gp2x_joy.h
+
+                gp2x/gp2x_sdl.[c/h] +
+
+    01/02/06 - 0.2-pre_alpha
+
+          * Disabled video effects, decreased binary size from ~15M 
+            to a little over 10M.  It's possible these are needed for 
+            certain drivers although they seem to be similar to the 
+            ones in the advancemame/advancemess projects.  My understanding 
+            of those is that they are optional.  Maybe I could provide a 
+            separate build with these in there if folks need/want it.
+
+          * Got SDL joystick working.  Default mappings for buttons
+            are -
+
+                gp2x A button               - Joystick Button 1
+                gp2x X button               - Joystick Button 2
+                gp2x B button               - Joystick Button 3
+                gp2x Y button               - Joystick Button 4
+                gp2x L button               - Joystick Button 5
+                gp2x R button               - Joystick Button 6
+                gp2x joystick click button - Joystick Button 7
+                gp2x Vol up button           - Joystick Button 8
+                gp2x Vol down button       - Joystick Button 9
+
+             These numbers correspond to how they should show up within
+             gp2x-mess.
+
+          *    Joystick "buttons" are mapped to xmess's joystick input.
+            Analog joysticks should also work.
+
+          * Input works fine now, tested under A7800.  Emulation in
+            a7800 is still a tad slow as well as sound.
+
+          * Removed tools from build makefile.  These tools can 
+            be used on host machine if desired.
+
+          * Changed name of the binary to gp2x-mess, from xmess
+
+          * Added a new makefile for possibly adding/removing c modules
+
+                  mess/gp2x.mak +
+
+          * Added new files:
+
+                  mess/gp2x/gp2x_hooks.[c/h] +
+
+          * Added hook for prompting for carts for systems that require an
+            initial cart to be able to start up.  TODO: Add a file selection
+            dlg here.
+
+                src/unix/main.c
+
+          * Re-enabled disclaimers now that they can be dismissed w/ the
+            joystick.  File is not back to original.
+
+                src/mame.c
+
+          * Migrated all files to top level gp2x dir to keep xmess files
+            separate.  Also enabled builds of same code for linux host to
+            allow for easier testing, all w/ just changing 1 line in the 
+            makefile.
+
+                gp2x/gp2x.c
+                gp2x/gp2x.h
+                gp2x/gp2x_joymap.h
+                gp2x/gp2x_vid.c
+                gp2x/gp2x_vid.c
+                gp2x/gp2x.mak
+                gp2x/gp2x_mess.mak
+
+                gp2x/gp2x_hooks.[c/h] -> moved to gp2x/gp2x.[c/h]
+
+          * Implemted support for init'ing the SDL display earlier in xmess'
+            startup and also putting up a file selection dlg if necessary.
+
+                  gp2x/gp2x.c
+                  gp2x/gp2x.h
+
+    01/01/06 - 0.1-pre_alpha
+
+          * Created 2 gp2x makefiles and got xmess to compile
+            and (somewhat) run by making appropriate changes for 
+            the gp2x:
+
+                makefile.gp2x
+                src/unix/gp2x.mak
+
+          * Created the following files:
+
+                src/unix/joystick-drivers/joy_SDL-gp2x.c
+                src/unix/joystick-drivers/gp2x_joymap.h
+                src/unix/video-drivers/SDL-gp2x.c
+
+            One of my goals is to not modify any core mess/mame
+            files.  This will (hopefully) allow me to keep up with
+            the latest release of xmess and sync to it.  The more it
+            diverges the more work this becomes.
+
+          * Temporarily disabled disclaimer dialogs to test until
+            input is working.
+
+                src/mame.c

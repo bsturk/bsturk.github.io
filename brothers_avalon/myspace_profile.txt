@@ -1,0 +1,133 @@
+<style type="text/css">
+body {
+	background-color: rgb(0, 0, 0);
+	background-image: url(none);
+	background-position: top left;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	}
+table, tr, td {
+	background-color: transparent;
+	border: 0px;
+	}
+table table {
+	border: 0px;
+	}
+table table table table{
+	border:0px;
+	}
+table table table {
+	border-width: 1px;
+	border-color: rgb(203, 255, 255);
+	border-style: solid;
+	background-color: transparent;
+	}
+table table table td {
+	background-color: rgb(0, 0, 0);
+	filter:alpha(opacity=100);
+	-moz-opacity:1;
+	opacity:1;
+	-khtml-opacity:1;
+    vertical-align:top ! important;
+	}
+table table table table td {
+	filter:none;
+	}
+    body, div, span, td, p, .orangetext15, .whitetext12, .lightbluetext8, strong, b, .redtext, .redbtext, .btext, .text, .nametext, .blacktext10 {
+	font-family: Ariel;
+	font-size: 12px;
+	color: rgb(203,255,255);
+	font-weight: normal;
+	font-style: normal;
+	text-decoration: none;
+	}
+.blacktext12 {
+    font-family: Ariel; font-size: 5px; color: rgb(0, 0, 0);
+    }
+.blacktext12 span {display:none;}
+span.blacktext12 {
+    visibility:visible !important; background-color: transparent; background-repeat : no-repeat; background-position : center center;background-image: url('http://users.adelphia.net/~bsturk/brothers_avalon/logo.jpg'); width: 600px; height: 60px; display: block !important;
+    }
+.nametext {
+	padding: 5px;
+	font-family: Ariel;
+	font-size: 20px;
+	color: rgb(203, 255, 255);
+	font-weight: bold;
+	font-style: normal;
+	text-decoration: none;
+	display: block;
+	}
+.whitetext12, .orangetext15 {
+	font-family: Ariel;
+	font-size: 10px;
+	color: rgb(203, 255, 255);
+	font-weight: bold;
+	font-style: normal;
+	text-decoration: none;
+	}
+a.navbar:link, a.navbar:active, a.navbar:visited, a.navbar:hover, a.man:link, a.man:active, a.man:visited, a.man:hover, a, a:link, a:active, a:visited, a:hover, a.navbar:link, a.navbar:active, a.navbar:visited, a.navbar:hover, a.text:link, a.text:active, a.text:visited, a.text:hover, a.searchlinksmall:link, a.searchlinksmall:active, a.searchlinksmall:visited, a.searchlinksmall:hover, a.redlink:link, a.redlink:active, a.redlink:visited, a.redlink:hover {
+	color: rgb(203, 255, 255);
+	font-weight: bold;
+	font-style: normal;
+	text-decoration: none;
+	}
+a.navbar:hover, a.man:hover, a:hover {
+	color: rgb(203, 255, 255);
+	font-weight: bold;
+	font-style: normal;
+	text-decoration: underline;
+	}
+.badge {
+	position: absolute;
+	left: 1px;
+	top: 1px;
+	}
+</style>
+<br><br>
+
+<br>
+
+We are The Brothers Avalon, a 1980's New Wave cover band based out 
+of the Seacoast NH area.  We also are known to play some of the 
+good "alternative" stuff from the late 80s early 90s.  Think 120 minutes.  
+We can go from The Clash to the Pet Shop Boys in the blink of an eye and 
+also throw in some of the more well known tunes from the same era 
+for good measure.  And because it's all good stuff.  
+
+<br>
+Bass and guitar, synthesizers, lots of other instruments, a couple of voices, 
+and music that makes anyone smile and remember a good moment in life...
+
+<p>
+<bold><center>*** Upcoming Shows ***</center></bold>
+
+<p>
+* 05/22/07 (Tuesday)
+  <br>
+  &nbsp&nbsp <a href="http://www.msplinks.com/MDFodHRwOi8vd3d3LmRvdmVyYnJpY2tob3VzZS5jb20v">Dover Brickhouse</a>
+  <br>
+  &nbsp&nbsp Dover, NH.  Show starts @ 8pm, we go on around 10pm
+
+<p>
+
+* 05/31/07 (Thursday)
+  <br>
+&nbsp&nbsp <a href=http://www.msplinks.com/MDFodHRwOi8vd3d3LmxhYmVjcm91Z2UuY29tLzIwMDcvaW5kZXguaHRtbA==>La Bec Rouge</a>
+  <br>
+&nbsp&nbsp Hampton Beach, NH.
+
+<p>
+
+* 07/05/07 (Thursday)
+  <br>
+&nbsp&nbsp <a href=http://www.msplinks.com/MDFodHRwOi8vd3d3Lmxvd2VsbHJvY2tzLmNvbS92ZW51ZS91bmNsZV9lZGRpZXNfb2NlYW5zaWRlX3RhdmVybg==>Uncle Eddie's Oceanside Tavern</a>
+  <br>
+&nbsp&nbsp Salisbury Beach, MA.
+
+<p>
+* 08/11/07 (Saturday)
+  <br>
+&nbsp&nbsp <a href="http://www.msplinks.com/MDFodHRwOi8vd3d3LnRoZXNoYXNrZWVuLmNvbS9ldmVudHMuaHRtbA==">The Shaskeen</a>
+  <br>
+&nbsp&nbsp Manchester, NH.

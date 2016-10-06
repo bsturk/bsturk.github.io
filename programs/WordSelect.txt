@@ -1,0 +1,110 @@
+Sub WordSelect()
+'DESCRIPTION: Selects a word like a double click with mouse
+					   'Very handy for keyboard users. Not the prettiest 
+					   'or quickest (I heard BASIC was slow!  :] ) 
+					   'macro but it works better than the built in word right after Alt-M or 
+					   'C in BRIEF, etc and more accurate, also helps RSI sufferers like me.
+					   '
+					   'Valid characters are all upper case and lower case letters 
+					   'and the underscore "_" character.  
+					   
+					   'Rev 1 - Got it working without checking for individual chars
+					   '			instead used the numerical comparisons  
+					   '						
+					   'Rev 2 - Added numbers to be valid during string	search
+					   '			Now supports all valid C/C++ chars duh!
+					   '
+					   'Rev 3 - (7/12/98) Added check for first column, also tidy'd 
+					   '			 up code for checking for valid letters from ranges
+					   '			 to using InStr w/ valid chars (Thanks David Cotton)
+					   '			 BTW I never claimed to be a VB guy!   :)	 				
+					   '
+					   'Written by B.Sturk on Aug 31 1997
+
+					   'This insignificant macro is the property of Brian M. Sturk
+					   'If you find an easier way to accomplish what this macro 
+					   'does or a quicker way, or a bug, please let me know!  
+					   
+					   'email: bsturk@adelphia.net
+					   'http://users.adelphia.net/~bsturk
+			
+		    iCount = 0                                                                                                                  
+
+			LegalChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"                                                                                                                                   
+
+			ExecuteCommand "SelectChar"				'start char selection (not in loop)                      
+			
+			ActiveDocument.Selection.CharLeft dsExtend		                                                      
+			
+			cSelect = ActiveDocument.Selection                                                                         
+			
+			do while InStr(LegalChars, cSelect) <> 0  
+			
+			iCurrentCol =  ActiveDocument.Selection.CurrentColumn
+			
+			If iCurrentCol = 1 Then  
+				iCount = iCount + 1
+		  	
+		  		Exit Do
+			End if
+
+			iCount = iCount + 1                                                                      
+
+			ExecuteCommand "SelectChar"                                                                                 
+			ExecuteCommand "SelectChar"                                                                                 
+			
+			ActiveDocument.Selection.CharLeft dsExtend				'move to next char                          
+			
+			cSelect = ActiveDocument.Selection                                                                         
+			
+			Loop                                                                                                                           
+			
+			' Now that we're done moving left and checking we need to go to the beginning
+			' of the word to move right and check for legal chars. If we're in column 1 we're at the
+			' beginning
+			If iCurrentCol <> 1 Then  
+
+			ActiveDocument.Selection.CharRight 1				'move to beginning of word                          
+
+			End if
+
+			'no need to check stuff twice, move to starting point and go check right side         
+			if iCount <> 0	Then			' in case we start at beginning of word
+			
+			ActiveDocument.Selection.CharRight dsMove, iCount                                              
+			
+			End if
+			                                                                                                                                   
+			'check to the right of the cursor placement                                                               
+			ExecuteCommand "SelectChar"                                                                                 
+			ExecuteCommand "SelectChar"                                                                                 
+			
+			ActiveDocument.Selection.CharRight dsExtend                                                        
+			
+			cSelect = ActiveDocument.Selection                                                                         
+			                                                                                                                                   
+			do while InStr(LegalChars, cSelect) <> 0
+			
+			iCount = iCount + 1                                                                                                   
+			
+			ExecuteCommand "SelectChar"                                                                                 
+			ExecuteCommand "SelectChar"                                                                                 
+			
+			ActiveDocument.Selection.CharRight dsExtend                                                        
+			
+			cSelect = ActiveDocument.Selection                                                                         
+		   
+		   	Loop                                                                                                                           
+                                                                                                                                        
+			'stop char select mode, move to left, select word, and place cursor at end of word
+			ExecuteCommand "SelectChar"                                                                                 
+		   
+		   	ActiveDocument.Selection.CharLeft dsMove, 1							' We've overstepped by one move back                                                
+		   	
+		   	ExecuteCommand "SelectChar"                                                                                 
+			
+			ActiveDocument.Selection.CharLeft dsExtend, iCount                                      
+
+
+End Sub                                                                                                                           
+

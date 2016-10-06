@@ -1,0 +1,17 @@
+Just some tidbits of us playing live... sloppy, but in a good way.  :)
+<p>
+============================================================
+<p>
+<object type="application/x-shockwave-flash" data="http://users.adelphia.net/~bsturk/strangeboys/player.swf" height="200" width="300" border="0">
+  <param name="movie" value="http://users.adelphia.net/~bsturk/strangeboys/player.swf" />
+  <param name="allownetworking" value="internal" />
+  <param name="allowScriptAccess" value="never" />
+  <param name="enableJSURL" value="false" />
+  <param name="enableHREF" value="false" />
+  <param name="saveEmbedTags" value="true" />
+  <param name="menu" value="false" />
+  <param name="quality" value="high" />
+  <param name="flashvars" value="playList=http://users.adelphia.net/~bsturk/strangeboys/playlist.xml&ShowPlaylist=0&ShowEQ=1&firstTrack=1&initVol=50" />
+  <param name="wmode" value="transparent" />
+</object>
+

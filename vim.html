@@ -1,0 +1,435 @@
+<html>
+<head>
+   <meta name="author" content="Brian Sturk">
+   <meta name="description" content="Vim ( Vi Improved )">
+   <meta name="keywords" content="vim, vi, vimsh, terminal buffer, visvim, ole, hjkl">
+   <meta name="revisit-after" content="30 days">
+
+   <style type="text/css">
+   <!--
+   a:hover      { color: #FFFFFF }
+   body         { font-family: verdana, arial, sans-serif }
+   -->
+   </style>
+
+   <title>Vim ( Vi Improved )</title>
+</head>
+
+<body bgcolor="#000000" text="#FFFFFF" link="#840084" vlink="#AFAFAF" alink="#AFAFAF" marginwidth="0" leftmargin="0" topmargin="0" marginheight="0">
+
+<! ****************     main title       *****************>
+
+<center>
+<table border="0" width="100%" cellspacing="5" cellpadding="0">
+<font face="Verdana">
+
+<h1><tr><td width="100%" align="center"><b>Vim ( Vi Improved )</b></tr></h1>
+
+<tr><td width="100%" align="center"><p><img SRC="pics/buttons/plum_bar.gif" NOSAVE height=2 width=500> </tr>
+
+</font>
+</table>
+</center>
+
+<center>
+<b>    
+
+<font face="Arial">
+<font size=-1>
+<a HREF = "#whatis">[ What is Vim ]</a>  
+<a HREF = "#stuff">[ Useful Stuff ]</a>  
+<a HREF = "#code">[ Stuff I've coded for Vim ]</a>  
+<a HREF = "#macros">[ Macros/Functions]</a>  
+<a HREF = "#hjkl">[ hjkl everywhere ]</a>  
+</font>
+</font>
+
+</b>
+</center>
+
+<! ****************     What is Vim?       *****************>
+
+<table border="0" width="50%" cellspacing="5" cellpadding="5">
+<font face="Verdana">
+
+<tr><td width="100%" align="left"><p><b><h3><a name="whatis">What is Vim? </a></b></h3></td></tr>
+
+<tr><td width="100%" align="left"><p><a href="http://www.vim.org">Vim</a>
+    is the editor I use both at home and at work to edit and maneuver text
+    files, scripts, code, and just about anything else.  I even write my HTML
+    pages using Vim including the one you're reading.  If you're unfamiliar with
+    Vi check out the 
+    <a href="http://www.thomer.com/thomer/vi/vi.html">Vi Lovers page</a>
+    for some excellent anti-Emacs propoganda <b>;)</b>.  Click the thumbnail
+    for a larger image showing my desktop running gvim.
+</td></tr>
+
+</font>
+</table>
+
+<blockquote><blockquote><blockquote><blockquote>
+    <a href="pics/vimsh.png" alt="Click to see full image">
+    <img SRC="pics/vimsh.png" height=270 width=393 align=middle NOSAVE></a>
+</blockquote></blockquote></blockquote></blockquote>
+
+<table border="0" width="50%" cellspacing="5" cellpadding="5">
+<font face="Verdana">
+
+<tr><td width="100%" align="left">
+<p>
+    For starters Vi's big selling point to me was the ability to move around a file
+    without moving from the "home row".  It's much more than that however...
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    Vim has some cool features that are not found in other editors.  These
+    are a few of it's main features (as of version 6.0ap the first 6.0 BETA)
+    type <b>:h version6.txt</b> to see all that's changed since 5.7/8:
+</td></tr>
+
+<tr><td width="100%" align="left">
+    <UL>
+    <LI> Vertically split windows ( a very welcomed feature! ).
+
+    <LI> Diff mode.  You can now use use vim to do graphical diffs of files.
+
+    <LI> Folding.  You can hide functions, comments, or arbitrary segments
+         of your file to help readability etc.
+
+    <LI> A new file browser script ala dired in Emacs.  Very nice.
+         I would love to see a 2 pane version like the venerable
+         Norton/Midnight Commander clones.
+
+    <LI> You can now communicate between Vims.  This is a very
+         cool feature allowing you to, for instance, use
+         one instance of vim to edit files.  But that's
+         just the tip of the iceberg of what this feature
+         can be used for.
+
+    </UL>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    These features have been in Vim since versions previous to 6.
+</td></tr>
+
+<tr><td width="100%" align="left">
+    <UL>
+    <LI>Syntax hilighting for many, many languages, and it's seemingly infinitely comfigurable.
+        No compiling DLLs either.
+
+    <LI>Vim has been ported to numerous operating systems including Amiga DOS, MS-DOS,
+        MS-Windows 95/98/NT (Win 3.1 coming), Atari MiNT, Macintosh, BeOS, VMS, RISC OS, OS/2 and almost
+        all flavours of UNIX. <b>Where are those 8-bit ports? :)</b>
+
+    <LI>"Almost" Vi compatible.  From most accounts it's compatability is pretty high.  Vim is
+        my first experience with Vi so I know no better!
+
+    <LI>The source code is freely available so if you want, you can work on
+        it or add some functionality to it.
+
+    <LI>A powerful built in scripting language, and also support for Perl, TCL, Ruby, and Python.
+    </UL>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    I could go on and on... try it for yourself and see.
+</td></tr>
+
+</font>
+</table>
+
+<table border="0" width="75%" cellspacing="5" cellpadding="0">
+<tr><td width="100%" align="left"><p><img SRC="pics/buttons/plum_bar.gif" NOSAVE height=2 width=700> </tr>
+</table>
+
+<! ****************     Useful Stuff       *****************>
+
+<table border="0" width="50%" cellspacing="5" cellpadding="5">
+<font face="Verdana">
+
+<tr><td width="100%" align="left">
+<p>
+<h3><b>
+    <a name="stuff">Stuff I found useful to use with(in) Vim</a>
+</b></h3>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p><b>
+    <a href="http://www.mimsoftware.com/visvim.htm">VisVim</a>
+</b>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    VisVim add-in available for VC++.  When opening a file now jumps to the spot
+    in Vim.  Has lots of other features but that's all I use it for, loading
+    on demand.
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p><b>
+    OpenWithVim / SendToVim
+</b>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    These excellent utilities help to integrate Vim into the windows environment
+    just a little better.  OpenWithVim allows directing any file to *one* instance of Vim
+    using OLE. SendToVim allows sending any vim commands to the running instance. Very cool!
+    Both programs are part of the extra zip included with the distribution.  The 6.0
+    betas now have this functionality built in for all platforms using arguments to
+    vim (+clientserver).
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p><b>
+    <a href="http://sourceware.cygnus.com/cygwin/">Cygwin</a>
+</b>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    Cygwin has ported most if not all of the Unix command line utilites for Win32.  Interoperates
+    very well with Vim as well as there being a cygwin port of Vim that groks the
+    /cygdrive etc notations.
+</td></tr>
+
+</font>
+</table>
+
+<table border="0" width="75%" cellspacing="5" cellpadding="0">
+<tr><td width="100%" align="left"><p><img SRC="pics/buttons/plum_bar.gif" NOSAVE height=2 width=700> </tr>
+</table>
+
+<! ****************     Stuff I've written      *****************>
+
+<table border="0" width="50%" cellspacing="5" cellpadding="5">
+<font face="Verdana">
+
+<tr><td width="100%" align="left">
+<p>
+<b><h3>
+    <a name="code"><b>Stuff I've written to use with(in) Vim</a>
+</b></h3>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p><b>
+    VC++ additions
+</b>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    For those who use Visual C++ and edit with Vim this might interest you.
+    I wanted to be able to run VC++ commands from within Vim.  VisVim is a great
+    VC++ add-in but it currently only handles 1 way communications:  From VC++ to Vim .
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    If you compile Vim for the Win32 platform yourself, add the two files that are located 
+    <a href="programs/vimvccmd.zip">here</a>, and add them to the project.  The header file has instructions on how to add
+    this functionality within Vim.  Hopefully this will be added as a compile option into the 
+    main Vim code base but I want to do further testing and add a little more functionality before
+    submitting it.  NOTE: This code is not a stellar example of how to use ATL, feel free to
+    clean it up, it was also created around the time of 5.7 so it's probably a
+    little different now.
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    Features ( not all are implemented yet ):
+
+    <UL>
+    <LI>Can execute any command that is listed in the Tools->Customize->Keyboard property page.
+        The command for this is vc.  
+        <br>
+        For example on the command/ex mode line type ":vc DebugGo"
+        and you'll start debugging.  If VC++ is not running an instance will start.
+
+    <LI>Will open a file in VC++ from within Vim.  This allows the two way connection with VisVim
+        providing the other direction.
+
+    <LI>Set a breakpoint in VC++ from within Vim.  Give the file and line number and a breakpoint
+        will be set there.  I'm not sure how useful seeing what breakpoints are set from within
+        Vim would be , and I imagine synchronizing them will involve changes to VisVim.  I'm be happy
+        just to be able to set a breakpoint from within and kick off the debugger.
+
+    </UL>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p><font size=-1>
+    <img SRC="pics/buttons/plum_dot.gif" NOSAVE height=5 width=5>&nbsp
+    <a href="programs/vimvccmd.zip">Download!</a>
+</font>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p><b>
+    vimsh : Terminal/Shell buffer for vim
+</b>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    Works if you have a python enabled [g]vim and the platform you run
+    on supports pty or pipes.  Most Unix variants should work fine as
+    well as Windows.  This is an interactive shell buffer, not using
+    tricks like !r <cmd>.  It will maintain, for example, the process
+    environment because the shell process is the same. 
+    Click <a href="pics/vimsh.png">here</a> for a screenshot of
+    it in action.  Note that the password entry part of the ftp
+    session used the vim input_secret so that the password is not
+    seen in the buffer/history etc.
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+<font size=-1>
+    Click <a href="pics/vimsh.png">here</a> to see a screenshot under Linux.
+    <p>
+    Click <a href="pics/vimsh_win.png">here</a> to see a screenshot under Windows.
+    <p>
+</font>
+
+<tr><td width="100%" align="left">
+<p>
+<font size=-1>
+    Unix tarball:&nbsp&nbsp&nbsp
+    <img SRC="pics/buttons/plum_dot.gif" NOSAVE height=5 width=5>&nbsp
+    <a href="programs/vimsh.tar.gz">Download!</a>
+</font>
+
+<p>
+<font size=-1>
+    Windows zip:&nbsp&nbsp
+    <img SRC="pics/buttons/plum_dot.gif" NOSAVE height=5 width=5>&nbsp
+    <a href="programs/vimsh.zip">Download!</a>
+</font>
+</td></tr>
+
+</font>
+</table>
+
+<table border="0" width="75%" cellspacing="5" cellpadding="0">
+<tr><td width="100%" align="left"><p><img SRC="pics/buttons/plum_bar.gif" NOSAVE height=2 width=700> </tr>
+</table>
+
+<! ****************     Macros / Functions      *****************>
+
+<table border="0" width="50%" cellspacing="5" cellpadding="5">
+<font face="Verdana">
+
+<tr><td width="100%" align="left">
+<p>
+<b><h3>
+    <a name="macros"><b>Macros and functions I find useful</a>
+</b></h3>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    The following link has my ~/.vim directory which has some helpful
+    things for using vim I've accumulated over the years, including:
+</td></tr>
+
+<tr><td width="100%" align="left">
+<UL>
+    <LI>A grep script that works with findstr.exe and grep.  The script has many options
+        and will put the output of the search into a vim window.  There is also one that
+        provides the same functionality for Unix.  This is a modified version
+        of one that I ran across somewhere on the net.  Ron Aaron was the original
+        author and I'm not sure who is maintaining the original now.
+        
+    <LI>Script for toggling C-C++/H files
+    <LI>Many useful macros/highlight regexes for dealing with .c,.cpp, perl, python, html, and shell script files.
+    <LI>An regex alignement macro that will clean up stuff like
+    
+    <p>
+    <blockquote>
+            <code>
+            foo = bar;
+            </code>
+            <p>
+            <code>
+            variable = 2;
+            </code>
+
+    </blockquote>
+    <p>
+    and align the '=' on each line
+
+    <LI>Much more, from many years of tweaking my favorite editor!
+
+    </UL>
+</td></tr>
+	
+<tr><td width="100%" align="left">
+    <img SRC="pics/buttons/plum_dot.gif" NOSAVE height=5 width=5>&nbsp
+<font size=-1>
+    <a href="programs/vim_files.tar.gz">Download!</a>
+</font>
+
+</font>
+</table>
+
+<table border="0" width="75%" cellspacing="5" cellpadding="0">
+<tr><td width="100%" align="left"><p><img SRC="pics/buttons/plum_bar.gif" NOSAVE height=2 width=700> </tr>
+</table>
+
+<! ****************     hjkl keys      *****************>
+
+<table border="0" width="50%" cellspacing="5" cellpadding="5">
+<font face="Verdana">
+
+<tr><td width="100%" align="left">
+<p>
+<b><h3>
+    <a name="hjkl"><b>Using hjkl keys everywhere!</a>
+</b></h3>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    I really like using the hjkl keys for movement and have patches for a few window
+    managers/libraries/etc to use them for menu traversal, and moving and resizing
+    windows.  Go to my <a href="myprog.html">programming</a> page to grab them.
+    I currently have patches for afterstep, kde (qt menus, and kwin size/move).
+    I now use <a href="http://www.fvwm.org">fvwm2</a> which supports using hjkl
+    out of the box so I no longer need these patches.
+</td></tr>
+
+</font>
+</table>
+
+<table border="0" width="75%" cellspacing="5" cellpadding="0">
+<tr><td width="100%" align="left"><p><img SRC="pics/buttons/plum_bar.gif" NOSAVE height=2 width=700> </tr>
+</table>
+
+<! ****************     Web Ring    *****************>
+
+<p>
+
+<script language=javascript
+src="http://ss.webring.com/navbar?f=j;y=telengard;u=10062948">
+</script><noscript><center>
+<table bgcolor=gray cellspacing=0 border=2 bordercolor=red><tr>
+<td><table cellpadding=2 cellspacing=0 border=0><tr><td align=center>
+<font face=arial size=-1>This site is a member of WebRing.
+<br>To browse visit <a href="http://ss.webring.com/navbar?f=l;y=telengard;u=10062948">
+Here</a>.</font></td></tr></table></td></tr></table>
+</center></noscript>
+
+<p>
+<center><p><a href="index.html"><img SRC="pics/buttons/vim_back_button_text.jpg" NOSAVE border=0 height=50 width=150 align=TEXTTOP></a></center>
+
+</body>
+</html>
