@@ -5,17 +5,17 @@
 # file:     frontend.py
 #
 # author:   brian m sturk   bsturk@comcast.net
-#                           http://users.adelphia.net/~bsturk
+#                           http://home.comcast.net/~bsturk/
 # purpose:
-#           Menu based launcher useful for emulators
+#           Menu based launcher useful for emulators.
 #
 # dependencies:
 #
 #           Uses the pygame library.
 #
 # created:  12/19/05
-# last_mod: 04/22/07
-# version:  0.7
+# last_mod: 01/11/16
+# version:  1.18
 #
 # usage, etc:
 #
@@ -25,7 +25,7 @@
 #           Best results if this file is added to startup folder.
 #           See sections Customization and Key mappings for tweakable
 #           parameters.  I use this frontend in a custom built PC which
-#           I keep in living room.  The idea was to have a frontend that
+#           I keep in the living room.  The idea was to have a frontend that
 #           would allow me to start up games from a wireless game 
 #           controller while sitting on my couch.  I use JoyToKey to 
 #           convert joystick input to keyboard input.  It works very well.
@@ -39,36 +39,35 @@
 #
 #         * Allow specifying spawn flags for pre/app/post, i.e. NOWAIT
 #         * More informative text when pic not found/not loaded
-#         * In addition to overrides, there should be support for additions that
-#           aren't in any of the specified paths, i.e. for util programs
 #         * Add support for viewing and scrolling through game docs
 #         * Finish center scrolling, fix render_entries to accomodate scrolling
+#         * Allow multiple favorite folder selection
 #
 # history:  
 #
-#  0.1      12/21/05  - Initial release
-#  0.2      01/22/06  - Bug fixes, added key repeat and params
+#  0.1      12/21/05  - Initial release.
+#  0.2      01/22/06  - Bug fixes, added key repeat and params.
 #  0.3      01/30/06  - Added a few more features like showing rom count
-#                       and showing currently selected rom over pic
+#                       and showing currently selected rom over pic.
 #  0.4      03/25/06  - Added support for multiple image directories (pic_dirs), 
 #                       and searching for subdir in each based on first letter
-#                       or rom/dsk image
+#                       or rom/dsk image.
 #           04/24/06  - Fixed bug where non-override name was being shown in pic
 #                       window.
-#  0.5      06/06/06  - Overriden name is now also checked for picture name
-#                     - Fixed bug where short_name was matching other names 
+#  0.5      06/06/06  - Overriden name is now also checked for picture name.
+#                     - Fixed bug where short_name was matching other names.
 #                       when including the name in it.  Fixed by using re.match 
 #                       instead of re.search.
 #                       i.e. parsec matching in beyond_parsec
 #                     - Fixed sorting of entries.  sort needed to be keyed off basename for
-#                       filenames
+#                       filenames.
 #                     - Added support for optional display regex which will be applied
 #                       to display names.  Is useful for filtering out "Good" codes.
-#                     - Fixed potential issue w/ short_name vars shadowing routine name called short_name
-#                     - Fixed warnings found by pychecker
-#                     - Warp the mouse to 0,0 when starting program 
+#                     - Fixed potential issue w/ short_name vars shadowing routine name called short_name.
+#                     - Fixed warnings found by pychecker.
+#                     - Warp the mouse to 0,0 when starting program.
 #                       (applewin, although it still overrides it)
-#                     - Added check for existance of menu sub-directory
+#                     - Added check for existance of menu sub-directory.
 #                     - Added support for skipping through entries by letter.  This is done by holding down
 #                       a key marked as _alpha_menu_shift_keys and then pressing a key in _fast_menu_up_keys or a
 #                       key in _fast_menu_down_keys.  This way one press will go from any entry in 'a' to the first 
@@ -80,41 +79,96 @@
 #                       so they are all skipped if using the accelerated buttons.  This is mainly for my
 #                       tastes since I tend to not have files with uppercase and scrolling through 
 #                       potentially 26 single entries to get to the lowercase ones would be painful.
-#                     - Sped up image lookups
-#  0.7     04/28/07   - Fixed bug with not displaying updated info when cycling by letter
-#                     - Added support for command-line flag -window
-#                     - Revamped key jumping.  Now works correctly, including capital names
-#                     - Made alpha values customizable
-#                     - Added parent menu title name in rom count area.  Frees up line for info
-#                     - Added -v flag which enables debug printing
-#                     - Separated out filters and ignores, filters take a long time if there are many of them
-#                     - Made overrides, filters, and ignores optional
-#                     - Fixed potential crash in dump_menu when optional elements aren't present
-#                     - Compile filter regexes to speed things up a bit
+#                     - Sped up image lookups.
+#  0.7     04/28/07   - Fixed bug with not displaying updated info when cycling by #  letter.
+#                     - Added support for command-line flag -window.
+#                     - Revamped key jumping.  Now works correctly, including capital names.
+#                     - Made alpha values customizable.
+#                     - Added parent menu title name in rom count area.  Frees up line for info.
+#                     - Added -v flag which enables debug printing.
+#                     - Separated out filters and ignores, filters take a long time if there are many of them.
+#                     - Made overrides, filters, and ignores optional.
+#                     - Fixed potential crash in dump_menu when optional elements aren't present.
+#                     - Compile filter regexes to speed things up a bit.
+#  0.8     11/04/07   - Added support for favorites.  Works by storing the basename of the game in a separate
+#                       file.  Side-effect is on a case sensitive OS multiple files could be added.  Also
+#                       if the same named file lives in 2 different directories they will show up also.
+#                       Hopefully this isn't a lot.
+#                     - Fixed bug w/ launching a menu item without sub menus.
+#  0.9     05/21/08   - Added exception handler around entire app.  Trying to make it more user friendly.
+#  1.0     03/28/09   - Fixed a bug when trying to remove an entry from an empty favorites list.
+#  1.1     01/24/10   - Fixed a bunch of bugs when adding/removing entries from the favorites list.
+#  1.2     02/01/11   - Added full filename to bottom of info section.
+#  1.3     02/26/11   - Shortened amount and duration of waits for dialog feedback.
+#                     - Removed need for 'empty' pre and post commands.
+#                     - Added delay after all commands are run when in full screen mode
+#                       to avoid being minimized by losing focus transitioning back to full
+#                       screen.
+#  1.4     04/04/11   - Don't add a favorite if it is already in there.
+#  1.5     07/15/11   - Adding/removing a favorite now uses a shift key.  
+#                       Keeps from accidentally doing it.
+#                     - Fixed a bug w/ quit shift key usage.
+#  1.6     09/01/11   - Adding option for prioritizing file extensions.  If there are multiple matches
+#                       for a file, the one w/ the extension first in the list 'wins'.  See _no_dup_roms
+#                       in 'Customization' section.
+#  1.7     03/08/12   - Added IP address to info area on main menu.  
+#                     - Going back from favorites stays in emulator.
+#                     - Changed to windib for SDL driver.
+#  1.8     06/10/12   - Made showing of IP address per menu item.
+#                     - Cleaned up alignment of menu entries and outline rect.
+#                     - Fixed bug where DEFAULT was specified for display name in
+#                       override and not applying display_regexes.
+#  1.9     09/11/12   - Seperated out display_regexes into regexes and string
+#                       substitions for performance.
+#  1.10    05/31/13   - Fixed issue w/ display_regexes.  Menus now handle OS X home dirs
+#  1.11    10/05/13   - Added new substitution vars, %d for display_name, %v to
+#                       generate a VICE fliplist.
+#                       Revamped extension priority so it now works correctly (and
+#                       faster).
+#  1.12    10/31/13   - Fixed crash when removing favorites at the front and back
+#                       of the list.
+#  1.13    11/25/13   - Fixed crash when attempting to remove a file from
+#                       file_dict twice.
+#  1.14    01/16/14   - When there are no submenus, don't bother trying to load
+#                       favorites.
+#  1.15    02/08/14   - Fixed issue w/ higher priority files not being honored.
+#  1.16    06/16/15   - Added visual feedback while loading roms
+#                       Added support for no file extension (mame roms)
+#                       no_dup_roms is now menu specific option
+#  1.17    11/16/15   - Revamped filtering to do it all in memory and handle
+#                       filtering in multiple directories so that bin and dsk
+#                       etc can both be filtered.  Also re-did algorithm for filtering
+#                       speeding it up immensely and fixed a couple of bugs.
+#  1.18    12/02/15   - Disabled setting SDL_VIDEODRIVER to windib, was causing issues launching stella emulator.
+#                       Also added capture of stdout/stderr when launching app
+#  1.19    03/04/16   - Added support for dumping full list of current emulator to std output
+#  1.20    11/30/16   - Added support for a menu to exit after executing its program
+#
+# NOTE: GoodTools codes are here https://en.wikipedia.org/wiki/GoodTools#Good_codes
 #
 ###############################################################################
 
 DEBUG   = False
-VERSION = '0.7'
+VERSION = '1.20'
 
-import os, sys, string, re
-
+import os, sys, string, re, random, socket, time, subprocess
 import pygame, pygame.font, pygame.cursors, pygame.draw, pygame.time
+
 from pygame.locals import *
 
 ##################
 ##  Customization
 ##################
 
-_horiz_res                = 800
-_vert_res                 = 600
+_horiz_res                = 1024
+_vert_res                 = 768
 _run_fullscreen           = True
 
 ##  all these are in pixels
 
 _menu_font_size           = 32
 _info_font_size           = 26
-_rom_pic_font_size        = 30
+_rom_pic_font_size        = 16
 _rom_count_font_size      = 24
 
 _item_spacing             = 0
@@ -144,12 +198,17 @@ _show_name_in_pic         = True
 
 _menu_up_keys             = [ K_UP ]
 _menu_down_keys           = [ K_DOWN ]
-_select_keys              = [ K_F9 ]
-_back_keys                = [ K_F10 ] 
 _fast_menu_up_keys        = [ K_LEFT ]
 _fast_menu_down_keys      = [ K_RIGHT ]
-_alpha_menu_shift_keys    = [ K_F11 ]
-_quit_keys                = [ K_F12 ]
+_favorite_filter_keys     = [ K_F7,  K_F3 ] 
+_favorite_add_rm_keys     = [ K_F8,  K_F4 ] 
+_select_keys              = [ K_F9,  K_F1 ]
+_back_keys                = [ K_F10, K_F2 ] 
+_alpha_menu_shift_keys    = [ K_F11 ]       ##  pressing this jumps by letter when moving fast up/down
+_favorite_shift_keys      = [ K_F11 ]       ##  this needs to be pressed as well as favorite add/rm
+_dump_list_keys           = [ K_F6 ]
+_quit_shift_keys          = [ K_F11 ]       ##  this needs to be pressed as well as quit
+_quit_keys                = [ K_F12, K_F5 ]
 
 ##################
 ##  End Customization
@@ -165,8 +224,11 @@ kMENU_CHANGED             = 1
 kSEL_CHANGED              = 2 
                           
 kMENU_SUBDIR              = 'menus'
+kFAVORITES_SUBDIR         = 'favorites'
 kEXIT_SENTINAL            = 'EXIT'
 kDEFAULT_SENTINAL         = 'DEFAULT'
+
+kMAX_DISKS                = 6
 
 ## index into override tuple
 
@@ -186,15 +248,17 @@ _info_font                = None
 _rom_pic_font             = None
 _rom_count_font           = None
 _cur_index                = 1      ##  always starts at the first, 1 based
-_pop_index                = 1      ##  always starts at the first, 1 based
+_pop_main_index           = 1      ##  always starts at the first, 1 based
+_pop_fav_index            = 1      ##  always starts at the first, 1 based
 _max_display              = 0      ##  max entries that can be shown in menu with given font size
 _select_center_index      = 0      ##  index of displayed entries that will be centered given font size
 _mouse_info               = None   ##  used for detecting double clicks
 
-_menus                    = {}     ##  holds dict of top level menus
-_choices                  = {}     ##  holds dict of current menus
+_top_level_menus          = {}     ##  holds dict of top level menus
+_choices                  = {}     ##  holds dict of current menu item names, unfiltered
 _menu_full_names          = []     ##  holds current menu names in full
 _in_submenu               = False
+_favorites_filter         = False
 
 _entry_rect               = pygame.Rect( 0, 0, 0, 0 )
 _info_rect                = pygame.Rect( 0, 0, 0, 0 )
@@ -203,7 +267,7 @@ _pic_rect                 = pygame.Rect( 0, 0, 0, 0 )
 _entry_surface            = None
 _info_surface             = None
 _pic_surface              = None
-_launch_dlg_surface       = None
+_dlg_surface              = None
 
 #############
 
@@ -266,22 +330,45 @@ def main():
     if ( len( sys.argv ) > 1 ):
         handle_cmd_line_args( sys.argv )
 
-    _choices = load_menus()
-
     pygame.init()
+
+    pygame.joystick.init()
+
+    count = pygame.joystick.get_count()
+
+    print 'There are', count, 'joystick(s)...'
+
+    if count == 0:
+        print 'WARNING: No joystick(s) found'
+
+    else:
+        for i in range ( count ):
+            joystick = pygame.joystick.Joystick( i )
+            joystick.init()
+            print '...' + joystick.get_name() + ' ' + str( joystick.get_numbuttons() ) + ' button(s)'
+
+    ##  Without this, with certain versions of Direct X, launching programs just
+    ##  hangs the first time you do it.
+
+    #if sys.platform == 'win32':
+        #os.environ['SDL_VIDEODRIVER'] = 'windib'
 
     try:
 
         if _run_fullscreen:
             _screen = pygame.display.set_mode( ( _horiz_res, _vert_res ), FULLSCREEN )
+
         else:
             _screen = pygame.display.set_mode( ( _horiz_res, _vert_res ) )
 
     except Exception, e:
+
         print 'pygame.display.set_mode(): failed, is mouse plugged in? ' + str( e )
         sys.exit()
 
     pygame.key.set_repeat( _key_repeat_delay, _key_repeat_interval )
+
+    _choices = load_top_level_menus()
 
     update_title()
 
@@ -297,7 +384,7 @@ def main():
 
     _menu_font        = pygame.font.Font( None, _menu_font_size )
     _info_font        = pygame.font.Font( None, _info_font_size )
-    _rom_pic_font     = pygame.font.Font( None, _rom_pic_font_size )
+    _rom_pic_font     = pygame.font.Font( 'c64.ttf', _rom_pic_font_size )
     _rom_count_font   = pygame.font.Font( None, _rom_count_font_size )
 
     calc_text_region()
@@ -316,7 +403,14 @@ def main():
 
         pygame.display.update()
 
-        e = pygame.event.wait()             ##  wait for a GUI event rather than chewing the CPU
+        e = None
+
+        try:
+            e = pygame.event.wait()             ##  wait for a GUI event rather than chewing the CPU
+
+        except:
+            print 'main(): caught exception'
+            sys.exit()
 
         ret = kNO_CHANGE
 
@@ -334,8 +428,13 @@ def main():
         elif e.type is MOUSEBUTTONUP:
             ret = handle_mouse( e )
 
-        elif e.type is MOUSEMOTION:
-            continue
+        #elif e.type is JOYBUTTONUP:
+            #print 'Button up'
+            #button = e.button
+            #print button
+
+        else:
+            dbg_print( str( e ) )
 
         ##  clear the screen and other surfaces
 
@@ -353,9 +452,13 @@ def main():
             _img = kLOAD_NEW_IMAGE     ##  stale cached image
 
         render_rects()
-        render_entries( shortened )
-        render_pic()
-        render_info()
+
+        if len( shortened ) != 0:     ## current list is empty (i.e. no favorites)
+
+            render_entries( shortened )
+            render_pic()
+            render_info()
+
         render_other()
 
         if ret == kMENU_CHANGED:
@@ -384,15 +487,15 @@ def handle_cmd_line_args( args ):
 
 #############
 
-def load_menus():
+def load_top_level_menus():
 
-    global _menus
+    global _top_level_menus
 
     each = None
 
     if not os.path.exists( kMENU_SUBDIR ):
 
-        print 'load_menus(): menu subdirectory ' + kMENU_SUBDIR + ' doesn\'t exist.  No menus to load'
+        print 'load_top_level_menus(): menu subdirectory ' + kMENU_SUBDIR + ' doesn\'t exist.  No menus to load'
         sys.exit()
 
     try:
@@ -411,73 +514,288 @@ def load_menus():
                 
                     m = menu_item( kMENU_SUBDIR, module_name )
 
-                    _menus[ m.title ] = m
+                    _top_level_menus[ m.title ] = m
 
-                    dump_menu( m )
+                    if DEBUG:
+                        dump_menu( m )
 
     except Exception, e:
 
-        print 'load_menus(): Couldn\'t load menus, last one attempted was ' + str( each ) + ' exiting... ' + str( e )
+        print 'load_top_level_menus(): Couldn\'t load menus, last one attempted was ' + str( each ) + ' exiting... ' + str( e )
         sys.exit()
 
-    return _menus
+    return _top_level_menus
+
+#############
+
+def check_is_lower_priority( filename, short_names, filtered, exts, parent_menu ):
+
+    ##  filter out lower priority extensions, can't be sure of order of the list so must check everything.
+
+    dbg_print( 'check_is_lower_priority(): Checking if lower priority ' + str( filename ) )
+
+    ext_ind        = filename.rfind( '.' )
+    file_extension = filename[ ext_ind + 1: ]
+
+    filename_extension_priority = 0
+
+    for ext in exts:
+
+        if file_extension == ext:
+            break
+
+        filename_extension_priority += 1
+    
+    if filename_extension_priority == 0:
+
+        dbg_print( 'check_is_lower_priority(): Highest priority... returning' )
+        return False
+
+    cur_index = 0
+
+    for check_ext in exts:
+
+        if check_ext == file_extension:
+            continue
+
+        found          = False
+        ext_ind        = filename.rfind( '.' )
+        check_filename = filename[ :ext_ind ] + '.' + check_ext
+
+        filt_file      = apply_display_filters( check_filename, parent_menu )
+
+        ## apply_display_filters is for showing in GUI, so re-add extension if it was filtered
+
+        if filt_file <> check_filename:
+            filt_file = filt_file + '.' + check_ext
+
+        dbg_print( 'check_is_lower_priority(): Checking extension ' + check_ext )
+        dbg_print( 'check_is_lower_priority(): Looking for filename ' + check_filename )
+
+        dbg_print( 'check_is_lower_priority(): Filtered name is ' + filt_file )
+
+        ## exists as is
+
+        if check_filename in short_names:
+            dbg_print( 'check_is_lower_priority(): ' + check_filename + ' is in short_names' )
+            found = True
+
+        ## exists already w/ filtered name
+
+        elif filt_file in short_names:
+            dbg_print( 'check_is_lower_priority(): filtered filename ' + filt_file + ' is in short_names' )
+            found = True
+
+        ##  higher priority that has filtered name
+
+        elif filt_file in filtered:
+            dbg_print( 'check_is_lower_priority(): filtered filename ' + filt_file + ' already has a higher priority filtered filename' )
+            found = True
+
+        if found:
+            if cur_index < filename_extension_priority:
+                return True
+
+        cur_index += 1
+    
+    return False
+
+#############
+
+def filter_ignores( parent_menu, exts, short_names, fqn_names ):
+
+    compiled_regexes = []
+
+    for pat in parent_menu.filters:
+
+        dbg_print( 'filter_ignores(): Adding pattern ' + pat )
+        compiled_regexes.append( re.compile( pat ) )
+
+    filtered_fqn   = []
+    filtered_short = []
+    index          = 0
+
+    for f in short_names:
+
+        dbg_print( 'filter_ignores(): Handling ' + f )
+
+        ext_ind   = f.rfind( '.' )
+        path_ind  = f.rfind( os.path.sep )
+        file_name = f[ path_ind + 1 : ]
+
+        if ext_ind <> -1:
+            ext = f[ ext_ind + 1 : ]
+
+        ##  no extension, i.e. mame entries
+
+        else:
+            ext = ''
+
+        if ext in exts:
+
+            add_it = True
+
+            if file_name in parent_menu.ignores:
+                dbg_print( 'filter_ignores(): ' + file_name + ' is in ignores, skipping it' )
+                add_it = False
+
+            elif should_filter( parent_menu, file_name, compiled_regexes ):
+                dbg_print( 'filter_ignores(): ' + file_name + ' has been filtered out, skipping it' )
+                add_it = False
+
+            if add_it:
+
+                filtered_short.append( f )
+
+                full_name = fqn_names[ index ]
+                filtered_fqn.append( full_name )
+
+        index += 1
+
+    return filtered_short, filtered_fqn
+
+#############
+
+def filter_same_ext_and_priority( parent_menu, exts, short_names, fqn_names ):
+
+    new_short_names = []
+    new_fqn_names   = []
+    filtered        = []
+
+    for f in short_names:
+
+        ## apply_display_filters is for showing in GUI, so re-add extension if it was filtered out
+
+        filt_name = apply_display_filters( f, parent_menu )
+
+        if filt_name <> f:
+
+            extension = os.path.splitext( filt_name )[1][1:]
+
+            if extension == '':
+
+                ext_ind = f.rfind( '.' )
+                ext     = f[ ext_ind: ]
+
+                filtered.append( filt_name + ext )
+
+            else:
+                filtered.append( filt_name )
+
+        else:
+            filtered.append( f )
+
+    index      = 0
+    filt_count = {}
+
+    for ind, filt_fn in enumerate( filtered ):
+
+        try:
+            filt_count[ filt_fn ] += 1
+
+        except KeyError:
+            filt_count[ filt_fn ] = 1
+
+    for f in short_names:
+
+        dbg_print( 'filter_same_ext_and_priority(): Checking for dups w/ same ext for ' + str( f ) )
+
+        add_it    = True
+        filt_name = filtered[ index ]
+
+        if ( filt_name != f ):
+
+            ##  it was filtered, see if filtered name exists w/ same extension
+
+            dbg_print( 'filter_same_ext_and_priority(): Filtered name ' + filt_name + ' looking for other filtered names w/ same extension' )
+
+            ##  filter out _d1 etc versions if there is a base one with the same extension.
+
+            if filt_name in short_names:        ##  have to check as count isn't reflective 
+
+                ##  filtered filename exists with filename == to the result of filtering, remove the filtered one
+
+                dbg_print( 'filter_same_ext_and_priority(): Filtering out versions that match after regex applied ' + filt_name )
+                dbg_print( 'filter_same_ext_and_priority(): Not adding ' + f )
+
+                add_it = False
+
+            dbg_print( 'filter_same_ext_and_priority(): Checking to see if other filenames filter to this same name' )
+
+            if filt_count[ filt_name ] > 1:
+
+                dbg_print( 'filter_same_ext_and_priority(): Already a non filtered filename with same ext that matches, ' + f )
+
+                add_it = False
+
+                filt_count[ filt_name ] -= 1
+
+                ## NOTE: cannot remove from filtered as it is used for indexing
+
+        if add_it:
+
+            ##  also don't add it if a higher priority extension of it exists
+
+            full_name = fqn_names[ index ]
+            ret       = check_is_lower_priority( f, short_names, filtered, exts, parent_menu )
+
+            if ret:
+                dbg_print( 'filter_same_ext_and_priority(): Lower priority, not adding ' + str( full_name ) )
+                add_it = False
+
+            if add_it:
+                new_short_names.append( f )
+                new_fqn_names.append( fqn_names[ index ] )
+
+        index += 1
+
+    return new_short_names, new_fqn_names
 
 #############
 
 def load_submenu( parent_menu ):
 
-    exts           = []
-    file_dict      = {}
+    file_fqns        = []   ## full filename w/ extension, entire path
+    file_basenames   = []   ## full filename w/ extension, no path
+    file_dict        = {}
 
-    if parent_menu.rom_exts == '':
-        print 'load_submenu(): has_submenus is True but no rom paths to search'
+    exts = string.split( parent_menu.rom_exts, ';' )
+    dirs = string.split( parent_menu.rom_dirs, ';' )
 
-    else:
+    filename_list = []      
 
-        compiled_regexes = []
+    for d in dirs:
 
-        for pat in parent_menu.filters:
-            compiled_regexes.append( re.compile( pat ) )
-
-        exts = string.split( parent_menu.rom_exts, ';' )
+        dbg_print( 'load_submenu(): Iterating files in directory ' + d )
         
-        if parent_menu.rom_dirs != '':
+        try:
+            files = os.listdir( d )
 
-            dirs = string.split( parent_menu.rom_dirs, ';' )
+            for f in files:
 
-            for d in dirs:
+                ## NOTE: indexes line up for short/fqn name, this will be leveraged
 
-                file_list = []
+                full_name = os.path.join( d, f )
+                file_fqns.append( full_name )
 
-                try:
-                    file_list = os.listdir( d )
+                file_basenames.append( f )
 
-                except Exception, e:
-                    print 'load_submenu(): Warning: Couldn\'t load files in ' + d + ' : ' + str( e )
-                    continue
+        except Exception, e:
+            print 'load_submenu(): Warning: Couldn\'t load files in ' + d + ' : ' + str( e )
+            continue
 
-                for f in file_list:
+    ##  first filter out ignores and files that match menu's filter regexes
 
-                    ext_ind   = f.rfind( '.' )
-                    path_ind  = f.rfind( os.path.sep )
+    file_basenames, file_fqns = filter_ignores( parent_menu, exts, file_basenames, file_fqns )
 
-                    ext       = f[ ext_ind + 1: ]
-                    file_name = f[ path_ind + 1 : ]
+    ##  filter out dups (done by basename), this is time consuming
 
-                    full_name = os.path.join( d, f )
+    if parent_menu.no_dup_roms:
 
-                    if ext in exts:
+        file_basenames, file_fqns = filter_same_ext_and_priority( parent_menu, exts, file_basenames, file_fqns )
 
-                        add_it = True
-
-                        if file_name in parent_menu.ignores:
-                            add_it = False
-
-                        if should_filter( parent_menu, file_name, compiled_regexes ):
-                            add_it = False
-
-                        if add_it:
-                            file_dict[ full_name ] = parent_menu
+    for full_name in file_fqns:
+        file_dict[ full_name ] = parent_menu
 
     parent_menu.subdir_entries = file_dict;
 
@@ -503,34 +821,39 @@ def find_pic( parent_menu, file_name ):
     found      = False
     image_name = ''
 
-    dirs = string.split( parent_menu.pic_dirs, ';' )
+    if parent_menu.pic_dirs <> '':
 
-    for d in dirs:
-        
-        for each in [ 'png', 'jpg', 'gif', 'bmp', 'pcx' ]:
+        dirs = string.split( parent_menu.pic_dirs, ';' )
 
-            ##  Try directory w/ letter or num subdir, optimization rather 
-            ##  than going through up to 27 dirs for each image
+        for d in dirs:
+            
+            dbg_print( 'find_pic(): Looking for matching image file for ' + file_name )
 
-            letter = file_name[ 0 ]
+            for each in [ 'png', 'jpg', 'gif', 'bmp', 'pcx' ]:
 
-            if not letter.isalpha():
-                letter = '0_9'
+                ##  Try directory w/ letter or num subdir, optimization rather 
+                ##  than going through up to 27 dirs for each image
 
-            dir_name   = os.path.join( d, letter )
-            image_name = ''
+                letter = file_name[ 0 ]
 
-            if os.path.exists( dir_name ):
-                image_name = os.path.join( dir_name, file_name + '.' + each )
-            else:
-                image_name = os.path.join( d, file_name + '.' + each )
+                if not letter.isalpha():
+                    letter = '0_9'
 
-            if os.path.exists( image_name ):
-                found = True
-                break;
+                dir_name   = os.path.join( d, letter )
+                image_name = ''
 
-        if found:
-            break
+                if os.path.exists( dir_name ):
+                    image_name = os.path.join( dir_name, file_name + '.' + each )
+
+                else:
+                    image_name = os.path.join( d, file_name + '.' + each )
+
+                if os.path.exists( image_name ):
+                    found = True
+                    break;
+
+            if found:
+                break
 
     return found, image_name
              
@@ -546,6 +869,14 @@ def get_cur_sel():
         sel_key = _menu_full_names[ _cur_index - 1 ]       ##  _cur_index is 1 based
         menu    = _choices[ sel_key ]
 
+    else:
+
+        ##  No favorites
+
+        sel_key = ''
+        keys    = _choices.keys()
+        menu    = _choices[ keys[ 0 ] ]          ##  choices is always full, just grab the first one
+
     return menu, sel_key
 
 #############
@@ -555,7 +886,7 @@ def go_forward():
     global _choices
     global _cur_index
     global _in_submenu
-    global _pop_index
+    global _pop_main_index
 
     ret = kNO_CHANGE
 
@@ -568,15 +899,22 @@ def go_forward():
 
         if menu.has_submenus:
 
-            sm = load_submenu( menu )
+            show_dlg( [ 'Loading images...' ] )
+
+            sm = {}
+
+            if menu.rom_dirs != '':
+                sm = load_submenu( menu )
 
             if len( sm ) > 0:
 
-                _in_submenu = True
-                _pop_index  = _cur_index 
-                _cur_index  = 1             ##  start at the top
-                _choices    = sm
-                ret         = kMENU_CHANGED
+                _in_submenu     = True
+                _pop_main_index = _cur_index
+                _cur_index      = 1             ##  start at the top
+                _choices        = sm
+                ret             = kMENU_CHANGED
+
+            hide_dlg()
 
         else:
 
@@ -594,8 +932,8 @@ def go_back():
 
     if _in_submenu:
 
-        _cur_index  = _pop_index
-        _choices    = _menus
+        _cur_index  = _pop_main_index
+        _choices    = _top_level_menus
         _in_submenu = False
 
         return kMENU_CHANGED
@@ -663,6 +1001,45 @@ def jump_to_first( key_pressed, short_name_entries, going_down = True ):
     
     return ret
 
+
+#############
+
+def create_fliplist( menu_entry ):
+
+    import tempfile
+
+    file_handle, file_name = tempfile.mkstemp()
+
+    os.write( file_handle, '# Vice fliplist file\n' )
+    os.write( file_handle, '\n' )
+    os.write( file_handle, 'UNIT 8\n' )
+
+    found_entry = False
+
+    ##  assumes menu_entry is 1
+
+    for x in range( 2, kMAX_DISKS ):
+
+        entry = string.replace( menu_entry, '_d1', '_d' + str( x ) )
+
+        if os.path.exists( entry ):
+            found_entry = True
+            os.write( file_handle, entry + '\n' )
+
+        else:
+            break
+
+    ##  write the original last so it shows up last in flip order
+
+    os.write( file_handle, menu_entry + '\n' )
+
+    os.close( file_handle )
+
+    if not found_entry:
+        return ''
+
+    return file_name
+
 #############
 
 def handle_app( cur_menu, menu_entry ):
@@ -670,6 +1047,9 @@ def handle_app( cur_menu, menu_entry ):
     sn         = short_name( menu_entry )
     app        = cur_menu.app_name
     args       = cur_menu.app_args
+
+    dbg_print( 'handle_app(): cur_menu.app_args ' + str( args ) )
+
     args_tuple = ()
     
     if has_override( cur_menu, sn ):
@@ -686,21 +1066,40 @@ def handle_app( cur_menu, menu_entry ):
         if new_args != kDEFAULT_SENTINAL:
             args = new_args
 
+    ##  add application as first argument
+
     tmp   = []
     tmp.append( app )
 
     args = string.replace( args, '%F', menu_entry )
     args = string.replace( args, '%f', short_name( menu_entry ) )
+    args = string.replace( args, '%d', display_name( cur_menu, menu_entry ) )
     args = string.replace( args, '%D', full_dir_name( menu_entry ) )
-    args = string.split( args, ';' )
 
+    ##  arg is # of disks in flip set, assumes naming of file_dX.ext
+
+    index = string.find( args, '%v' )
+
+    if index <> -1:
+
+        flip_filename = create_fliplist( menu_entry )
+
+        if flip_filename <> '':
+
+            ## exchange placeholder w/ flip flags
+
+            args = string.replace( args, '%v', '-flipname ' + flip_filename )
+
+        else:
+
+            ##  No other disks were found
+
+            args = string.replace( args, '%v', '' )
+
+    args = string.split( args, ';' )
     tmp += args
 
-    ##  convert list to tuple
-
-    args_tuple = tuple( tmp )
-
-    return app, args_tuple
+    return app, tmp
 
 #############
 
@@ -758,42 +1157,54 @@ def handle_post_cmd( cur_menu, menu_entry ):
 
 def exec_app( cur_menu, key ):
 
+    dbg_print( 'exec_app(): Entered' )
     global _screen
 
-    dbg_print( 'exec_app() ' + cur_menu.title + ' ' + key )
+    if cur_menu.has_submenus:
 
-    show_launch_dlg( display_name( cur_menu, key ) )
+        dbg_print( 'exec_app(): ' + cur_menu.title + ' ' + key )
 
-    pygame.time.wait( 1000 )        ##  let dialog show for visual feedback that we launched
-        
+        lines = [ 'Launching', display_name( cur_menu, key )]
+        show_dlg( lines )
+
+    else:
+        dbg_print( 'exec_app(): ' + cur_menu.title )
+        lines = [ 'Launching', cur_menu.title ]
+        show_dlg( lines )
+
     app, args = handle_app( cur_menu, key )
 
     if app == kEXIT_SENTINAL:
         sys.exit( 0 )
 
     pre_cmd, pre_args = handle_pre_cmd( cur_menu, key )
+    pre_cmd_run       = False
 
     if pre_cmd != None and pre_cmd != '':
-        dbg_print( 'exec_app(): Running pre_cmd ' + pre_cmd + ' with args ' + str( pre_args ) )
+
+        pre_cmd_run = True
+
+        print( 'exec_app(): Running pre_cmd ' + pre_cmd + ' with args ' + str( pre_args ) )
 
         cur_dir = os.getcwd() 
-        new_dir = get_dir( pre_cmd )
-        os.chdir( new_dir )
 
         try:
+            new_dir = get_dir( pre_cmd )
+            os.chdir( new_dir )
             os.spawnv( os.P_WAIT, pre_cmd, pre_args )
-            pass
 
         except Exception, e:
             print 'exec_app(): Couldn\'t run pre_cmd ' + pre_cmd + ' with args ' + str( pre_args ) + ' : ' + str( e )
 
         os.chdir( cur_dir )
 
-    dbg_print( 'exec_app(): Running ' + app )
-    dbg_print( 'exec_app(): With args: ' )
+    print( 'exec_app(): Running ' + app )
+    print( 'exec_app(): With args: ' )
 
     for each in args:
-        dbg_print( each )
+        print( each )
+
+    pygame.time.wait( 500 )        ##  let dialog show for visual feedback that we launched
 
     if _run_fullscreen:
 
@@ -801,15 +1212,31 @@ def exec_app( cur_menu, key ):
 
         _screen = pygame.display.set_mode( ( _horiz_res, _vert_res ) )
 
-    try:
+    pygame.time.wait( 1000 )        ##  slight delay to avoid apps like z26 not going fullscreen
 
-        cur_dir = os.getcwd() 
+    cur_dir = os.getcwd() 
+
+    try:
         new_dir = get_dir( app )
         os.chdir( new_dir )
 
-        dbg_print( 'exec_app(): Running app ' + app + ' with args ' + str( args ) )
+        dbg_print( 'exec_app(): Spawning app ' + app + ' with args ' + str( args ) )
 
-        os.spawnv( os.P_WAIT, app, args )
+        ## NOTE: spawnv doesn't seem to work w/ gens32
+        #os.spawnv( os.P_WAIT, app, args )
+
+        command = r' '.join( args )
+
+        process = subprocess.Popen( command, stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+
+        if cur_menu.should_exit_after_exe:
+            sys.exit( 0 )
+
+        (stdout, stderr) = process.communicate()
+
+        dbg_print( 'exec_app(): app returned ' + str( process.returncode ) )
+        dbg_print( 'exec_app(): stdout ' + str( stdout ) )
+        dbg_print( 'exec_app(): stderr ' + str( stderr ) )
 
     except Exception, e:
         print 'exec_app(): Couldn\'t run app ' + app + ' : ' + str( e )
@@ -818,28 +1245,39 @@ def exec_app( cur_menu, key ):
 
     os.chdir( cur_dir )
 
-    hide_launch_dlg()
+    hide_dlg()
 
     post_cmd, post_args = handle_post_cmd( cur_menu, key )
+    post_cmd_run        = False
 
     if post_cmd != None and post_cmd != '':
 
-        cur_dir = os.getcwd() 
-        new_dir = get_dir( post_cmd )
-        os.chdir( new_dir )
+        post_cmd_run = True
 
         dbg_print( 'exec_app(): Running post_cmd ' + post_cmd + ' with args ' + str( post_args ) )
 
+        cur_dir = os.getcwd() 
+
         try:
+            new_dir = get_dir( post_cmd )
+            os.chdir( new_dir )
             os.spawnv( os.P_WAIT, post_cmd, post_args )
-            pass
 
         except Exception, e:
             dbg_print( 'exec_app(): Couldn\'t run post_cmd ' + post_cmd + ' with args ' + str( post_args ) + ' : ' + str( e ) )
+            pass
 
         os.chdir( cur_dir )
 
     if _run_fullscreen:
+
+        if post_cmd_run:
+
+            ##  wait for any app that may have been launched async via post_cmd
+            ##  if it were to gain focus while we are transitioning back to 
+            ##  fullscreen we would be minimized
+
+            pygame.time.wait( 2000 )
 
         ##  go back to full-screen if we were fs now that everything is done
 
@@ -852,6 +1290,8 @@ def exec_app( cur_menu, key ):
 def handle_key( event, type, shortend_entries ):
 
     global _cur_index
+    global _pop_fav_index
+    global _favorites_filter
 
     ret = kNO_CHANGE
 
@@ -863,12 +1303,17 @@ def handle_key( event, type, shortend_entries ):
 
             ##  move the selection down
 
-            if _cur_index < len( _choices ):
+            currently_shown_entries = _choices
+
+            if _favorites_filter:
+                currently_shown_entries = _menu_full_names      ## not showing all when filtering on favs
+
+            if _cur_index < len( currently_shown_entries ):
                 _cur_index += 1
 
             ret = kSEL_CHANGED
 
-        if event.key in _menu_up_keys:
+        elif event.key in _menu_up_keys:
 
             dbg_print( 'handle_key(): menu up key selected' )
             
@@ -879,7 +1324,7 @@ def handle_key( event, type, shortend_entries ):
 
             ret = kSEL_CHANGED
 
-        if event.key in _fast_menu_down_keys:
+        elif event.key in _fast_menu_down_keys:
 
             dbg_print( 'handle_key(): fast menu down key selected' )
 
@@ -887,16 +1332,20 @@ def handle_key( event, type, shortend_entries ):
                 ret = jump_to_next_letter( shortend_entries )       ##  routine modifies _cur_index
 
             else:
+                currently_shown_entries = _choices
 
-                if ( _cur_index + _jump_amount ) < len( _choices ):
+                if _favorites_filter:
+                    currently_shown_entries = _menu_full_names      ## not showing all when filtering on favs
+
+                if ( _cur_index + _jump_amount ) < len( currently_shown_entries ):
                     _cur_index += _jump_amount
 
                 else:
-                    _cur_index = len( _choices )
+                    _cur_index = len( currently_shown_entries )
 
                 ret = kSEL_CHANGED
 
-        if event.key in _fast_menu_up_keys:
+        elif event.key in _fast_menu_up_keys:
 
             dbg_print( 'handle_key(): fast menu up key selected' )
 
@@ -920,16 +1369,66 @@ def handle_key( event, type, shortend_entries ):
             dbg_print( 'handle_key(): select key selected' )
             ret = go_forward()
 
-        if event.key in _back_keys:
+        elif event.key in _back_keys:
 
             dbg_print( 'handle_key(): back key selected' )
-            ret = go_back()
 
-        if event.key in _quit_keys:
+            if _favorites_filter:
+
+                ##  When going back and looking at favorites, go back to submenu
+                ##  and at the tucked away index.
+
+                _cur_index = _pop_fav_index
+                ret        = kMENU_CHANGED
+
+            else:
+                ret = go_back()
+
+            _favorites_filter = False
+
+        elif event.key in _favorite_filter_keys:
+
+            if _in_submenu:         ##  has no meaning w/ list of emulators
+
+                dbg_print( 'handle_key(): filter favorite key selected' )
+                _favorites_filter = not _favorites_filter
+
+                if _favorites_filter:
+                    _pop_fav_index = _cur_index
+                    _cur_index     = 1
+
+                else:
+                    _cur_index = _pop_fav_index
+
+                ret = kMENU_CHANGED
+
+        elif event.key in _favorite_add_rm_keys:
+            if favorite_chord_shift_pressed():
+                if _in_submenu:         ##  has no meaning w/ list of emulators
+                    dbg_print( 'handle_key(): add_rm_favorite key selected' )
+                    ret = add_rm_favorite()
+
+        elif event.key in _quit_keys:
             dbg_print( 'handle_key(): quit key selected' )
             sys.exit( 0 )
 
-        if is_alpha( event.key ):
+        elif event.key in _dump_list_keys:
+
+            ## This dumps basefile name and fqn name to create symlinks for sd
+            ## card, etc
+
+            dbg_print( 'handle_key(): dump list key selected' )
+
+            print '-- List of current entries --'
+
+            index       = 0
+            full, short = short_entries( _choices.keys() )
+
+            for c in short:
+                print c + ' -> ' + full[ index ]
+                index += 1
+
+        elif is_alpha( event.key ):
             dbg_print( 'handle_key(): alpha key pressed ' + str( event.key ) )
 
             ascii_char = pygame_key_to_ascii( event.key )
@@ -963,7 +1462,7 @@ def handle_mouse( event ):
         return
 
     x = _entry_rect.left
-    y = _entry_rect.top + ( _item_padding * 3 )     ##  border, selection rect, and upper spacing - so * 3
+    y = _entry_rect.top + ( _item_padding * 2 )     ##  border, selection rect, and upper spacing - so * 3
 
     start = 0
 
@@ -998,7 +1497,7 @@ def render_entries( shortened ):
     count = 0
     total = len( shortened )
     x     = 0
-    y     = _entry_rect.top + ( _item_padding * 3 )     ##  border, selection rect, and upper spacing - so * 3
+    y     = _entry_rect.top + ( _item_padding * 2 )     ##  border, selection rect, and upper spacing - so * 3
 
     start = 0
 
@@ -1083,7 +1582,7 @@ def render_rects():
     offset = ( index - 1 ) * height
 
     x = _entry_rect.left + _item_padding
-    y = _entry_rect.top  + ( _item_padding * 2 ) + offset
+    y = _entry_rect.top  + ( _item_padding ) + offset
 
     outline = pygame.Rect( x, y, width, height )
     outline.inflate_ip( -_item_padding, -_item_padding )
@@ -1187,6 +1686,17 @@ def render_info():
 
         lines = string.split( info, ';' )
 
+        if not _in_submenu and menu.show_ip_addr:
+
+            ##  Add current ip address to info on main menu
+
+            try:
+                ip_addr = ( [ip for ip in socket.gethostbyname_ex( socket.gethostname() )[2] if not ip.startswith( '127.' )] [:1] )
+                lines.append( 'IP address is ' + str( ip_addr[0] ) )
+
+            except:
+                pass
+
         count = 0
         y     = _info_rect.top + _item_padding
 
@@ -1207,19 +1717,30 @@ def render_info():
 
             count += 1
 
+    ##  @ bottom show actual filename of selected entry
+
+    text    = _info_font.render( sn, 1, _fg_color )
+    textpos = text.get_rect()
+
+    x = _info_rect.left + ( 2 * _item_padding ) + ( ( _info_rect.width - textpos.width ) / 2 )
+    y = _info_rect.bottom - _item_padding - _info_font_size - _item_spacing
+
+    textpos = textpos.move( x, y )
+    _screen.blit( text, textpos )
+
 #############
 
 def render_other():
 
-    if _launch_dlg_surface != None:
+    if _dlg_surface != None:
 
         x = _horiz_res / 4
         y = _vert_res  / 4
 
-        textpos = _launch_dlg_surface.get_rect()
+        textpos = _dlg_surface.get_rect()
         textpos = textpos.move( x, y )
 
-        _screen.blit( _launch_dlg_surface, textpos )
+        _screen.blit( _dlg_surface, textpos )
 
 #############
 
@@ -1319,23 +1840,21 @@ def calc_info_region():
 
 #############
 
-def show_launch_dlg( entry ):
+def show_dlg( lines ):
 
-    global _launch_dlg_surface
+    global _dlg_surface
 
     w = _horiz_res / 2
     h = _vert_res  / 2
 
-    lines = [ 'Launching', entry ]
+    _dlg_surface = pygame.Surface( ( w, h ) )
 
-    _launch_dlg_surface = pygame.Surface( ( w, h ) )
+    _dlg_surface.set_alpha( _dlg_alpha )
+    _dlg_surface.fill ( _dlg_bg_color )       ##  clear it
 
-    _launch_dlg_surface.set_alpha( _dlg_alpha )
-    _launch_dlg_surface.fill ( _dlg_bg_color )       ##  clear it
+    dlgpos = _dlg_surface.get_rect()
 
-    dlgpos = _launch_dlg_surface.get_rect()
-
-    pygame.draw.rect( _launch_dlg_surface, _border_color, dlgpos, 2 )
+    pygame.draw.rect( _dlg_surface, _border_color, dlgpos, 2 )
 
     count = 0
     y     = dlgpos.top + ( ( dlgpos.bottom - dlgpos.top ) / 2 ) + _item_padding
@@ -1355,7 +1874,7 @@ def show_launch_dlg( entry ):
         offset = ( _info_font_size + _item_spacing ) * count
         textpos = textpos.move( x, new_y + offset )
 
-        _launch_dlg_surface.blit( text, textpos )
+        _dlg_surface.blit( text, textpos )
 
         count += 1
 
@@ -1364,19 +1883,19 @@ def show_launch_dlg( entry ):
 
 #############
 
-def hide_launch_dlg():
+def hide_dlg():
 
     ##  TODO: Is there a way to destroy surfaces, so no mem leak?
 
-    global _launch_dlg_surface
-    _launch_dlg_surface = None
+    global _dlg_surface
+    _dlg_surface = None
 
 #############
 
 def show_no_image():
 
-    lines  = [ 'No image found', '-or-', 'Couldn\'t load image' ]
-    size   = _info_font_size * 2
+    lines  = [ 'NO IMAGE FOUND', '-OR-', 'COULDN\'T LOAD IT' ]
+    size   = _info_font_size * 3
     y      = ( _pic_rect.bottom / 2 ) - _item_spacing - ( size * 1.5 )
     count  = 0
     font   = pygame.font.Font( None, size )
@@ -1389,7 +1908,7 @@ def show_no_image():
         if textpos.width > _pic_rect.width:
             textpos.width = _pic_rect.width
 
-        x = _pic_rect.left + ( 2 * _item_padding ) + ( ( _pic_rect.width - textpos.width ) / 2 )
+        x = _pic_rect.left + ( ( _pic_rect.width - textpos.width ) / 2 )
 
         offset = ( size + _item_spacing ) * count
         textpos = textpos.move( x, y + offset )
@@ -1400,7 +1919,7 @@ def show_no_image():
 
 #############
 
-def short_entries( choices ):
+def short_entries( entries ):
 
     ##  returns the list of choices sorted, and the list of short names
 
@@ -1410,12 +1929,16 @@ def short_entries( choices ):
 
         ##  choices (files) are full paths and we want to sort by basename
 
-        choices.sort( key = os.path.basename )
+        if _favorites_filter:
+
+            entries = apply_favorites_filter( entries )
+
+        entries.sort( key = os.path.basename )
 
     else:
-        choices.sort()
+        entries.sort()
 
-    for k in choices:
+    for k in entries:
             
         if _in_submenu:
 
@@ -1427,14 +1950,13 @@ def short_entries( choices ):
 
             e.append( k )
 
-    return choices, e
+    return entries, e
 
 #############
 
 def short_name( long_name ):
 
-    ##  showing full path of roms/dsks/zips, remove 
-    ##  full path for displaying returning filename
+    ##  remove full path for displaying, returning filename
     ##  and extension
 
     path_ind = long_name.rfind( os.path.sep )
@@ -1452,8 +1974,7 @@ def display_name( menu, long_name ):
     ext_ind  = long_name.rfind( '.' )
     path_ind = long_name.rfind( os.path.sep )
     dn       = long_name[ path_ind + 1 : ext_ind ]
-
-    sn = short_name( long_name )
+    sn       = short_name( long_name )
 
     if has_override( menu, sn ):
 
@@ -1465,13 +1986,17 @@ def display_name( menu, long_name ):
 
         if new_name != kDEFAULT_SENTINAL:
             dn = new_name
-         
+
+        else:
+
+            ##  Still filter if the display name is default
+
+            dn = apply_display_filters( dn, menu )
     else:
 
         ##  no override explicitly, see if there is a display subst regex
 
-        if menu.display_regex != None:
-            dn = apply_display_regex( dn, menu.display_regex )
+        dn = apply_display_filters( dn, menu )
 
     return dn
 
@@ -1483,6 +2008,40 @@ def full_dir_name( long_name ):
     d        = long_name[ :path_ind + 1 ]
 
     return d
+
+#############
+
+def quit_chord_shift_pressed():
+
+    ret = False
+
+    pygame.event.pump()
+    bool_array = pygame.key.get_pressed()
+
+    for each in _quit_shift_keys:
+
+        if bool_array[ each ]:
+            ret = True
+            break
+
+    return ret
+
+#############
+
+def favorite_chord_shift_pressed():
+
+    ret = False
+
+    pygame.event.pump()
+    bool_array = pygame.key.get_pressed()
+
+    for each in _favorite_shift_keys:
+
+        if bool_array[ each ]:
+            ret = True
+            break
+
+    return ret
 
 #############
 
@@ -1597,28 +2156,165 @@ def get_override( menu, sn, override_index ):
 
 #############
 
-def apply_display_regex( name, regexes ):
+def apply_display_filters( name, menu ):
+
+    #print 'In apply_display_filters'
 
     new_name = name
 
-    if regexes != '':
+    ##  Apply straight string substitutions
 
-        rs = string.split( regexes, ';' )
+    for r in menu.display_replacements:
 
-        ##  form is match_pattern:substitution
+        #print 'string: Substituting ' + r[0]
+        #print 'With ' + r[1]
 
-        for each in rs:
+        new_name = string.replace( new_name, r[0], r[1] ) 
 
-            if each != '':
+        #print 'After string.replace ' + new_name
 
-                fields = string.split( each, ':' )
+    ##  Apply regexes
 
-                m = fields[ 0 ]
-                s = fields[ 1 ]
+    #print 'Applying regex to ' + name
 
-                new_name = re.sub( m, s, new_name ) 
+    ##  form is match_pattern:substitution
+
+    for r in menu.display_regexes:
+
+        #print 'regex: Substituting ' + str( r[0] )
+        #print 'With ' + r[1]
+
+        new_name = re.sub( r[0], r[1], new_name ) 
+
+        #print 'After re.sub ' + new_name
 
     return new_name
+
+#############
+
+def load_favorites( subdir, name ):
+
+    favs         = []
+    fav_filename = ''
+
+    if not os.path.exists( subdir ):
+        print 'load_favorites(): favorites subdirectory ' + subdir + ' doesn\'t exist.  No favorites to load'
+        return favs
+
+    try:
+        fav_filename = subdir + os.path.sep + name + '.fav'
+
+        f = open( fav_filename )
+
+        for line in f.readlines():
+            line = line.rstrip()
+
+            if line:
+                favs.append( line )
+
+        f.close()
+
+    except Exception, e:
+
+        print 'load_favorites(): Couldn\'t load favorites for ' + str( name ) + ' ... ' + str( e )
+        fav_filename = ''
+
+    return favs, fav_filename
+
+#############
+
+def apply_favorites_filter( choices ):
+
+    ret_choices = []
+
+    menu, key = get_cur_sel()
+
+    for c in choices:
+        for f in menu.favorites:
+            if os.path.basename( c ) == f:
+
+                ##  match
+                ret_choices.append( c )
+
+                break        ##  break out of inner loop
+
+    return ret_choices
+
+#############
+
+def add_rm_favorite():
+
+    global _cur_index
+
+    menu, key = get_cur_sel()
+    key       = os.path.basename( key )
+
+    ##  Showing favorites, remove currently selected entry from favorites
+
+    if menu.fav_file == '':
+        dbg_print( 'add_rm_favorite(): menu.fav_file is \'\'' )
+        return kNO_CHANGE
+
+    fr = open( menu.fav_file, 'r' )
+    fw = open( menu.fav_file + '-tmp', 'w' )
+
+    if _favorites_filter:
+
+        if key <> '':
+
+            dbg_print( 'add_rm_favorite(): favorites filter is on, so removing ' + str( key ) )
+
+            for line in fr.readlines():
+                line = line.rstrip()
+
+                if line == key:
+                    pass
+
+                else:
+                    fw.writelines( line + '\n' )
+
+            menu.favorites.remove( key )
+
+            ##  also update index now that the list has changed
+
+            _cur_index = _cur_index - 1
+
+            if _cur_index < 1:
+                _cur_index = 1
+
+    else:
+
+        if key <> '':
+
+            dbg_print( 'add_rm_favorite(): favorites filter is not on, so adding ' + str( key ) )
+
+            found = False
+
+            for line in fr.readlines():
+
+                line = line.rstrip()
+
+                if line == key:     ## it's already in there
+                    found = True
+
+                fw.writelines( line + '\n' )
+
+            if not found:
+
+                fw.writelines( key + '\n' ) 
+
+                dbg_print( 'add_rm_favorite(): Not found in favorites file ' + str( menu.fav_file ) + ' so adding ' + str( key ) )
+                menu.favorites.append( key )
+
+    fr.close()
+    fw.close()
+
+    ##  On Windows can't overwrite existing file so remove it first
+
+    os.remove( menu.fav_file )
+    os.rename( menu.fav_file + '-tmp', menu.fav_file )
+
+    return kMENU_CHANGED        ##  length of list has changed, gotta reload
 
 #############
 
@@ -1663,46 +2359,43 @@ def pygame_key_to_ascii( pygame_key ):
 
 def dump_menu( menu ):
 
-    if not DEBUG:
-        return
-
-    dbg_print( 'Dumping menu...' )
-    dbg_print( '' )
-    dbg_print( 'title -> '         + menu.title )
-    dbg_print( 'has_submenus -> '  + str( menu.has_submenus ) )
-    dbg_print( 'app_name -> '      + menu.app_name )
-    dbg_print( 'app_args -> '      + menu.app_args )
-    dbg_print( 'rom_dirs -> '      + menu.rom_dirs )
-    dbg_print( 'rom_exts -> '      + menu.rom_exts )
-    dbg_print( 'pic_dirs -> '      + menu.pic_dirs )
-    dbg_print( 'pre_cmd -> '       + menu.pre_cmd )
-    dbg_print( 'pre_cmd_args -> '  + menu.pre_cmd_args )
-    dbg_print( 'post_cmd -> '      + menu.post_cmd )
-    dbg_print( 'post_cmd_args -> ' + menu.post_cmd_args )
-    dbg_print( 'pic -> '           + menu.pic )
-    dbg_print( 'info -> '          + menu.info )
+    print( 'Dumping menu...' )
+    print( '' )
+    print( 'title -> '         + menu.title )
+    print( 'has_submenus -> '  + str( menu.has_submenus ) )
+    print( 'app_name -> '      + menu.app_name )
+    print( 'app_args -> '      + menu.app_args )
+    print( 'rom_dirs -> '      + menu.rom_dirs )
+    print( 'rom_exts -> '      + menu.rom_exts )
+    print( 'pic_dirs -> '      + menu.pic_dirs )
+    print( 'pre_cmd -> '       + menu.pre_cmd )
+    print( 'pre_cmd_args -> '  + menu.pre_cmd_args )
+    print( 'post_cmd -> '      + menu.post_cmd )
+    print( 'post_cmd_args -> ' + menu.post_cmd_args )
+    print( 'pic -> '           + menu.pic )
+    print( 'info -> '          + menu.info )
  
     dbg_print( 'overrides list' )
 
     for each in menu.overrides.keys():
-        dbg_print( '\t ' + each  )
+        print( '\t ' + each  )
 
         tup = menu.overrides[ each ]
 
         for t in tup:
-            dbg_print( '\t\t ' + t )
+            print( '\t\t ' + t )
 
-    dbg_print( 'filter list' )
+    print( 'filter list' )
 
     for each in menu.filters:
-        dbg_print( '\t ' + each )
+        print( '\t ' + each )
 
-    dbg_print( 'ignores list' )
+    print( 'ignores list' )
 
     for each in menu.ignores:
-        dbg_print( '\t ' + each )
+        print( '\t ' + each )
 
-    dbg_print( '' )
+    print( '' )
 
 #############
 
@@ -1762,10 +2455,6 @@ class menu_item:
         self.rom_dirs       = m.rom_dirs 
         self.rom_exts       = m.rom_exts 
         self.pic_dirs       = m.pic_dirs
-        self.pre_cmd        = m.pre_cmd  
-        self.pre_cmd_args   = m.pre_cmd_args
-        self.post_cmd       = m.post_cmd 
-        self.post_cmd_args  = m.post_cmd_args
         self.pic            = m.pic
         self.info           = m.info
 
@@ -1774,10 +2463,85 @@ class menu_item:
         ##  optional arguments, if they don't exist, they'll be init'ed to None
 
         try:
-            self.display_regex = m.display_regex
+            self.should_exit_after_exe = m.should_exit_after_exe  
 
         except:
-            self.display_regex = None
+            self.should_exit_after_exe = False
+
+        try:
+            self.no_dup_roms = m.no_dup_roms  
+
+        except:
+            self.no_dup_roms = True
+
+        try:
+            self.pre_cmd = m.pre_cmd  
+
+        except:
+            self.pre_cmd = ''
+
+        try:
+            self.pre_cmd_args = m.pre_cmd_args
+
+        except:
+            self.pre_cmd_args = ''
+
+        try:
+            self.post_cmd = m.post_cmd 
+
+        except:
+            self.post_cmd = ''
+
+        try:
+            self.post_cmd_args = m.post_cmd_args
+
+        except:
+            self.post_cmd_args = ''
+
+        try:
+
+            #print 'In ' + self.title
+
+            self.display_replacements = []
+
+            rs = string.split( m.display_replacements, ';' )
+
+            ##  form is old_txt:text_substitution
+
+            for txt in rs:
+
+                fields = string.split( txt, ':' )
+
+                r1 = fields[ 0 ]
+                r2 = fields[ 1 ]
+
+                self.display_replacements.append( (r1, r2) )
+
+        except Exception, e:
+
+            dbg_print( self.title + ' has no display_replacements: ' + str( e ) )
+            self.display_replacements = []
+
+        try:
+            self.display_regexes = []
+
+            rs = string.split( m.display_regexes, ';' )
+
+            ##  form is regex_pattern_to_match:text_substitution
+
+            for regex in rs:
+
+                fields = string.split( regex, ':' )
+
+                r1 = re.compile( fields[ 0 ] )
+                r2 = fields[ 1 ]
+
+                self.display_regexes.append( (r1, r2) )
+
+        except Exception, e:
+
+            dbg_print( self.title + ' has no display_regexes: ' + str( e ) )
+            self.display_regexes = []
 
         try:
             self.overrides = m.overrides
@@ -1794,10 +2558,36 @@ class menu_item:
         try:
             self.filters   = m.filters
 
-        except:
+        except Exception, e:
             self.filters   = []
+    
+        try:
+            self.show_ip_addr = m.show_ip_addr
+
+        except:
+            self.show_ip_addr = False
+
+        if self.has_submenus:       ##  also means no favorites to handle
+
+            fav, ffile     = load_favorites( kFAVORITES_SUBDIR, name )
+            self.favorites = fav
+            self.fav_file  = ffile
+
+        else:
+            self.favorites = []
+            self.fav_file  = ''
 
 ###############################################################################
 
 if __name__ == '__main__':
-    main()
+
+    try:
+        main()
+
+    except Exception, e:
+
+        import traceback
+        print 'Exception: ' + str( e )
+        traceback.print_exc()
+
+## vim:tw=82:expandtab
