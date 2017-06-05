@@ -5,6 +5,42 @@ This file contains a listing of modifications to dreamblade.
 Dates are included.  All changes by <bsturk@comcast.net> unless
 noted.  Newest changes are at the top.
 
+06/03/17 - 2.0.4
+
+    * (wx) Updated compilation issues w/ wxString contructors after moving to new
+      version of wxWidgets.
+    * (ncurses) Fixed issue w/ redrawing event status line over a previous longer
+      line with some TERM settings.
+    * Shackle can trigger infinite loops w/ pieces that attack when entering a
+      cell.  Put in code to detect this and end the game in a draw.
+    * Added infrastructure for ending the game in a draw due to an infinite loop.
+    * Updated ncurses UI to show modified initaitive value in the status area.
+    * Fixed issue w/ Nitro applying to both players if both players rolled 1s for
+      initiative.  Also fixed infinite loop issue if both players had an active Nitro 
+      ability and both rolled 1s during the initiative phase.
+    * Fixed infinite loop issue w/ Knight of the Bronze Horn's Lead ability.
+    * Integrated image for Reactive abilities and removed use of '%' for the
+      symbol.
+    * Fixed crash with the cant_be_disrupted ability.  Was incorrectly handling
+      the EVENT_ID_PIECE_DISRUPTED_NO_MOVE event.
+    * Fixed issue with UI arguments not being handled correctly.
+    * Fixed issue w/ transitioning from the initiative phase to the spawn phase.
+    * Fixed issue w/ debug printing and mutex used for handling multiple threads 
+      printing at the same time.
+    * Fixed Aggrocopter's defense 5 -> 6.
+    * Added missing Stitched lineage to Failed Experiment.
+    * Consistent use of '+' when stating something is being gained.
+    * Luminous Muse's Tempt Madness was missing the Madness from the short and 
+      long descriptions.
+    * Insubordination (Engergy) -> Insubordination (Energy 2)
+    * New custom Junk Golem.
+    * New custom Ylang Ylang.
+    * New custom Bouncing Betty.
+    * Made the Toss ability more flexible and updated Grinder to comply with the 
+      new options.
+    * Updated Colonize to make any any cell claimable as per the FAQ (not a
+      scoring cell).
+
 04/26/15 - 2.0.3
 
     * Added check when targetting enemies with Spur to ensure in play.
