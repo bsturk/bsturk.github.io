@@ -33,7 +33,9 @@
 # arguments:
 #
 #           -window  Force windowed mode rather than the default, fullscreen
-#           -v       Enable debug printing
+#           -d       Enable debug printing
+#           -h       Override horizontal display size
+#           -v       Override vertical display size
 #
 # TODO:
 #
@@ -143,13 +145,17 @@
 #                       Also added capture of stdout/stderr when launching app
 #  1.19    03/04/16   - Added support for dumping full list of current emulator to std output
 #  1.20    11/30/16   - Added support for a menu to exit after executing its program
+#  1.21    01/25/17   - Added support for horiz/vert dimensions on the command line, 
+#                       also allowed going through menus with joystick.
+#  1.22    09/23/17   - Added call to regain input focus after going fullscreen, also removed some
+#                       of the waits which don't seem to be necessary and also slows things down.
 #
 # NOTE: GoodTools codes are here https://en.wikipedia.org/wiki/GoodTools#Good_codes
 #
 ###############################################################################
 
 DEBUG   = False
-VERSION = '1.20'
+VERSION = '1.22'
 
 import os, sys, string, re, random, socket, time, subprocess
 import pygame, pygame.font, pygame.cursors, pygame.draw, pygame.time
@@ -160,9 +166,10 @@ from pygame.locals import *
 ##  Customization
 ##################
 
-_horiz_res                = 1024
-_vert_res                 = 768
+_horiz_res                = 800
+_vert_res                 = 600
 _run_fullscreen           = True
+_use_joystick             = False
 
 ##  all these are in pixels
 
@@ -419,19 +426,14 @@ def main():
             done = True
             break
         
-        elif e.type == KEYDOWN:
-            ret = handle_key( e, e.type, shortened )                                         
-
-        elif e.type == KEYUP:
+        elif e.type == KEYDOWN or e.type == KEYUP:
             ret = handle_key( e, e.type, shortened )                                         
 
         elif e.type is MOUSEBUTTONUP:
             ret = handle_mouse( e )
 
-        #elif e.type is JOYBUTTONUP:
-            #print 'Button up'
-            #button = e.button
-            #print button
+        elif e.type is JOYBUTTONUP or e.type is JOYHATMOTION or e.type is JOYAXISMOTION:
+            ret = handle_joystick( e )
 
         else:
             dbg_print( str( e ) )
@@ -474,6 +476,10 @@ def handle_cmd_line_args( args ):
 
     global _run_fullscreen
     global DEBUG
+    global _horiz_res
+    global _vert_res
+
+    index = 0
 
     for arg in args:
 
@@ -481,9 +487,19 @@ def handle_cmd_line_args( args ):
             print 'handle_cmd_line_args(): Running in a window'
             _run_fullscreen = False
 
-        if arg == '-v':
+        if arg == '-d':
             print 'handle_cmd_line_args(): Enabling debug mode'
             DEBUG = True
+
+        if arg == '-h':
+            print 'handle_cmd_line_args(): Overriding horizontal size'
+            _horiz_res = int( args[ index + 1 ] )
+
+        if arg == '-v':
+            print 'handle_cmd_line_args(): Overriding vertical size'
+            _vert_res = int( args[ index + 1 ] )
+
+        index += 1
 
 #############
 
@@ -929,6 +945,15 @@ def go_back():
     global _cur_index
     global _in_submenu
     global _choices
+    global _favorites_filter
+
+    if _favorites_filter:
+
+        ##  When going back and looking at favorites, go back to submenu
+        ##  and at the tucked away index.
+
+        _cur_index = _pop_fav_index
+        ret        = kMENU_CHANGED
 
     if _in_submenu:
 
@@ -937,6 +962,8 @@ def go_back():
         _in_submenu = False
 
         return kMENU_CHANGED
+
+    _favorites_filter = False
 
     return kNO_CHANGE
 
@@ -1211,8 +1238,9 @@ def exec_app( cur_menu, key ):
         ##  let a different app run full screen by going windowed temporarily
 
         _screen = pygame.display.set_mode( ( _horiz_res, _vert_res ) )
+        pygame.event.set_grab( True )
 
-    pygame.time.wait( 1000 )        ##  slight delay to avoid apps like z26 not going fullscreen
+    #pygame.time.wait( 1000 )        ##  slight delay to avoid apps like z26 not going fullscreen
 
     cur_dir = os.getcwd() 
 
@@ -1277,13 +1305,82 @@ def exec_app( cur_menu, key ):
             ##  if it were to gain focus while we are transitioning back to 
             ##  fullscreen we would be minimized
 
-            pygame.time.wait( 2000 )
+            #pygame.time.wait( 2000 )
+            pass
 
         ##  go back to full-screen if we were fs now that everything is done
 
         _screen = pygame.display.set_mode( ( _horiz_res, _vert_res ), FULLSCREEN )
 
     pygame.event.clear()        ##  pygame seems to pick up keystrokes of spawned app
+
+#############
+
+def move_selection_down():
+
+    global _cur_index
+    global _favorites_filter
+    global _menu_full_names
+
+    ##  move the selection down
+
+    currently_shown_entries = _choices
+
+    if _favorites_filter:
+        currently_shown_entries = _menu_full_names      ## not showing all when filtering on favs
+
+    if _cur_index < len( currently_shown_entries ):
+        _cur_index += 1
+
+    return kSEL_CHANGED
+
+#############
+
+def move_selection_up():
+
+    global _cur_index
+
+    ##  move the selection up
+
+    if _cur_index > 1:
+        _cur_index -= 1
+
+    return kSEL_CHANGED
+
+#############
+
+def jump_selection_down():
+
+    global _cur_index
+    global _choices
+    global _menu_full_names
+
+    currently_shown_entries = _choices
+
+    if _favorites_filter:
+        currently_shown_entries = _menu_full_names      ## not showing all when filtering on favs
+
+    if ( _cur_index + _jump_amount ) < len( currently_shown_entries ):
+        _cur_index += _jump_amount
+
+    else:
+        _cur_index = len( currently_shown_entries )
+
+    return kSEL_CHANGED
+
+#############
+
+def jump_selection_up():
+
+    global _cur_index
+
+    if ( _cur_index - _jump_amount ) > 1:
+        _cur_index -= _jump_amount
+
+    else:
+        _cur_index = 1
+
+    return kSEL_CHANGED
 
 #############
 
@@ -1300,29 +1397,12 @@ def handle_key( event, type, shortend_entries ):
         if event.key in _menu_down_keys:
 
             dbg_print( 'handle_key(): menu down key selected' )
-
-            ##  move the selection down
-
-            currently_shown_entries = _choices
-
-            if _favorites_filter:
-                currently_shown_entries = _menu_full_names      ## not showing all when filtering on favs
-
-            if _cur_index < len( currently_shown_entries ):
-                _cur_index += 1
-
-            ret = kSEL_CHANGED
+            ret = move_selection_down()
 
         elif event.key in _menu_up_keys:
 
             dbg_print( 'handle_key(): menu up key selected' )
-            
-            ##  move the selection up
-
-            if _cur_index > 1:
-                _cur_index -= 1
-
-            ret = kSEL_CHANGED
+            ret = move_selection_up();
 
         elif event.key in _fast_menu_down_keys:
 
@@ -1332,18 +1412,7 @@ def handle_key( event, type, shortend_entries ):
                 ret = jump_to_next_letter( shortend_entries )       ##  routine modifies _cur_index
 
             else:
-                currently_shown_entries = _choices
-
-                if _favorites_filter:
-                    currently_shown_entries = _menu_full_names      ## not showing all when filtering on favs
-
-                if ( _cur_index + _jump_amount ) < len( currently_shown_entries ):
-                    _cur_index += _jump_amount
-
-                else:
-                    _cur_index = len( currently_shown_entries )
-
-                ret = kSEL_CHANGED
+                ret = jump_selection_down()
 
         elif event.key in _fast_menu_up_keys:
 
@@ -1353,16 +1422,9 @@ def handle_key( event, type, shortend_entries ):
                 ret = jump_to_prev_letter( shortend_entries )        ##  routine modifies _cur_index
                 
             else:
+                ret = jump_selection_up()
 
-                if ( _cur_index - _jump_amount ) > 1:
-                    _cur_index -= _jump_amount
-
-                else:
-                    _cur_index = 1
-
-                ret = kSEL_CHANGED
-
-    if type == KEYUP:
+    elif type == KEYUP:
 
         if event.key in _select_keys:
 
@@ -1372,19 +1434,7 @@ def handle_key( event, type, shortend_entries ):
         elif event.key in _back_keys:
 
             dbg_print( 'handle_key(): back key selected' )
-
-            if _favorites_filter:
-
-                ##  When going back and looking at favorites, go back to submenu
-                ##  and at the tucked away index.
-
-                _cur_index = _pop_fav_index
-                ret        = kMENU_CHANGED
-
-            else:
-                ret = go_back()
-
-            _favorites_filter = False
+            ret = go_back()
 
         elif event.key in _favorite_filter_keys:
 
@@ -1438,6 +1488,43 @@ def handle_key( event, type, shortend_entries ):
                     ascii_char = string.upper( ascii_char )
             
             ret = jump_to_first( ascii_char, shortend_entries )
+
+    return ret
+
+#############
+
+def handle_joystick( event ):
+
+    ret = kNO_CHANGE
+
+    if not _use_joystick:
+        return ret
+
+    if event.type == JOYHATMOTION:
+
+        print 'Hat motion ' + str( event.hat ) + ' ' + str( event.value )
+
+        if event.value == ( 0, 1 ):
+            ret = move_selection_up();
+
+        elif event.value == ( 0, -1 ):
+            ret = move_selection_down();
+
+        elif event.value == ( 1, 0 ):
+            ret = jump_selection_down();
+
+        elif event.value == ( -1, 0 ):
+            ret = jump_selection_up();
+
+    elif event.type == JOYBUTTONUP:
+
+        if event.button == 2:
+            dbg_print( 'handle_joystick(): select button selected' )
+            ret = go_forward()
+
+        if event.button == 1:
+            dbg_print( 'handle_joystick(): back button selected' )
+            ret = go_back()
 
     return ret
 
