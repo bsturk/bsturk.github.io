@@ -5,7 +5,7 @@
 # file:     frontend.py
 #
 # author:   brian m sturk   bsturk@comcast.net
-#                           http://home.comcast.net/~bsturk/
+#                           http://www.briansturk.com
 # purpose:
 #           Menu based launcher useful for emulators.
 #
@@ -14,8 +14,8 @@
 #           Uses the pygame library.
 #
 # created:  12/19/05
-# last_mod: 01/11/16
-# version:  1.18
+# last_mod: 09/24/17
+# version:  1.22
 #
 # usage, etc:
 #
