@@ -7,16 +7,22 @@ disk_args     = r'-cartridge g:\rec\emu\ti\ti99_4a\media\cart\util\disk_manager_
 title         = 'TI 99/4A'
 has_submenus  = True
 app_name      = r'g:\rec\emu\multi\mess\mess.exe'
-app_args      = mess_args + ' -cart1 "%F"'
 rom_dirs      = ''
 pic_dirs      = ''
 rom_exts      = 'rpk;dsk'
-pre_cmd       = r'g:\dev\proj\frontend\pygame\joykey.bat'
+pre_cmd       = r'g:\rec\emu\utils\emu_box_scripts\joykey.bat'
 pre_cmd_args  = 'ti99.cfg'
-post_cmd      = r'g:\dev\proj\frontend\pygame\joykey.bat'
+post_cmd      = pre_cmd
 post_cmd_args = 'menu.cfg'
 pic           = r'pics/ti99.jpg'
 info          = 'FCTN key -> Alt   Redo -> FCTN & 8   Back -> FCTN & 9;Exit -> F6 then Esc or hold Fire for 3+ seconds'
+
+if socket.gethostname() == 'gpdwin':
+    info      = 'FCTN key -> Alt   Redo -> FCTN & 8   Back -> FCTN & 9;Exit -> F6 then Esc or Select'
+    app_name  = r'g:\rec\emu\multi\mess-gpd\mess.exe'
+    mess_args = r'ti99_4a -video ddraw -joystick -rompath g:\rec\emu\multi\mess-gpd\bios -cfg_directory g:\rec\emu\multi\mess-gpd\cfg'
+
+app_args      = mess_args + ' -cart1 "%F"'
 
 rom_root      = r'g:\rec\emu\ti\ti99_4a\media\cart\games'
 dsk_root      = r'g:\rec\emu\ti\ti99_4a\media\dsk\games'

@@ -14,8 +14,8 @@
 #           Uses the pygame library.
 #
 # created:  12/19/05
-# last_mod: 09/24/17
-# version:  1.22
+# last_mod: 10/11/17
+# version:  1.23
 #
 # usage, etc:
 #
@@ -149,13 +149,18 @@
 #                       also allowed going through menus with joystick.
 #  1.22    09/23/17   - Added call to regain input focus after going fullscreen, also removed some
 #                       of the waits which don't seem to be necessary and also slows things down.
+#  1.23    10/11/17   - Added support for regaining input focus when it is lost
+#                       (when spawning child app) and regained.
+#                     - Added code to display current state of modifier keys.
+#                       Joy2Key sometimes causes one to stick if used to exit an
+#                       application.
 #
 # NOTE: GoodTools codes are here https://en.wikipedia.org/wiki/GoodTools#Good_codes
 #
 ###############################################################################
 
 DEBUG   = False
-VERSION = '1.22'
+VERSION = '1.23'
 
 import os, sys, string, re, random, socket, time, subprocess
 import pygame, pygame.font, pygame.cursors, pygame.draw, pygame.time
@@ -434,6 +439,18 @@ def main():
 
         elif e.type is JOYBUTTONUP or e.type is JOYHATMOTION or e.type is JOYAXISMOTION:
             ret = handle_joystick( e )
+
+        elif e.type == ACTIVEEVENT:
+
+            dbg_print( 'Got active event' )
+
+            ## force input back into this program, sometimes it doesn't work
+
+            #if e.gain == 1:
+                #pygame.event.set_grab( True )
+
+            #if e.gain == 0:
+                #pygame.event.set_grab( False )
 
         else:
             dbg_print( str( e ) )
@@ -1577,6 +1594,27 @@ def handle_mouse( event ):
 
 #############
 
+def get_modifier_string( _mod_bit_mask ):
+
+    mod_str = ''
+    vals    = []
+
+    if ( pygame.key.get_mods() & KMOD_SHIFT ):
+        vals.append( 'Shift' )
+        
+    if ( pygame.key.get_mods() & KMOD_CTRL ):
+        vals.append( 'Ctrl' )
+
+    if ( pygame.key.get_mods() & KMOD_ALT ):
+        vals.append( 'Alt' )
+
+    for val in vals:
+        mod_str += val + ' '
+
+    return mod_str
+
+#############
+
 def render_entries( shortened ):
 
     ##  Draw all of the text string choices
@@ -1804,7 +1842,13 @@ def render_info():
 
             count += 1
 
-    ##  @ bottom show actual filename of selected entry
+    ##  @ bottom show actual filename of selected entry, also show any held modifier keys
+
+    mod_bitmask = pygame.key.get_mods()
+    mod_str     = get_modifier_string( mod_bitmask )
+
+    if mod_str != '':
+        sn += ' --- ' + mod_str
 
     text    = _info_font.render( sn, 1, _fg_color )
     textpos = text.get_rect()
