@@ -5,22 +5,97 @@ This file contains a listing of modifications to dreamblade.
 Dates are included.  All changes by <bsturk@comcast.net> unless
 noted.  Newest changes are at the top.
 
+07/21/18 - 2.0.5
+
+    * Added note to welcome dialog that Ctrl is mapped to Cmd on the Mac.
+    * Fixed crash w/ updated wxWidgets when handling keypresses.
+    * Fixed Carrion Warcharm's XML def.
+    * Migrated code to wxWidgets 3.x for MacOS.
+    * Ported code to work on 64 bit MacOS.
+    * Fixed issue with double submissions of event registering for Detonate.
+    * Fixed issue where piece marked for both disruption and destruction and
+      getting a deathblow would get an additional deathblow (in their empty
+      cell after being disrupted).
+    * Added check for number of turns getting very high (>200) 
+      during AI -vs- AI at low minmax depth.  This happens when
+      both reserves are empty and the AI just moves pieces back and forth.
+    * Fixed issue w/ Ferocity abilities used by Rage of One were not given an 
+      initial controller.
+    * Added u-z to display characters in the event a warband has more than 20 minis.
+    * Fixed mismatch of Ninja Instructors Halo Crit 2 to description which was Crit 3.
+    * Added missing initialization of controller to copied abilities.
+    * Put in check for Copy Enemies ability's owning piece to be in play.
+      There were never enemies in zones other than in play.
+    * Fixed spelling error w/ The Gallows activated ability long description.
+    * Revamped how Blackmail is handled.  Now correctly gives control of an
+      ability for the duration of the activation.  It was never properly handled
+      before giving permanent control to the opponent.
+    * multiple_actions_and_move_single_x now verifies that actions actually happen.
+    * Updated Grand Hive to check for unique and also verify cell is able to 
+      be spawned into (i.e. blocked by Soul Harrow).
+    * Updated move_multiple to track targets and resolve the ability with those targets.
+    * Added always_on parameter to spawnable_cells_modify.  This set to false 
+      keeps Yazrael, Dreadfiend's Soul Harrow ability from being in the spawn
+      cell path when not in play.
+    * Updated Shapeshifter ability to verify the sacrifice happens before
+      spawning.  Also ensured it handled resolving when either sacrificing or passing.
+    * Fixed issue with action_and_add_to_combat_damage, banish and sacrifice
+      were ignoring the conditions and just doing the action to the owning piece.
+    * New event info for piece_removed_from_game.
+    * Added support for piece conditions and damage calculation for action_and_assign_damage.
+    * Fixed action_and_assign_damage, it was not handling the notify of actions correctly.
+    * EVENT_ID_PIECE_DISRUPTED_MOVED and EVENT_ID_PIECE_DISRUPTED_MOVED now both
+      send the same event for consistency.
+    * Big change to ensure that effects or abilities that trigger off an action
+      such as sacrificing and banishing actually happening before allowing effect. 
+      Relevant actions and abilities were all updated.  This is now common code, 
+      and doesn't need to be done per ability/effect.
+    * Fixed rare crash with action_destroy.
+    * Moved damage calculation for ABILITY_TYPE_ACTION_AND_ADD_TO_COMBAT_DAMAGE_ACTIVATED
+      until after action resolves in the event the game state has changed after
+      the action is executed.
+    * Added option for opponent gaining conquest points from 
+      ABILITY_TYPE_ACTION_AND_GAIN_CONQUEST_POINTS.
+    * Added check for unique when handling Beacon ability.
+    * Handled active (priority) player determination during the initiatve phase
+      when there is a tie with both initiative and victory points.
+    * Made some small performance improvements.
+    * spawn_no_cost ability was not being notified of pass or spawn happening.
+    * Renamed Alien Earwig's take control ability to Mindmend.
+    * Added support for ABILITY_TYPE_TAKE_CONTROL_OF_PIECE_ACTIVATED being
+      a 'may' ability.  Updated all relevant abilities.
+    * Fixed Wail to take 'snapshot' of eligible creatures to banish.  Also now
+      correctly updates context_piece of ability after each creature is banished.
+    * Added missing wording about being in reserves requirement for Guardian Angel
+      and Stained-Glass Angel.
+    * Added ability category type ABILITY_TYPE_LEAP for Leap 2.
+    * Fixed ability category of Carrion Warcharm's Valor-Edged Scare.
+    * New custom McMaster.
+    * New abilty activated_ability_if_action_during_combat.
+    * Fixed potential issue with not allowing multiple triggers of Bloodthirsty
+      for a single ability instance.
+    * Fixed Divine Weaver, Nascent Hope, Nascent Potential, Nascent Desire,
+      Nascent Doubt, Unificator, Ancient Valkyrie, and Gent symbol usage, (...) not {...}.
+    * Migrated Windows project to Visual Studio 2010 which fixed a crash that was
+      happening with cross compiled mingw32.
+    * Fixed up some MSVC compilation issues needed to allow debugging of Windows crash 
+      with 2.0.4.
+
 06/03/17 - 2.0.4
 
-    * (wx) Updated compilation issues w/ wxString contructors after moving to new
+    * (wx) Updated compilation issues w/ wxString constructors after moving to new
       version of wxWidgets.
     * (ncurses) Fixed issue w/ redrawing event status line over a previous longer
       line with some TERM settings.
     * Shackle can trigger infinite loops w/ pieces that attack when entering a
       cell.  Put in code to detect this and end the game in a draw.
     * Added infrastructure for ending the game in a draw due to an infinite loop.
-    * Updated ncurses UI to show modified initaitive value in the status area.
+    * Updated ncurses UI to show modified initiative value in the status area.
     * Fixed issue w/ Nitro applying to both players if both players rolled 1s for
       initiative.  Also fixed infinite loop issue if both players had an active Nitro 
       ability and both rolled 1s during the initiative phase.
     * Fixed infinite loop issue w/ Knight of the Bronze Horn's Lead ability.
-    * Integrated image for Reactive abilities and removed use of '%' for the
-      symbol.
+    * Integrated image for Reactive abilities and removed use of '%' for the symbol.
     * Fixed crash with the cant_be_disrupted ability.  Was incorrectly handling
       the EVENT_ID_PIECE_DISRUPTED_NO_MOVE event.
     * Fixed issue with UI arguments not being handled correctly.
@@ -30,16 +105,14 @@ noted.  Newest changes are at the top.
     * Fixed Aggrocopter's defense 5 -> 6.
     * Added missing Stitched lineage to Failed Experiment.
     * Consistent use of '+' when stating something is being gained.
-    * Luminous Muse's Tempt Madness was missing the Madness from the short and 
-      long descriptions.
+    * Luminous Muse's Tempt Madness was missing the Madness from the short and long 
+      descriptions.
     * Insubordination (Engergy) -> Insubordination (Energy 2)
     * New custom Junk Golem.
     * New custom Ylang Ylang.
     * New custom Bouncing Betty.
-    * Made the Toss ability more flexible and updated Grinder to comply with the 
-      new options.
-    * Updated Colonize to make any any cell claimable as per the FAQ (not a
-      scoring cell).
+    * Made the Toss ability more flexible and updated Grinder to comply with the new options.
+    * Updated Colonize to make any any cell claimable as per the FAQ (not a scoring cell).
 
 04/26/15 - 2.0.3
 
