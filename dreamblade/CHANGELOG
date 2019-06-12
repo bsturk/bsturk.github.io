@@ -5,6 +5,42 @@ This file contains a listing of modifications to dreamblade.
 Dates are included.  All changes by <bsturk@comcast.net> unless
 noted.  Newest changes are at the top.
 
+06/11/19 - 2.0.6
+
+    * Fixed crash with effect_move_creature_between_zones_if_target_destroyed and
+      registering the destroy_piece_hook.
+    * Fixed crash with simultaneous triggered abilities causing a piece
+      to leave play and a special attack not checking if targets that
+      were present when triggered are still there when resolving.
+    * Optimized action_disrupt.
+    * action notify pointer now goes through undo engine, was causing subtle
+      issues not putting through undo.
+    * Added missing opponent_gains boolean to Possessed Poinsettia's XML def.
+    * Fixed a debug issue w/ initializing warbands for the option
+      to dump pieces to stdout and the warband builder.
+    * Fixed some warnings w/ mingw build.
+    * Removed some debug prints that were enabled in release mode.
+    * Fixed a state/undo issue w/ effect_gain_static_abilities.
+    * Fixed issue w/ activated_static_ability.  It was enabling the aggregated
+      static ability more than once through the sustained effect.
+    * Fixed Klepto's XML def.  It cannot use combat blade abilities.
+    * Fixed issue w/ Toss and abilities that "steal" or "rip" blades.
+    * Fixed issue w/ Vortex.  Some cells had the wrong clockwise/counter clockwise cells.
+    * Fixed bug with in_play_zone() function. Was including not in play zones.
+      Should fix a lot of subtle gameplay issues and bump performance up a little.
+    * Fixed an issue where the action group string was going past the end of
+      buffer, corrupting the stack.
+    * Add missing <name> to xml def for Carrion Warcharm.
+    * action_destroy replacement now handles listening for destruction for setting
+      was_destroyed.
+    * Improved replacement effect handling for action_destroy.  If a replacement
+      effect does not result in destruction, the player continues to resolve
+      replacements until it is resolved or there are no more replacements to resolve.
+    * Added a new state change type, state_change_vector_int.
+    * Small non-gameplay related change to sort warbands based on display name
+      to ensure better chance of reproducible games w/ same warbands and random
+      seed.
+
 07/21/18 - 2.0.5
 
     * Added note to welcome dialog that Ctrl is mapped to Cmd on the Mac.
@@ -1825,7 +1861,7 @@ noted.  Newest changes are at the top.
       * Made Synergy X more generic w/ 2 different calculations
         instead of discrete numbers (X count and num spawn).
       * Won't start game if not at least 1 piece in each warband.
-      * Fixed interaction ASSERT w/ Hammerhead's Double Stakes and One-Man Army's
+      * Fixed interaction assert w/ Hammerhead's Double Stakes and One-Man Army's
         Deny Victory.  It is possible to be gaining more than 1 victory pt.
       * wx UI now redraws zoomed in piece if either damage is assigned or
         counters are assigned.
