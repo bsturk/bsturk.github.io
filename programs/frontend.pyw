@@ -14,8 +14,8 @@
 #           Uses the pygame library.
 #
 # created:  12/19/05
-# last_mod: 10/11/17
-# version:  1.23
+# last_mod: 05/02/20
+# version:  1.28
 #
 # usage, etc:
 #
@@ -32,10 +32,11 @@
 #
 # arguments:
 #
-#           -window  Force windowed mode rather than the default, fullscreen
-#           -d       Enable debug printing
-#           -h       Override horizontal display size
-#           -v       Override vertical display size
+#           -window     Force windowed mode rather than the default, fullscreen
+#           -d          Enable debug printing
+#           -D <system> Dump cleaned up names for <system>
+#           -h          Override horizontal display size
+#           -v          Override vertical display size
 #
 # TODO:
 #
@@ -51,7 +52,7 @@
 #  0.2      01/22/06  - Bug fixes, added key repeat and params.
 #  0.3      01/30/06  - Added a few more features like showing rom count
 #                       and showing currently selected rom over pic.
-#  0.4      03/25/06  - Added support for multiple image directories (pic_dirs), 
+#  0.4      03/25/06  - Added support for multiple image directories ( pic_dirs ), 
 #                       and searching for subdir in each based on first letter
 #                       or rom/dsk image.
 #           04/24/06  - Fixed bug where non-override name was being shown in pic
@@ -68,14 +69,14 @@
 #                     - Fixed potential issue w/ short_name vars shadowing routine name called short_name.
 #                     - Fixed warnings found by pychecker.
 #                     - Warp the mouse to 0,0 when starting program.
-#                       (applewin, although it still overrides it)
+#                       ( applewin, although it still overrides it )
 #                     - Added check for existance of menu sub-directory.
 #                     - Added support for skipping through entries by letter.  This is done by holding down
 #                       a key marked as _alpha_menu_shift_keys and then pressing a key in _fast_menu_up_keys or a
 #                       key in _fast_menu_down_keys.  This way one press will go from any entry in 'a' to the first 
 #                       'b' entry.
 #                     - Added support for KEYUP events and differentiated between keys that should respond
-#                       to KEYDOWN (scrolling type) and KEYUP (button presses/held).
+#                       to KEYDOWN ( scrolling type ) and KEYUP ( button presses/held ).
 #                     - Fixed a bug where the wrong override index was being used.
 #  0.6     11/20/06   - Fixed handling of uppercase letters.  New behavior is to treat all caps as one letter
 #                       so they are all skipped if using the accelerated buttons.  This is mainly for my
@@ -125,8 +126,8 @@
 #  1.10    05/31/13   - Fixed issue w/ display_regexes.  Menus now handle OS X home dirs
 #  1.11    10/05/13   - Added new substitution vars, %d for display_name, %v to
 #                       generate a VICE fliplist.
-#                       Revamped extension priority so it now works correctly (and
-#                       faster).
+#                       Revamped extension priority so it now works correctly ( and
+#                       faster ).
 #  1.12    10/31/13   - Fixed crash when removing favorites at the front and back
 #                       of the list.
 #  1.13    11/25/13   - Fixed crash when attempting to remove a file from
@@ -135,7 +136,7 @@
 #                       favorites.
 #  1.15    02/08/14   - Fixed issue w/ higher priority files not being honored.
 #  1.16    06/16/15   - Added visual feedback while loading roms
-#                       Added support for no file extension (mame roms)
+#                       Added support for no file extension ( mame roms )
 #                       no_dup_roms is now menu specific option
 #  1.17    11/16/15   - Revamped filtering to do it all in memory and handle
 #                       filtering in multiple directories so that bin and dsk
@@ -150,17 +151,29 @@
 #  1.22    09/23/17   - Added call to regain input focus after going fullscreen, also removed some
 #                       of the waits which don't seem to be necessary and also slows things down.
 #  1.23    10/11/17   - Added support for regaining input focus when it is lost
-#                       (when spawning child app) and regained.
+#                       ( when spawning child app ) and regained.
 #                     - Added code to display current state of modifier keys.
 #                       Joy2Key sometimes causes one to stick if used to exit an
 #                       application.
+#  1.24    11/09/17   - Fixed issue w/ handling lower priority matched images.
+#                       Added command line arg to dump short/long entries.
+#                       Changed call of os.path.exists to os.path.isdir which is
+#                       more appropriate.
+#  1.25    11/16/18   - Moved handling of -D param before pygame for running on
+#                       system without proper audio, graphics, etc.
+#  1.26    12/13/18   - Added exception handler around launch of emulator in the
+#                       event there is an issue, it still cleans up properly.
+#  1.27    01/11/20   - Added support for jumping to entry via multiple characters
+#                       in a string, not just the first one typed.
+#  1.28    05/02/20   - Added support for handling joysticks coming and going,
+#                       analog stick support, and debouncing of joystick inputs.
 #
 # NOTE: GoodTools codes are here https://en.wikipedia.org/wiki/GoodTools#Good_codes
 #
 ###############################################################################
 
 DEBUG   = False
-VERSION = '1.23'
+VERSION = '1.28'
 
 import os, sys, string, re, random, socket, time, subprocess
 import pygame, pygame.font, pygame.cursors, pygame.draw, pygame.time
@@ -171,56 +184,59 @@ from pygame.locals import *
 ##  Customization
 ##################
 
-_horiz_res                = 800
-_vert_res                 = 600
-_run_fullscreen           = True
-_use_joystick             = False
+_horiz_res                 = 800
+_vert_res                  = 600
+_run_fullscreen            = True
+_use_joystick              = False
 
 ##  all these are in pixels
 
-_menu_font_size           = 32
-_info_font_size           = 26
-_rom_pic_font_size        = 16
-_rom_count_font_size      = 24
+_menu_font_size            = 32
+_info_font_size            = 26
+_rom_pic_font_size         = 16
+_rom_count_font_size       = 24
 
-_item_spacing             = 0
-_item_padding             = 3
+_item_spacing              = 0
+_item_padding              = 3
 
-_bg_color                 = 0, 0, 0
-_fg_color                 = 250, 240, 230
-_cur_sel_color            = 0, 255, 0
-_border_color             = 250, 240, 230
-_dlg_bg_color             = 125, 125, 125
-_dlg_fg_color             = 0, 0, 0
-_rom_pic_bg_color         = 255, 255, 255
-_rom_pic_fg_color         = 0, 0, 0
-_rom_name_alpha           = 225             # 0 to 255, 0 is completely transparent
-_dlg_alpha                = 250
+_bg_color                  = 0, 0, 0
+_fg_color                  = 250, 240, 230
+_cur_sel_color             = 0, 255, 0
+_border_color              = 250, 240, 230
+_dlg_bg_color              = 125, 125, 125
+_dlg_fg_color              = 0, 0, 0
+_rom_pic_bg_color          = 255, 255, 255
+_rom_pic_fg_color          = 0, 0, 0
+_rom_name_alpha            = 225             # 0 to 255, 0 is completely transparent
+_dlg_alpha                 = 250
 
-_key_repeat_delay         = 200
-_key_repeat_interval      =  75
+_key_repeat_delay          = 200
+_key_repeat_interval       = 80
 
-_main_title               = 'EMU Launcher'
-_jump_amount              = 10     ##  number of entries to skip when using fast menu traversal
-_show_name_in_pic         = True
+_dump_entries              = False
+_dump_menu_item            = ''
+
+_main_title                = 'EMU Launcher'
+_jump_amount               = 10     ##  number of entries to skip when using fast menu traversal
+_show_name_in_pic          = True
 
 #################
 ##  Key mappings
 #################
 
-_menu_up_keys             = [ K_UP ]
-_menu_down_keys           = [ K_DOWN ]
-_fast_menu_up_keys        = [ K_LEFT ]
-_fast_menu_down_keys      = [ K_RIGHT ]
-_favorite_filter_keys     = [ K_F7,  K_F3 ] 
-_favorite_add_rm_keys     = [ K_F8,  K_F4 ] 
-_select_keys              = [ K_F9,  K_F1 ]
-_back_keys                = [ K_F10, K_F2 ] 
-_alpha_menu_shift_keys    = [ K_F11 ]       ##  pressing this jumps by letter when moving fast up/down
-_favorite_shift_keys      = [ K_F11 ]       ##  this needs to be pressed as well as favorite add/rm
-_dump_list_keys           = [ K_F6 ]
-_quit_shift_keys          = [ K_F11 ]       ##  this needs to be pressed as well as quit
-_quit_keys                = [ K_F12, K_F5 ]
+_menu_up_keys              = [ K_UP ]
+_menu_down_keys            = [ K_DOWN ]
+_fast_menu_up_keys         = [ K_LEFT ]
+_fast_menu_down_keys       = [ K_RIGHT ]
+_favorite_filter_keys      = [ K_F7,  K_F3 ]
+_favorite_add_rm_keys      = [ K_F8,  K_F4 ]
+_select_keys               = [ K_F9,  K_F1 ]
+_back_keys                 = [ K_F10, K_F2 ]
+_alpha_menu_shift_keys     = [ K_F11 ]       ##  pressing this jumps by letter when moving fast up/down
+_favorite_shift_keys       = [ K_F11 ]       ##  this needs to be pressed as well as favorite add/rm
+_dump_list_keys            = [ K_F6 ]
+_quit_shift_keys           = [ K_F11 ]       ##  this needs to be pressed as well as quit
+_quit_keys                 = [ K_F12, K_F5 ]
 
 ##################
 ##  End Customization
@@ -228,58 +244,63 @@ _quit_keys                = [ K_F12, K_F5 ]
 
 ##  NOTE:  These #s assume that a returned surface will never be any of these values
 
-kLOAD_NEW_IMAGE           = -1
-kNO_IMAGE                 = 0
-                          
-kNO_CHANGE                = 0
-kMENU_CHANGED             = 1 
-kSEL_CHANGED              = 2 
-                          
-kMENU_SUBDIR              = 'menus'
-kFAVORITES_SUBDIR         = 'favorites'
-kEXIT_SENTINAL            = 'EXIT'
-kDEFAULT_SENTINAL         = 'DEFAULT'
+kLOAD_NEW_IMAGE            = -1
+kNO_IMAGE                  = 0
 
-kMAX_DISKS                = 6
+kNO_CHANGE                 = 0
+kMENU_CHANGED              = 1
+kSEL_CHANGED               = 2
+
+kMENU_SUBDIR               = 'menus'
+kFAVORITES_SUBDIR          = 'favorites'
+kEXIT_SENTINAL             = 'EXIT'
+kDEFAULT_SENTINAL          = 'DEFAULT'
+
+kMAX_DISKS                 = 6
+kJOYSTICK_DEBOUNCE         = 75
 
 ## index into override tuple
 
-kOVERRIDE_NAME_INDEX      = 0
-kOVERRIDE_APP_INDEX       = 1
-kOVERRIDE_ARGS_INDEX      = 2
-kOVERRIDE_PRE_INDEX       = 3
-kOVERRIDE_PRE_ARGS_INDEX  = 4
-kOVERRIDE_POST_INDEX      = 5
-kOVERRIDE_POST_ARGS_INDEX = 6
-kOVERRIDE_INFO_INDEX      = 7
+kOVERRIDE_NAME_INDEX       = 0
+kOVERRIDE_APP_INDEX        = 1
+kOVERRIDE_ARGS_INDEX       = 2
+kOVERRIDE_PRE_INDEX        = 3
+kOVERRIDE_PRE_ARGS_INDEX   = 4
+kOVERRIDE_POST_INDEX       = 5
+kOVERRIDE_POST_ARGS_INDEX  = 6
+kOVERRIDE_INFO_INDEX       = 7
 
-_screen                   = None
-_img                      = kLOAD_NEW_IMAGE
-_menu_font                = None
-_info_font                = None
-_rom_pic_font             = None
-_rom_count_font           = None
-_cur_index                = 1      ##  always starts at the first, 1 based
-_pop_main_index           = 1      ##  always starts at the first, 1 based
-_pop_fav_index            = 1      ##  always starts at the first, 1 based
-_max_display              = 0      ##  max entries that can be shown in menu with given font size
-_select_center_index      = 0      ##  index of displayed entries that will be centered given font size
-_mouse_info               = None   ##  used for detecting double clicks
+_screen                    = None
+_img                       = kLOAD_NEW_IMAGE
+_menu_font                 = None
+_info_font                 = None
+_rom_pic_font              = None
+_rom_count_font            = None
+_cur_index                 = 1      ##  always starts at the first, 1 based
+_pop_main_index            = 1      ##  always starts at the first, 1 based
+_pop_fav_index             = 1      ##  always starts at the first, 1 based
+_max_display               = 0      ##  max entries that can be shown in menu with given font size
+_select_center_index       = 0      ##  index of displayed entries that will be centered given font size
+_mouse_info                = None   ##  used for detecting double clicks
+_controller                = None
+_joy_ticks                 = 0
 
-_top_level_menus          = {}     ##  holds dict of top level menus
-_choices                  = {}     ##  holds dict of current menu item names, unfiltered
-_menu_full_names          = []     ##  holds current menu names in full
-_in_submenu               = False
-_favorites_filter         = False
+_top_level_menus           = {}     ##  holds dict of top level menus
+_choices                   = {}     ##  holds dict of current menu item names, unfiltered
+_menu_full_names           = []     ##  holds current menu names in full
+_in_submenu                = False
+_favorites_filter          = False
+_last_press_tick_count     = 0
+_keypress_sequence         = ''
 
-_entry_rect               = pygame.Rect( 0, 0, 0, 0 )
-_info_rect                = pygame.Rect( 0, 0, 0, 0 )
-_pic_rect                 = pygame.Rect( 0, 0, 0, 0 )
+_entry_rect                = pygame.Rect( 0, 0, 0, 0 )
+_info_rect                 = pygame.Rect( 0, 0, 0, 0 )
+_pic_rect                  = pygame.Rect( 0, 0, 0, 0 )
 
-_entry_surface            = None
-_info_surface             = None
-_pic_surface              = None
-_dlg_surface              = None
+_entry_surface             = None
+_info_surface              = None
+_pic_surface               = None
+_dlg_surface               = None
 
 #############
 
@@ -325,6 +346,62 @@ key_mapping = {
 
 #############
 
+def dump_entries( _menu ):
+
+    ## This dumps basefile name and fqn name to create symlinks for sd
+    ## card, etc
+
+    index       = 0
+    full, short = short_entries( _choices.keys() )
+
+    for c in short:
+
+        ext_ind   = c.rfind( '.' )
+        ext       = c[ ext_ind: ]
+
+        filt_file = apply_display_filters( c, _menu )       ## removes extension since show in GUI
+        ext_ind   = filt_file.rfind( '.' )
+
+        if ext_ind == -1:
+            filt_file = filt_file + ext
+
+        #print str( ext_ind ) + ' -- ' + ext
+        print filt_file + ' -> ' + full[ index ]
+        index += 1
+
+#############
+
+def dump_short_entries( _menu_item ):
+
+    global _choices
+    global _cur_index
+    global _in_submenu
+    global _pop_main_index
+
+    #print '*** Dumping ' + _menu_item + ' *** '
+    #print
+    #print _choices.keys()
+
+    menu = _choices[ _menu_item ]
+
+    if menu.has_submenus:
+
+        sm = {}
+
+        if menu.rom_dirs != '':
+            sm = load_submenu( menu )
+
+        if len( sm ) > 0:
+
+            _in_submenu     = True
+            _pop_main_index = _cur_index
+            _cur_index      = 1             ##  start at the top
+            _choices        = sm
+
+            dump_entries( menu )
+
+#############
+
 def main():
 
     global _choices
@@ -338,26 +415,22 @@ def main():
     global _menu_full_names
     global _key_repeat_delay
     global _key_repeat_interval
+    global _controller
 
     if ( len( sys.argv ) > 1 ):
         handle_cmd_line_args( sys.argv )
 
+    ##  _menu_full_names holds the full name list, shortened has just the equiv of basename
+
+    _choices                    = load_top_level_menus()
+    _menu_full_names, shortened = short_entries( _choices.keys() )
+
+    if _dump_entries:
+
+        dump_short_entries( _dump_menu_item )
+        sys.exit( 1 )
+
     pygame.init()
-
-    pygame.joystick.init()
-
-    count = pygame.joystick.get_count()
-
-    print 'There are', count, 'joystick(s)...'
-
-    if count == 0:
-        print 'WARNING: No joystick(s) found'
-
-    else:
-        for i in range ( count ):
-            joystick = pygame.joystick.Joystick( i )
-            joystick.init()
-            print '...' + joystick.get_name() + ' ' + str( joystick.get_numbuttons() ) + ' button(s)'
 
     ##  Without this, with certain versions of Direct X, launching programs just
     ##  hangs the first time you do it.
@@ -365,8 +438,23 @@ def main():
     #if sys.platform == 'win32':
         #os.environ['SDL_VIDEODRIVER'] = 'windib'
 
-    try:
+    if _use_joystick:
 
+        _controller = controller_handler()
+        count       = pygame.joystick.get_count()
+
+        print 'There are', count, 'joystick(s)...'
+
+        if count == 0:
+            print 'WARNING: No joystick(s) found'
+
+        else:
+            for i in range ( count ):
+                joystick = pygame.joystick.Joystick( i )
+                joystick.init()
+                print '...' + joystick.get_name() + ':' + str( joystick.get_numbuttons() ) + ' button(s)'
+
+    try:
         if _run_fullscreen:
             _screen = pygame.display.set_mode( ( _horiz_res, _vert_res ), FULLSCREEN )
 
@@ -380,14 +468,12 @@ def main():
 
     pygame.key.set_repeat( _key_repeat_delay, _key_repeat_interval )
 
-    _choices = load_top_level_menus()
-
-    update_title()
-
     _mouse_info = mouse_info( 0, 0, 0 )
 
     pygame.mouse.set_cursor( *pygame.cursors.arrow )
     pygame.mouse.set_pos( 0, 0 )
+
+    update_title()
 
     background = pygame.Surface( _screen.get_size() )
     background = background.convert()
@@ -402,10 +488,6 @@ def main():
     calc_text_region()
     calc_pic_region()
     calc_info_region()
-
-    ##  _menu_full_names holds the full name list, shortened has just the equiv of basename
-
-    _menu_full_names, shortened = short_entries( _choices.keys() )
 
     ##  START main program loop
 
@@ -455,6 +537,8 @@ def main():
         else:
             dbg_print( str( e ) )
 
+        _controller.refresh_controllers()
+
         ##  clear the screen and other surfaces
 
         _screen.blit       ( background, ( 0, 0 ) )
@@ -472,7 +556,7 @@ def main():
 
         render_rects()
 
-        if len( shortened ) != 0:     ## current list is empty (i.e. no favorites)
+        if len( shortened ) != 0:     ## current list is empty ( i.e. no favorites )
 
             render_entries( shortened )
             render_pic()
@@ -495,6 +579,9 @@ def handle_cmd_line_args( args ):
     global DEBUG
     global _horiz_res
     global _vert_res
+    global _dump_entries
+    global _dump_menu_item
+    global _use_joystick
 
     index = 0
 
@@ -504,17 +591,29 @@ def handle_cmd_line_args( args ):
             print 'handle_cmd_line_args(): Running in a window'
             _run_fullscreen = False
 
-        if arg == '-d':
+        elif arg == '-d':
             print 'handle_cmd_line_args(): Enabling debug mode'
             DEBUG = True
 
-        if arg == '-h':
+        elif arg == '-h':
             print 'handle_cmd_line_args(): Overriding horizontal size'
             _horiz_res = int( args[ index + 1 ] )
 
-        if arg == '-v':
+        elif arg == '-v':
             print 'handle_cmd_line_args(): Overriding vertical size'
             _vert_res = int( args[ index + 1 ] )
+
+        elif arg == '-D':
+            #print 'handle_cmd_line_args(): Dumping entries for ' + args[ index + 1 ]
+            _dump_entries   = True
+            _dump_menu_item = args[ index + 1 ]
+
+        elif arg == '-j':
+            print 'Enabling joystick'
+            _use_joystick = True
+
+        else:
+            print 'Unknown arg', arg
 
         index += 1
 
@@ -600,7 +699,12 @@ def check_is_lower_priority( filename, short_names, filtered, exts, parent_menu 
         ## apply_display_filters is for showing in GUI, so re-add extension if it was filtered
 
         if filt_file <> check_filename:
-            filt_file = filt_file + '.' + check_ext
+
+            ## may have had just something like _d1 filtered out, make sure we
+            ## don't re-add extension
+
+            if filt_file.find( check_ext ) == '':
+                filt_file = filt_file + '.' + check_ext
 
         dbg_print( 'check_is_lower_priority(): Checking extension ' + check_ext )
         dbg_print( 'check_is_lower_priority(): Looking for filename ' + check_filename )
@@ -814,14 +918,15 @@ def load_submenu( parent_menu ):
                 file_basenames.append( f )
 
         except Exception, e:
-            print 'load_submenu(): Warning: Couldn\'t load files in ' + d + ' : ' + str( e )
+            if not _dump_entries:
+                print 'load_submenu(): Warning: Couldn\'t load files in ' + d + ' : ' + str( e )
             continue
 
     ##  first filter out ignores and files that match menu's filter regexes
 
     file_basenames, file_fqns = filter_ignores( parent_menu, exts, file_basenames, file_fqns )
 
-    ##  filter out dups (done by basename), this is time consuming
+    ##  filter out dups ( done by basename ), this is time consuming
 
     if parent_menu.no_dup_roms:
 
@@ -861,8 +966,11 @@ def find_pic( parent_menu, file_name ):
         for d in dirs:
             
             dbg_print( 'find_pic(): Looking for matching image file for ' + file_name )
+            dbg_print( 'find_pic(): In directory ' + d )
 
             for each in [ 'png', 'jpg', 'gif', 'bmp', 'pcx' ]:
+
+                dbg_print( 'find_pic(): Checking extension ' + each )
 
                 ##  Try directory w/ letter or num subdir, optimization rather 
                 ##  than going through up to 27 dirs for each image
@@ -872,14 +980,22 @@ def find_pic( parent_menu, file_name ):
                 if not letter.isalpha():
                     letter = '0_9'
 
+                dbg_print( 'find_pic(): Letter is ' + letter )
+
                 dir_name   = os.path.join( d, letter )
                 image_name = ''
 
-                if os.path.exists( dir_name ):
+                dbg_print( 'find_pic(): dir_name is ' + dir_name )
+
+                if os.path.isdir( dir_name ):
+                    dbg_print( 'find_pic(): dir_name exists' )
                     image_name = os.path.join( dir_name, file_name + '.' + each )
 
                 else:
+                    dbg_print( 'find_pic(): dir_name does not exist' )
                     image_name = os.path.join( d, file_name + '.' + each )
+
+                dbg_print( 'find_pic(): image_name is ' + image_name )
 
                 if os.path.exists( image_name ):
                     found = True
@@ -986,10 +1102,10 @@ def go_back():
 
 #############
 
-def jump_to_first( key_pressed, short_name_entries, going_down = True ):
+def jump_to_first( leading_str, short_name_entries, _going_down = True ):
 
-    ##  This routine handles when an alpha character is pressed.  
-    ##  The selection jumps to the first entry with this letter.
+    ##  This routine handles when alpha characters are pressed.  
+    ##  The selection jumps to the first entry matching leading_str.
 
     global _cur_index
 
@@ -1015,7 +1131,7 @@ def jump_to_first( key_pressed, short_name_entries, going_down = True ):
                 if new_name != kDEFAULT_SENTINAL:
                     e = new_name
 
-        if e[ 0 ] == key_pressed:
+        if e[ :len( leading_str ) ] == leading_str:
             found = True
             break
 
@@ -1026,25 +1142,7 @@ def jump_to_first( key_pressed, short_name_entries, going_down = True ):
         ret = kSEL_CHANGED
         _cur_index = count + 1
 
-    else:
-
-        ##  recursive call
-
-        if going_down:
-
-            if key_pressed == 'z':      ##  no where to go
-                return
-
-            ret = jump_to_first( get_next_key( key_pressed ), short_name_entries )    ##  find next letter with an entry
-
-        else:
-            if key_pressed == '0':      ##  no where to go
-                return
-
-            ret = jump_to_first( get_prev_key( key_pressed ), short_name_entries, False )    ##  find previous letter with an entry
-    
     return ret
-
 
 #############
 
@@ -1253,11 +1351,11 @@ def exec_app( cur_menu, key ):
     if _run_fullscreen:
 
         ##  let a different app run full screen by going windowed temporarily
+        ##  NOTE: Not doing this, when exiting emulator, the frontend is not shown
+        ##        correctly.
 
         _screen = pygame.display.set_mode( ( _horiz_res, _vert_res ) )
         pygame.event.set_grab( True )
-
-    #pygame.time.wait( 1000 )        ##  slight delay to avoid apps like z26 not going fullscreen
 
     cur_dir = os.getcwd() 
 
@@ -1271,13 +1369,12 @@ def exec_app( cur_menu, key ):
         #os.spawnv( os.P_WAIT, app, args )
 
         command = r' '.join( args )
-
         process = subprocess.Popen( command, stdout=subprocess.PIPE, stderr=subprocess.PIPE )
 
         if cur_menu.should_exit_after_exe:
             sys.exit( 0 )
 
-        (stdout, stderr) = process.communicate()
+        ( stdout, stderr ) = process.communicate()
 
         dbg_print( 'exec_app(): app returned ' + str( process.returncode ) )
         dbg_print( 'exec_app(): stdout ' + str( stdout ) )
@@ -1306,6 +1403,7 @@ def exec_app( cur_menu, key ):
         try:
             new_dir = get_dir( post_cmd )
             os.chdir( new_dir )
+
             os.spawnv( os.P_WAIT, post_cmd, post_args )
 
         except Exception, e:
@@ -1406,6 +1504,8 @@ def handle_key( event, type, shortend_entries ):
     global _cur_index
     global _pop_fav_index
     global _favorites_filter
+    global _last_press_tick_count
+    global _keypress_sequence
 
     ret = kNO_CHANGE
 
@@ -1481,19 +1581,9 @@ def handle_key( event, type, shortend_entries ):
 
         elif event.key in _dump_list_keys:
 
-            ## This dumps basefile name and fqn name to create symlinks for sd
-            ## card, etc
-
             dbg_print( 'handle_key(): dump list key selected' )
 
-            print '-- List of current entries --'
-
-            index       = 0
-            full, short = short_entries( _choices.keys() )
-
-            for c in short:
-                print c + ' -> ' + full[ index ]
-                index += 1
+            dump_entries()
 
         elif is_alpha( event.key ):
             dbg_print( 'handle_key(): alpha key pressed ' + str( event.key ) )
@@ -1501,10 +1591,21 @@ def handle_key( event, type, shortend_entries ):
             ascii_char = pygame_key_to_ascii( event.key )
 
             if is_alpha( ascii_char ):
+
                 if event.mod & KMOD_SHIFT:
                     ascii_char = string.upper( ascii_char )
-            
-            ret = jump_to_first( ascii_char, shortend_entries )
+
+            new_tick_count = pygame.time.get_ticks()
+
+            if ( new_tick_count - _last_press_tick_count ) < 1500:
+                _keypress_sequence += ascii_char
+
+            else:
+                _keypress_sequence = ascii_char
+
+            _last_press_tick_count = new_tick_count
+
+            ret = jump_to_first( _keypress_sequence, shortend_entries )
 
     return ret
 
@@ -1512,26 +1613,65 @@ def handle_key( event, type, shortend_entries ):
 
 def handle_joystick( event ):
 
+    global _joy_ticks
+
     ret = kNO_CHANGE
 
     if not _use_joystick:
         return ret
 
+    cur_ticks = pygame.time.get_ticks()
+
+    #print '--------------------------------------------------'
+    #print 'cur_ticks is', cur_ticks
+    #print 'joy_ticks is', _joy_ticks
+    #print 'delta is', cur_ticks - _joy_ticks
+
     if event.type == JOYHATMOTION:
 
-        print 'Hat motion ' + str( event.hat ) + ' ' + str( event.value )
+        dbg_print( 'Hat motion ' + str( event.hat ) + ' ' + str( event.value ) )
 
-        if event.value == ( 0, 1 ):
-            ret = move_selection_up();
+        if ( cur_ticks - _joy_ticks ) >= kJOYSTICK_DEBOUNCE:
 
-        elif event.value == ( 0, -1 ):
-            ret = move_selection_down();
+            if event.value == ( 0, 1 ):
+                ret = move_selection_up();
+                _joy_ticks = pygame.time.get_ticks()
 
-        elif event.value == ( 1, 0 ):
-            ret = jump_selection_down();
+            elif event.value == ( 0, -1 ):
+                ret = move_selection_down();
+                _joy_ticks = pygame.time.get_ticks()
 
-        elif event.value == ( -1, 0 ):
-            ret = jump_selection_up();
+            elif event.value == ( 1, 0 ):
+                ret = jump_selection_down();
+                _joy_ticks = pygame.time.get_ticks()
+
+            elif event.value == ( -1, 0 ):
+                ret = jump_selection_up();
+                _joy_ticks = pygame.time.get_ticks()
+
+    elif event.type == JOYAXISMOTION:
+
+        if ( cur_ticks - _joy_ticks ) >=( kJOYSTICK_DEBOUNCE * 3 ):     ## way more analog events sent
+
+            if event.axis == 0:
+
+                if event.value <= -.6:
+                    ret        = jump_selection_up();
+                    _joy_ticks = pygame.time.get_ticks()
+
+                elif event.value >= .6:
+                    ret        = jump_selection_down();
+                    _joy_ticks = pygame.time.get_ticks()
+
+            elif event.axis == 1:
+
+                if event.value <= -.6:
+                    ret        = move_selection_up();
+                    _joy_ticks = pygame.time.get_ticks()
+
+                elif event.value >= .6:
+                    ret        = move_selection_down();
+                    _joy_ticks = pygame.time.get_ticks()
 
     elif event.type == JOYBUTTONUP:
 
@@ -1599,13 +1739,13 @@ def get_modifier_string( _mod_bit_mask ):
     mod_str = ''
     vals    = []
 
-    if ( pygame.key.get_mods() & KMOD_SHIFT ):
+    if ( pygame.key.get_mods() & KMOD_SHIFT ):  ## either shift key
         vals.append( 'Shift' )
         
-    if ( pygame.key.get_mods() & KMOD_CTRL ):
+    if ( pygame.key.get_mods() & KMOD_CTRL ):   ## either control key
         vals.append( 'Ctrl' )
 
-    if ( pygame.key.get_mods() & KMOD_ALT ):
+    if ( pygame.key.get_mods() & KMOD_ALT ):    ## either alt key
         vals.append( 'Alt' )
 
     for val in vals:
@@ -1707,12 +1847,12 @@ def render_rects():
     offset = ( index - 1 ) * height
 
     x = _entry_rect.left + _item_padding
-    y = _entry_rect.top  + ( _item_padding ) + offset
+    y = _entry_rect.top  + ( _item_padding / 2 ) + offset
 
     outline = pygame.Rect( x, y, width, height )
     outline.inflate_ip( -_item_padding, -_item_padding )
 
-    pygame.draw.rect( _entry_surface, _cur_sel_color, outline, 2 )
+    pygame.draw.rect( _entry_surface, _cur_sel_color, outline, 3 )
 
 #############
 
@@ -2058,7 +2198,7 @@ def short_entries( entries ):
 
     if _in_submenu:
 
-        ##  choices (files) are full paths and we want to sort by basename
+        ##  choices ( files ) are full paths and we want to sort by basename
 
         if _favorites_filter:
 
@@ -2329,7 +2469,10 @@ def load_favorites( subdir, name ):
     fav_filename = ''
 
     if not os.path.exists( subdir ):
-        print 'load_favorites(): favorites subdirectory ' + subdir + ' doesn\'t exist.  No favorites to load'
+
+        if not _dump_entries:
+            print 'load_favorites(): favorites subdirectory ' + subdir + ' doesn\'t exist.  No favorites to load'
+
         return favs
 
     try:
@@ -2347,7 +2490,9 @@ def load_favorites( subdir, name ):
 
     except Exception, e:
 
-        print 'load_favorites(): Couldn\'t load favorites for ' + str( name ) + ' ... ' + str( e )
+        if not _dump_entries:
+            print 'load_favorites(): Couldn\'t load favorites for ' + str( name ) + ' ... ' + str( e )
+
         fav_filename = ''
 
     return favs, fav_filename
@@ -2537,6 +2682,38 @@ def dbg_print( str ):
 
 ###############################################################################
 
+class controller_handler():
+
+    kINACTIVITY_RECONNECT_COUNT = 50
+
+    def __init__( self ):
+
+        pygame.joystick.init()
+        idle_count = 0
+
+    #############
+
+    def refresh_controllers( self ):
+
+        dbg_print( 'Refreshing controllers' )
+
+        if pygame.joystick.get_count() > 0:
+            dbg_print( 'At least one controller present' )
+            return
+
+        idle_count += 1
+
+        if idle_count >= kINACTIVITY_RECONNECT_TIME:
+
+            print( 'No controllers, attempting to re-connect' )
+
+            pygame.joystick.quit()
+            pygame.joystick.init()
+
+            idle_count = 0
+
+###############################################################################
+
 class mouse_info:
 
     ##  Max number of ticks between clicks to register double mouse click
@@ -2646,7 +2823,7 @@ class menu_item:
                 r1 = fields[ 0 ]
                 r2 = fields[ 1 ]
 
-                self.display_replacements.append( (r1, r2) )
+                self.display_replacements.append( ( r1, r2 ) )
 
         except Exception, e:
 
@@ -2667,7 +2844,7 @@ class menu_item:
                 r1 = re.compile( fields[ 0 ] )
                 r2 = fields[ 1 ]
 
-                self.display_regexes.append( (r1, r2) )
+                self.display_regexes.append( ( r1, r2 ) )
 
         except Exception, e:
 
