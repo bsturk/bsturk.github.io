@@ -9,15 +9,15 @@ Sub WordSelect()
 					   'and the underscore "_" character.  
 					   
 					   'Rev 1 - Got it working without checking for individual chars
-					   '			instead used the numerical comparisons  
+					   '		instead used the numerical comparisons  
 					   '						
 					   'Rev 2 - Added numbers to be valid during string	search
-					   '			Now supports all valid C/C++ chars duh!
+					   '		Now supports all valid C/C++ chars duh!
 					   '
 					   'Rev 3 - (7/12/98) Added check for first column, also tidy'd 
-					   '			 up code for checking for valid letters from ranges
-					   '			 to using InStr w/ valid chars (Thanks David Cotton)
-					   '			 BTW I never claimed to be a VB guy!   :)	 				
+					   '			      up code for checking for valid letters from ranges
+					   '			      to using InStr w/ valid chars (Thanks David Cotton)
+					   '			      BTW I never claimed to be a VB guy!   :)	 				
 					   '
 					   'Written by B.Sturk on Aug 31 1997
 
@@ -25,8 +25,8 @@ Sub WordSelect()
 					   'If you find an easier way to accomplish what this macro 
 					   'does or a quicker way, or a bug, please let me know!  
 					   
-					   'email: bsturk@adelphia.net
-					   'http://users.adelphia.net/~bsturk
+					   'email: bsturk@comcast.net
+					   'http://www.briansturk.com
 			
 		    iCount = 0                                                                                                                  
 

@@ -10,7 +10,7 @@
 #           i.e.  Highlight text in xterm or yank text in vim, and then ctrl-v in galeon.
 #
 # author:   brian m sturk   bsturk@comcast.net
-#                           http://home.comcast.net/~bsturk
+#                           http://www.briansturk.com
 #
 # created:  06/21/02
 # last_mod: 02/24/06
