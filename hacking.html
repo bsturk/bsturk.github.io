@@ -62,25 +62,37 @@
 
 <tr><td width="100%" align="left">
 <p>
-    TODO insert MV pics
-</td></tr>
-
-<tr><td width="100%" align="left">
-<p>
 The MV 8000 and 8800 series groovebox/production studios are amazing pieces of hardware.  They pack a ton
 of DAW functionality into a pretty integrated hardware box.  I love mine but there were small things I wanted to change or
 add so I took on the (way more challenging than I expected) project of modifying the firmware.  At this point I am able
 to make changes to the 8800's main firmware and have made a few improvements/tweaks so far, including:
 
-    - Project loading/saving for projects incorporates how many songs are in the project, so loading and saving times are much faster.
-    - Some annoying popups are now gone
-    - Small tweaks to wording, etc
+<p>
+<ul>
+    <li>Project loading/saving for projects incorporates how many songs are in the project, so loading and saving times are much faster.
+    <li>Some annoying popups are now gone
+    <li>Small tweaks to wording, etc
+</ul>
 
+<p>
 I have much more planned too!  There was lot going on to get to the point of being able to make changes and most of it is documented
-<a href="https://www.mv-nation.com/index.php?topic=227.0">here</a>.
+<a href="https://www.mv-nation.com/index.php?topic=227.0">here</a> at the mv-nation forums.
 
-What I enjoy most about this project is it involved reversing both the hardware and the software with many challenges along the way.  I also learned a new
-processor instruction set and architecture (SuperH) and many other things as a result of all the work.  Very rewarding, plus my old sampler is getting updated!
+<p>
+What I enjoy most about this project is it involves reversing both the hardware at a very low level (things like chip selects, registers, etc) and the software with many challenges along the way.  
+I also learned a new processor instruction set and architecture (SuperH, thanks to Ghidra and a ton of autoit) and many other things as a result of all the work.  Very rewarding, plus my old sampler is getting updated!
+</td></tr>
+
+<p>
+<tr><td width="100%" align="left">
+<p>
+    <img SRC="pics/mv_8800.jpg" NOSAVE height=400 width=500 alt="Roland MV-8800 Production Studio">
+<p>
+    <img SRC="pics/tsop_flash_reader_writer.jpg" NOSAVE height=320 width=240 alt="tsop flash reader/writer">
+    <img SRC="pics/pcb_debugger_wiring.jpg" NOSAVE height=320 width=240 alt="pcb wiring">
+    <img SRC="pics/homemade_debugger_cable.jpg" NOSAVE height=320 width=240 alt="homemade debugging cable">
+<p>
+    <img SRC="pics/ghidra.png" NOSAVE height=466 width=600 alt="ghidra annotated disassembly">
 </td></tr>
 
 </font>
@@ -135,12 +147,24 @@ processor instruction set and architecture (SuperH) and many other things as a r
 
 <tr><td width="100%" align="left">
 <p>
-    TODO
+Picked this up as "non-working" on eBay for $25.  It had some issues which were easily fixed (screen was busted, battery dead).
+Did most of the recommended updates in the service manual, new screen, retrobrited the buttons and circuit bent it including a few types of bends I haven't seen on other builds.
+
 </td></tr>
 
 <tr><td width="100%" align="left">
 <p>
-    TODO 2
+The OS and both EPROMs are now external to the unit and can be swapped out for changing from the stock sounds.
+<p>
+The circuit bends on my unit are the standard ROM/RAM patch points of which I used tiny patch headers rather than banana or 3.5mm jacks.  
+Any of these can be routed to momentary or toggle switches in addition to be being controlled via the 4 3.5mm inputs.  These 4 inputs
+connect to a 4066 switch chip.  When the chip gets a 5v signal, it "shorts" the 2 patched inputs, so you can externally control bends with something
+like an Ardunio, Teensy, or the gate/trigger output of modular synths.  I had planned on wiring up all of the 16 pads to be triggered externally as well but
+the trigger pads at best can be triggered around 25Hz, notes can be triggered MUCH faster via MIDI.
+<p>
+I also did the standard LTC1799 pitch control, but with a few small twists.  First a 3 way toggle to go through all the different ranges of the LTC
+circuit, and in addition to the pot controls, I made a vactrol out of a white LED and photo resistor and this allows me to connect up CV from my modular
+system to control pitch.
 </td></tr>
 
 </font>
