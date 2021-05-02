@@ -38,8 +38,8 @@
 <font face="Arial">
 <font size=-1>
 <a HREF = "#mv8800">[ Roland MV-8800 ]</a>  
-<a HREF = "#rx5">[ Yamaha RX-5 ]</a>  
 <a HREF = "#hr16">[ Alesis HR-16 ]</a>  
+<a HREF = "#rx5">[ Yamaha RX-5 ]</a>  
 <a HREF = "#other">[ Other stuff ]</a>  
 </font>
 </font>
@@ -75,7 +75,7 @@ to make changes to the 8800's main firmware and have made a few improvements/twe
 </ul>
 
 <p>
-I have much more planned too!  There was a lot going on to get to the point of being able to make changes and most of it is documented
+I have much more planned too!  There was a lot to do to get to the point of being able to make changes and most of it is documented
 <a href="https://www.mv-nation.com/index.php?topic=227.0">here</a> at the mv-nation forums.
 
 <p>
@@ -86,43 +86,13 @@ I also learned a new processor instruction set and architecture (SuperH, thanks 
 <p>
 <tr><td width="100%" align="left">
 <p>
-    <img SRC="pics/mv_8800.jpg" NOSAVE height=400 width=500 alt="Roland MV-8800 Production Studio">
+    <img SRC="pics/hacking/mv_8800.jpg" NOSAVE height=400 width=500 alt="Roland MV-8800 Production Studio">
 <p>
-    <img SRC="pics/tsop_flash_reader_writer.jpg" NOSAVE height=320 width=240 alt="tsop flash reader/writer">
-    <img SRC="pics/pcb_debugger_wiring.jpg" NOSAVE height=320 width=240 alt="pcb wiring">
-    <img SRC="pics/homemade_debugger_cable.jpg" NOSAVE height=320 width=240 alt="homemade debugging cable">
+    <img SRC="pics/hacking/tsop_flash_reader_writer.jpg" NOSAVE height=320 width=240 alt="tsop flash reader/writer">
+    <img SRC="pics/hacking/pcb_debugger_wiring.jpg" NOSAVE height=320 width=240 alt="pcb wiring">
+    <img SRC="pics/hacking/homemade_debugger_cable.jpg" NOSAVE height=320 width=240 alt="homemade debugging cable">
 <p>
-    <img SRC="pics/ghidra.png" NOSAVE height=466 width=600 alt="ghidra annotated disassembly">
-</td></tr>
-
-</font>
-</table>
-
-<table border="0" width="75%" cellspacing="5" cellpadding="0">
-<tr><td width="100%" align="left"><p><img SRC="pics/buttons/red_bar.gif" NOSAVE height=2 width=700> </tr>
-</table>
-
-<! ****************     Yamaha RX-5       *****************>
-
-<table border="0" width="50%" cellspacing="5" cellpadding="5">
-<font face="Verdana">
-
-<tr><td width="100%" align="left">
-<p>
-<b><h3>
-    <a name="rx5">Yamaha RX-5: </a>
-</b>
-</h3>
-</td></tr>
-
-<tr><td width="100%" align="left">
-<p>
-    TODO
-</td></tr>
-
-<tr><td width="100%" align="left">
-<p>
-    TODO 2
+    <img SRC="pics/hacking/ghidra.png" NOSAVE height=466 width=600 alt="ghidra annotated disassembly">
 </td></tr>
 
 </font>
@@ -154,17 +124,72 @@ Did most of the recommended updates in the service manual, new screen, retrobrit
 
 <tr><td width="100%" align="left">
 <p>
-The OS and both EPROMs are now external to the unit and can be swapped out for changing from the stock sounds.
+The OS and both sound roms are now external to the unit and can be swapped out for changing from the stock sounds.  This is a pretty common mod.
 <p>
-The circuit bends on my unit are the standard ROM/RAM patch points of which I used tiny patch headers rather than banana or 3.5mm jacks.  
-Any of these can be routed to momentary or toggle switches in addition to be being controlled via the 4 3.5mm inputs.  These 4 inputs
+The circuit bends on my unit are the standard ROM/RAM patch points for which I used tiny 2.54mm sockets rather than banana or 3.5mm jacks.  
+Any of these can be routed to momentary or toggle switches in addition to be being controlled via the 4 3.5mm trigger inputs.  These 4 inputs
 connect to a 4066 switch chip.  When the chip gets a 5v signal, it "shorts" the 2 patched inputs, so you can externally control bends with something
-like an Ardunio, Teensy, or the gate/trigger output of modular synths.  I had planned on wiring up all of the 16 pads to be triggered externally as well but
-the trigger pads at best can be triggered around 25Hz, notes can be triggered MUCH faster via MIDI.
+like an Ardunio, Teensy, or the gate/trigger output of modular synths.  I had planned on wiring up all of the 16 pads to be triggered externally as 
+well but the trigger pads at best (based on my testing w/ a siggen) can be triggered around 25Hz.  Notes can be triggered MUCH faster via MIDI.
 <p>
-I also did the standard LTC1799 pitch control, but with a few small twists.  First a 3 way toggle to go through all the different ranges of the LTC
-circuit, and in addition to the pot controls, I made a vactrol out of a white LED and photo resistor and this allows me to connect up CV from my modular
-system to control pitch.
+I also did the standard LTC1799 pitch control, but with a few twists.  First a 3 way toggle to go through all the different ranges of the LTC
+circuit.  And in addition to the course and fine pot controls, I made a vactrol out of a white LED and photoresistor which allows me to connect 
+up CV from my modular synths to control pitch.  There's also a resistive strip and photoresistor that can drive the LTC.
+<p>
+There are 2 toggle and 4 momentary switches for controlling bends or the pitch on/off.
+<p>
+I may try reversing the firmware and making some updates at some point.  Would love to have pitch and decay envelopes for the individual sounds.
+</td></tr>
+
+<p>
+<tr><td width="100%" align="left">
+<p>
+    <img SRC="pics/hacking/alesis_1.jpg" NOSAVE height=400 width=300 alt="Circuit bent Alesis-HR16">
+    <img SRC="pics/hacking/alesis_2.jpg" NOSAVE height=400 width=500 alt="Circuit bent Alesis-HR16 circuit board">
+<p>
+    Retrobriting the pads
+<p>
+    <img SRC="pics/hacking/alesis_3.jpg" NOSAVE height=400 width=400 alt="Retrobriting the pads">
+<p>
+    First of 3 wiring attempts using sockets and jumper cables (ended up being too stiff), finalized on hardwiring to board w/ soft IDE cables to sockets
+    which connected to the sockets on the motherboard.  My goal was to be able to work on this easily, but there were limits on how much I could stuff in there
+    and the CPU was sensitive to cable length.
+<p>
+    <img SRC="pics/hacking/alesis_4.jpg" NOSAVE height=400 width=500 alt="First of 3 wiring attempts using sockets and jumper cables (ended up being too stiff)">
+<p>
+    Some of the mods recommended in the service manual.
+<p>
+    <img SRC="pics/hacking/alesis_5.jpg" NOSAVE height=500 width=500 alt="First of 3 wiring attempts using sockets and jumper cables (ended up being too stiff)">
+</td></tr>
+
+</font>
+</table>
+
+<table border="0" width="75%" cellspacing="5" cellpadding="0">
+<tr><td width="100%" align="left"><p><img SRC="pics/buttons/red_bar.gif" NOSAVE height=2 width=700> </tr>
+</table>
+
+<! ****************     Yamaha RX-5       *****************>
+
+<table border="0" width="50%" cellspacing="5" cellpadding="5">
+<font face="Verdana">
+
+<tr><td width="100%" align="left">
+<p>
+<b><h3>
+    <a name="rx5">Yamaha RX-5: </a>
+</b>
+</h3>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    TODO
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    TODO 2
 </td></tr>
 
 </font>
