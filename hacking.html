@@ -46,7 +46,7 @@
 <a HREF = "#rm50">[ Yamaha RM-50 ]</a>  
 <a HREF = "#kaoss">[ Korg Kaoss Pad 2 ]</a>  
 <a HREF = "#rapman">[ Casio Rapman ]</a>  
-<a HREF = "#626">[ Roland TR=626 ]</a>  
+<a HREF = "#626">[ Roland TR-626 ]</a>  
 </font>
 </font>
 
@@ -465,7 +465,7 @@ Changes made were:
 
 <p>
 <p>
-<img SRC="pics/hacking/rapman/IMG_3729.JPG" NOSAVE height=400 width=500 alt="Input jack">
+<img SRC="pics/hacking/rapman/IMG_3729.JPG" NOSAVE height=400 width=400 alt="Input jack">
 <img SRC="pics/hacking/rapman/IMG_3730.JPG" NOSAVE height=400 width=400 alt="Fixed key">
 <img SRC="pics/hacking/rapman/IMG_3731.JPG" NOSAVE height=400 width=400 alt="Glitch momentaries">
 <img SRC="pics/hacking/rapman/IMG_3732.JPG" NOSAVE height=400 width=400 alt="Oscillator control and some switch for the drums">
@@ -482,7 +482,7 @@ Changes made were:
 <tr><td width="100%" align="left">
 <p>
 <b><h3>
-    <a name="rapman">Roland TR-626: </a>
+    <a name="626">Roland TR-626: </a>
 </b>
 </h3>
 </td></tr>
@@ -495,38 +495,44 @@ the patterns which most bent drum machines won't do.
 Changes made were:
 
 <p>
-
-<tr><td width="100%" align="left">
-<p>
-I installed a ROM Expansion kit and also broke out the pins to an external ZIF socket so I can change the sounds easily.
-The stock sounds are still installed inside.  The switches to swap between chips and banks are in the sockets so I can do this on
+<ul>
+<li>
+I installed a ROM Expansion kit from HKA design and also broke out the pins to an external ZIF socket so I can swap the sounds easily.
+The stock sounds are still installed inside.  The switches to swap between chips and banks are exposed via the sockets so I can change on
 the fly (which makes for some cool sounds).
-<p>
+<li>
 The circuit bends ROM patch points for which I used tiny 2.54mm sockets rather than banana or 3.5mm jacks.  
-Any of these can be routed to 2 momentary and 2 toggle switches in addition to be being controlled via the 2 3.5mm trigger inputs.  These 4 inputs
+Any of these can be routed to 2 momentary and 2 toggle switches in addition to be being controlled via the 2 3.5mm trigger inputs.  These 2 inputs
 connect to a 4066 switch chip.  When the chip gets a 5v signal, it "shorts" the 2 patched inputs, so you can externally control bends with something
 like an Ardunio, Teensy, or the gate/trigger output of modular synths.
-<p>
-I also did the standard LTC1799 pitch control.  First a 3 way toggle to go through all the different ranges of the LTC
-circuit.  And in addition to the course and fine pot controls.  The input into the LTC is a socket pair, so I can plug in
-a photoresistor or vactrol, etc.
-<p>
-There are 2 toggle and 2 momentary switches for controlling bends or the pitch on/off.
-<p>
-Swapped out the soldered on button battery for a case and on/off switch.
+<li>
+I also did the standard LTC1799 pitch control mod.  First a 3 way toggle to go through all the different ranges of the LTC
+circuit.  Course and fine pot controls.  The input into the LTC is a socket pair, so I can plug in
+a photoresistor or vactrol, etc rather than the pots.
+<li>
+Swapped out the soldered on button battery for a case with an on/off switch.
+</ul>
 </td></tr>
+</font>
+</table>
 
 <p>
 <p>
-<img SRC="pics/hacking/tr626/IMG_5874.JPG" NOSAVE height=400 width=500 alt="Bends on the non ROM chip">
-<img SRC="pics/hacking/tr626/IMG_5874.JPG" NOSAVE height=400 width=500 alt="The ROM card with all breakout wiring">
-<img SRC="pics/hacking/tr626/IMG_5782.JPG" NOSAVE height=400 width=500 alt="Most of the wiring done">
+<img SRC="pics/hacking/tr626/IMG_5873.JPG" NOSAVE height=400 width=400 alt="Bends on the non ROM chip">
+<img SRC="pics/hacking/tr626/IMG_5874.JPG" NOSAVE height=400 width=400 alt="The ROM card with all breakout wiring">
+<img SRC="pics/hacking/tr626/IMG_5872.JPG" NOSAVE height=400 width=400 alt="Most of the wiring done">
 <img SRC="pics/hacking/tr626/IMG_5871.JPG" NOSAVE height=400 width=400 alt="New battery case">
-<img SRC="pics/hacking/tr626/IMG_5881.JPG" NOSAVE height=400 width=400 alt="All done">
+<p>
+<img SRC="pics/hacking/tr626/IMG_5881.JPG" NOSAVE height=400 width=500 alt="All done">
+
+<p>
+<p>
 
 <table border="0" width="75%" cellspacing="5" cellpadding="0">
 <tr><td width="100%" align="left"><p><img SRC="pics/buttons/red_bar.gif" NOSAVE height=2 width=700> </tr>
 </table>
+
+<p>
 <p>
 <center><p><a href="index.html"><img SRC="pics/buttons/hacking_back_button_text.jpg" NOSAVE border=0 height=50 width=150 align=TEXTTOP></a></center>
 
