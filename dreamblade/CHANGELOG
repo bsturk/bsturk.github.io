@@ -5,6 +5,70 @@ This file contains a listing of modifications to dreamblade.
 Dates are included.  All changes by <bsturk<-A-T->comcast.net> unless
 noted.  Newest changes are at the top.
 
+11/17/24 - 2.1.0
+
+    * Switched to newest wxWidgets (3.2.6) and ported to 64 bits.
+    * Correctly remove sustained effects if affected piece leaves play.
+      If multiple pieces are affected, remove piece from affected list.
+    * Consolidated a bunch of platform specific functions to be more common.
+    * Fixed bug w/ blade assignments and locations.
+    * Fixed an issue with triggered abilities not handling base class trigger
+      conditions.
+    * Updated exchange_pieces ability to allow any number of exchanges, 
+      not just 1 for 1.
+    * Implemented most of the 60 pieces from the new (well, 2018) fan based
+      expansion, Daybreak.  This includes support in the UI as well as 
+      generating sealed content using the set.
+    * Fixed references in ability descriptions to die faces to be {face} not 
+      (face).
+    * Updated modify_attack_dice_values ability to support adding a new die
+      face to the roll in addition to changing them.
+    * Updated engine to support attacking your own creatures (Rover)
+    * New ability, special_attack_multiple_when_entering_cell (Rover).
+    * Made Charge more generic and renamed it to special_attack_single_when_entering_cell.
+    * Made Bloodthirsty more generic and renamed it to action_post_combat.
+    * Fixed Drunken Master, had Bloodthirsty in a static_abilities block.
+    * Fixed Fiendish Hybrid, had Bloodthirsty in an activated_abilities block.
+    * All uses of 'cannot' in ability text -> can't
+    * Updated IN_GRAVEYARD condition to be shown as {Graveyard}
+    * New ability, piece_cant_shift_or_strike.
+    * New ability, piece_cant_strike.
+    * New ability, piece_cant_shift.
+    * Added new hook, can_piece_strike.
+    * Added support for specifying discrete number of pieces for targets
+      with -1 being unlimited (by piece_conds).
+    * Fixed 64 bit issue with setting current_combat, one case was still
+      setting it as an int, not a ptr.
+    * Fixed long standing random (but infrequent) crash with allocating
+      string buffers for g_ltoa.
+    * Added support for all activated abilities to utilize an activation
+      cost discount calculation/hook.
+    * Fixed Animated Standards ability descriptions to include 'Madness'.
+    * Removed mingw.dll from windows zip, no longer needed.
+    * Upgraded to wxWidgets 3.0.5 for Windows build.  New toolchain as well.
+    * Migrated project to 64 bits.
+    * Tweaked a lot of the custom pieces stats based on the algorithm I have
+      for costing pieces (using a regression algorithm w/ released set data)
+    * Removed double -- from effect_add_to_combat_damage.
+    * New custom Inspired Ranger.
+    * Fixed an infinite recursion issue w/ handling multiple destroy replacements.
+    * New custom 3 Armed Bandit.
+    * Fixed effect_move_to_opponents_zone_if_target_destroyed (Inter).  Wasn't
+      removing destroy hook if player chose to not activate the ability.
+    * Completely revamped destroy replacement effects to ensure they are executed
+      in order.
+    * add_to_combat_damage_x_target ability now supports other attributes other 
+      than power.
+    * Renamed piece_conds -> piece_action_conds for action_and_activated_ability.
+    * Added piece_damage_conds to action_and_assign_damage ability, both activated
+      and triggered.
+    * Fixed filename of Arachnaphobian.
+    * Correctly implemented Beacon ability which wasn't adding cell to
+      spawnable cells.  Also correctly cleaned up hooks.
+    * Commonalized spawning logic in phase_spawn and Beacon ability.
+    * Mindthief now correctly resolves with event containing targets chosen for
+      reactive abilities.
+
 06/11/19 - 2.0.6
 
     * Fixed crash with effect_move_creature_between_zones_if_target_destroyed and
