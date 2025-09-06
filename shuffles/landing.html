@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shuffles - True Random Shuffle for Spotify | Real Shuffle App</title>
+  <meta name="description" content="True random shuffle for Spotify playlists. No algorithms, no smart shuffle, just pure randomization. Shuffle liked songs, playlists with genuine randomness. Anti-clump spacing, keyboard shortcuts, lazy loading for huge playlists.">
+  <meta name="keywords" content="Spotify shuffle, random shuffle, true shuffle, real shuffle, Spotify random, shuffle playlist, shuffle liked songs, Spotify playlist shuffler, random playlist, disable smart shuffle, turn off smart shuffle, genuine random, anti-clump, Spotify web player">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://shuffles.app/">
+  <meta property="og:title" content="Shuffles - True Random Shuffle for Spotify">
+  <meta property="og:description" content="YOUR music, just randomized! No algorithms or smart shuffling. True random playlist shuffling for Spotify.">
+  <meta property="og:image" content="https://shuffles.app/img/icon.svg">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://shuffles.app/">
+  <meta property="twitter:title" content="Shuffles - True Random Shuffle for Spotify">
+  <meta property="twitter:description" content="YOUR music, just randomized! No algorithms or smart shuffling. True random playlist shuffling for Spotify.">
+  <meta property="twitter:image" content="https://shuffles.app/img/icon.svg">
+  
+  <!-- Additional SEO -->
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Shuffles App">
+  <link rel="canonical" href="https://shuffles.app/">
+  <meta name="application-name" content="Shuffles">
+  <meta name="apple-mobile-web-app-title" content="Shuffles">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="img/icon_transparent.svg">
+  <link rel="apple-touch-icon" href="img/icon_transparent.svg">
+  <link rel="shortcut icon" href="img/icon_transparent.svg">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #0b0b0b;
+      color: #f3f4f6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 20px;
+      width: 100%;
+    }
+    
+    /* Header */
+    header {
+      padding: 20px 0 30px;
+      text-align: center;
+    }
+    
+    .header-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+    
+    .app-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    
+    h1 {
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin: 0;
+      background: linear-gradient(135deg, #FF6F61 0%, #FF9A76 50%, #FFB88C 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 40px rgba(255, 111, 97, 0.3);
+      position: relative;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    
+    @keyframes shimmer {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.95; filter: brightness(1.1); }
+    }
+    
+    .tagline {
+      font-size: 18px;
+      color: #9aa3b2;
+      margin-bottom: 4px;
+    }
+    
+    .subtitle {
+      font-size: 14px;
+      color: #6b7280;
+    }
+    
+    /* Platform Links */
+    .platforms {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .platform-link {
+      flex: 1;
+      min-width: 200px;
+      max-width: 240px;
+      background: #111316;
+      border: 1px solid #23262e;
+      border-radius: 16px;
+      padding: 16px;
+      text-decoration: none;
+      color: #f3f4f6;
+      text-align: center;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: visible;
+    }
+    
+    .platform-link::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      background: radial-gradient(70% 60% at 50% -10%, rgba(255,111,97,0.1) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+    
+    .platform-link:hover {
+      transform: translateY(-2px);
+      border-color: #FF6F61;
+      box-shadow: 0 10px 30px rgba(255,111,97,0.2);
+    }
+    
+    .platform-link:hover::before {
+      opacity: 1;
+    }
+    
+    .platform-icon {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+    
+    .platform-name {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    
+    .platform-status {
+      font-size: 14px;
+      color: #9aa3b2;
+    }
+    
+    .platform-link.active .platform-status {
+      color: #10B981;
+    }
+    
+    /* Footer */
+    footer {
+      margin-top: auto;
+      padding: 20px 0;
+      border-top: 1px solid #23262e;
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    
+    .footer-link {
+      color: #9aa3b2;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .footer-link:hover {
+      color: #FF6F61;
+    }
+    
+    .footer-link span {
+      font-size: 16px;
+    }
+    
+    /* Platform screenshot */
+    .platform-screenshot {
+      width: 100%;
+      height: auto;
+      margin-top: 12px;
+      border-radius: 8px;
+      border: 1px solid #23262e;
+      opacity: 0.8;
+      transition: all 0.2s ease;
+      cursor: zoom-in;
+      pointer-events: auto;
+    }
+    
+    .platform-screenshot:hover {
+      opacity: 1;
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    
+    /* Features Section */
+    .features {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    
+    .features h2 {
+      font-size: 20px;
+      margin-bottom: 16px;
+      color: #9aa3b2;
+      font-weight: 600;
+    }
+    
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      text-align: left;
+    }
+    
+    .feature {
+      background: #111316;
+      border: 1px solid #23262e;
+      border-radius: 12px;
+      padding: 12px;
+    }
+    
+    .feature-title {
+      font-weight: 600;
+      margin-bottom: 2px;
+      color: #f3f4f6;
+      font-size: 14px;
+    }
+    
+    .feature-desc {
+      font-size: 13px;
+      color: #6b7280;
+    }
+    
+    /* Responsive */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 36px;
+      }
+      
+      .tagline {
+        font-size: 18px;
+      }
+      
+      .platforms {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .platform-link {
+        width: 100%;
+        max-width: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-title">
+        <img src="img/icon_transparent.svg" alt="Shuffles" class="app-icon">
+        <h1>Shuffles</h1>
+      </div>
+      <p class="tagline">YOUR music, just randomized!</p>
+      <p class="subtitle">No algorithms, recommendations, or "smart" shuffling</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <!-- Platform Links -->
+      <div class="platforms">
+        <a href="src/index.html" class="platform-link active">
+          <div class="platform-icon">🌐</div>
+          <div class="platform-name">Web App</div>
+          <div class="platform-status">Available Now</div>
+          <img src="img/web_sshot.png" class="platform-screenshot" alt="Web App Screenshot" onclick="event.preventDefault(); event.stopPropagation(); window.open('img/web_sshot.png', '_blank');">
+        </a>
+        
+        <a href="#" class="platform-link">
+          <div class="platform-icon">
+            <img src="img/app_store.png" alt="App Store" style="height:36px;width:auto;">
+          </div>
+          <div class="platform-name">iOS</div>
+          <div class="platform-status">Coming Soon</div>
+        </a>
+        
+        <a href="#" class="platform-link">
+          <div class="platform-icon">
+            <img src="img/google_play.png" alt="Google Play" style="height:36px;width:auto;">
+          </div>
+          <div class="platform-name">Android</div>
+          <div class="platform-status">Coming Soon</div>
+        </a>
+      </div>
+
+      <!-- Features -->
+      <div class="features">
+        <h2>True Random Shuffling</h2>
+        <div class="feature-list">
+          <div class="feature">
+            <div class="feature-title">🎲 Random</div>
+            <div class="feature-desc">No algorithmic bias or "smart" shuffle</div>
+          </div>
+          <div class="feature">
+            <div class="feature-title">🎯 Smart Controls</div>
+            <div class="feature-desc">Anti-clump spacing, avoid recent tracks, keyboard shortcuts</div>
+          </div>
+          <div class="feature">
+            <div class="feature-title">⚡ Lazy Loading</div>
+            <div class="feature-desc">Handles massive playlists efficiently</div>
+          </div>
+          <div class="feature">
+            <div class="feature-title">🎨 Custom Themes</div>
+            <div class="feature-desc">Personalize with your favorite colors</div>
+          </div>
+          <div class="feature">
+            <div class="feature-title">🔒 Privacy First</div>
+            <div class="feature-desc">No data collection, no accounts needed</div>
+          </div>
+          <div class="feature">
+            <div class="feature-title">💳 One-Time Payment</div>
+            <div class="feature-desc">Buy once, use forever. No subscriptions</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="mailto:support@shuffles.app" class="footer-link">
+          <span>✉️</span> Support
+        </a>
+        <a href="faq.html" class="footer-link">
+          <span>❓</span> FAQ
+        </a>
+        <a href="docs.html" class="footer-link">
+          <span>📚</span> Documentation
+        </a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
