@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rune Age Event Deck</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 10px; /* Reduced padding */
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 15px; /* Reduced margin-bottom */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .controls {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px; /* Reduced margin-bottom */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .control-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        select {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .draw-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .shuffle-btn {
+            background: #FF9800;
+            color: white;
+        }
+
+        .new-game-btn {
+            background: #2196F3;
+            color: white;
+        }
+
+        .cards-area {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap; /* Allow card sections to wrap to the next line */
+            justify-content: center; /* Center the card sections */
+        }
+
+        .card-section {
+            flex: 0 0 350px; /* Fixed width for each card section */
+            max-width: 350px; /* Ensure sections don't grow too wide */
+            min-width: 300px; /* Allow some shrinking but maintain readability */
+        }
+
+        /* Allow space between persistent enemies */
+        #enemy-cards .card {
+            margin-bottom: 8px;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            position: relative;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 350px; /* Reverted max-width */
+            height: auto; /* Changed to auto to prevent fixed tall cards */
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+        }
+
+        .card.objective {
+            background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+            height: auto;
+        }
+
+        .card.enemy {
+            height: auto;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            margin-top: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid;
+            text-align: center;
+        }
+
+        .card-type {
+            font-size: 13px;
+            font-style: italic;
+            color: #666;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .card-text {
+            flex: 1;
+            line-height: 1.4;
+            white-space: pre-line;
+            font-weight: bold;
+            font-size: 13px;
+            overflow-y: auto;
+            padding-bottom: 45px; /* Added to prevent text from being obscured by strength badge */
+        }
+        
+        .card-text p {
+            margin-bottom: 8px;
+        }
+
+        .substitute-text {
+            font-style: italic;
+            color: #666;
+        }
+
+        .parenthetical-text {
+            font-style: italic;
+            font-weight: normal;
+        }
+
+        .card-text ul {
+            margin-left: 18px;
+            margin-top: 4px;
+            margin-bottom: 8px;
+        }
+
+        .card-text li {
+            margin-bottom: 4px;
+        }
+
+        .stage-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 7px;
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 2px solid #eee;
+        }
+
+        .stage-dot {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            border: 2px solid;
+        }
+
+        .strength-badge {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+            color: white;
+            padding: 8px 15px;
+            font-size: 20px;
+            font-weight: bold;
+            clip-path: polygon(10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%, 0% 50%);
+            box-shadow:
+                0 3px 6px rgba(0,0,0,0.4),
+                inset 0 1px 0 rgba(255,255,255,0.3);
+            min-width: 55px;
+            text-align: center;
+            border: 2px solid #8b0000;
+        }
+
+        .influence-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #64B5F6;
+            color: white;
+            padding: 7px 14px;
+            border-radius: 50%;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .influence-badge.objective {
+            top: auto;
+            left: auto;
+            bottom: 12px;
+            right: 12px;
+        }
+
+        .gold-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #FFD700;
+            color: #333;
+            padding: 7px 14px;
+            border-radius: 50%;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .reward-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 7px 14px;
+            border-radius: 50%;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .reward-badge.gold {
+            background: #FFD700;
+            color: #333;
+        }
+
+        .reward-badge.influence {
+            background: #64B5F6;
+            color: white;
+        }
+
+        .attrition-dice {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .die {
+            width: 30px;
+            height: 30px;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(-15deg) rotateY(25deg);
+        }
+
+        .die-face {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+            border: 2px solid #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .die-front {
+            transform: translateZ(15px);
+            background: linear-gradient(135deg, #333 0%, #1a1a1a 100%);
+            box-shadow: inset -2px -2px 4px rgba(0,0,0,0.5);
+        }
+
+        .die-front::before {
+            content: '☠';
+            font-size: 18px;
+            color: #ddd;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .die-top {
+            transform: rotateX(90deg) translateZ(15px);
+            background: linear-gradient(135deg, #3a3a3a 0%, #252525 100%);
+        }
+
+        .die-right {
+            transform: rotateY(90deg) translateZ(15px);
+            background: linear-gradient(135deg, #2d2d2d 0%, #1d1d1d 100%);
+        }
+
+        .die-left {
+            transform: rotateY(-90deg) translateZ(15px);
+            background: linear-gradient(135deg, #252525 0%, #151515 100%);
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 24px; /* Increased font size for larger 'x' */
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            z-index: 10;
+            display: flex; /* Use flexbox for centering */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            line-height: 1; /* Ensure single line height for perfect centering */
+        }
+
+        .rules-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .rules-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 3px solid;
+            padding-bottom: 10px;
+        }
+
+        .rules-section h3 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .rules-section p, .rules-section ul {
+            line-height: 1.8;
+            color: #444;
+            margin-bottom: 10px;
+        }
+
+        .rules-section ul {
+            margin-left: 20px;
+        }
+
+        .rules-section li {
+            margin-bottom: 8px;
+        }
+
+        .empty-card {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-style: italic;
+            font-size: 18px;
+        }
+
+        .deck-counter {
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            margin-top: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            position: relative;
+            width: 90vw;
+            max-width: 500px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            color: #fff;
+            background: #f44336;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1;
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Rune Age Event Deck</h1>
+
+        <div class="controls">
+            <div class="control-row">
+                <label for="scenario-select">Scenario:</label>
+                <select id="scenario-select">
+                    <option value="civil_war">Civil War in Terrinoth</option>
+                </select>
+                <button class="draw-btn" id="draw-btn">Draw Card</button>
+                <button class="shuffle-btn" id="shuffle-btn">Reshuffle</button>
+                <button class="new-game-btn" id="new-game-btn">New Game</button>
+                <label for="seed-input">Seed:</label>
+                <input type="text" id="seed-input" placeholder="Enter seed..." style="width: 100px; flex: 0 1 auto;">
+                <button id="apply-seed-btn" style="padding: 10px 15px;">Apply</button>
+            </div>
+        </div>
+
+        <div class="cards-area">
+            <div class="card-section" id="current-event-section">
+                <div class="section-title">Current Event</div>
+                <div class="card" id="current-card">
+                    <div class="empty-card">Draw a card to begin</div>
+                </div>
+                <div class="deck-counter" id="deck-counter"></div>
+            </div>
+
+            <div class="card-section" id="objective-section">
+                <div class="section-title">Objective</div>
+                <div class="card objective" id="objective-card"></div>
+            </div>
+
+            <div class="card-section" id="enemy-cards-section">
+                <div class="section-title">Persistent Enemies</div>
+                <div id="enemy-cards"></div>
+            </div>
+        </div>
+
+        <div class="rules-section" id="rules-section"></div>
+    </div>
+
+    <div id="zoom-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div id="zoomed-card" class="card"></div>
+        </div>
+    </div>
+    <script>
+        const scenarios = {
+            civil_war: {
+                name: "Civil War in Terrinoth",
+                color: "#4CAF50",
+                objective: {
+                    title: "Civil War in Terrinoth",
+                    type: "Objective",
+                    influence: 10,
+                    text: "This objective card represents the opposing army. You are trying to gain back support of your units through influence and diplomacy.\n\nYou win the game if you successfully influence this card with a 'Spend Influence' action.\n\nYou lose the game if you ever have no unit cards in your barracks or your Home Realm has 20 points of damage or more."
+                },
+                setup: {
+                    title: "Setup",
+                    rules: [
+                        "Take 1 of your lowest cost units from your barracks and place it in the opposing army.",
+                        "Take 2x 1 Gold and 1x 2 Gold from the supply piles and place in the opposing army."
+                    ]
+                },
+                endOfEvent: {
+                    title: "At the end of each Event phase",
+                    rules: [
+                        "Take a number of units equal to the current stage from your barracks and place it the opposing army.",
+                        "The opposing army then conducts a siege against the lowest strength city you control. If they are successful, destroy it. If you control no cities, the army makes a siege on your Home Realm instead."
+                    ]
+                },
+                notes: [
+                    "Neutral cards are Sorcerer, Manticore, and Dragon.",
+                    "For a harder game, swap out the Sorcerer for Pillage or start with 5 damage on your Home Realm.",
+                    "For an even more difficult game, swap out the Sorcerer for Summon Lightning.",
+                    "The opposing army is all unit cards in the army placed opposite your playing area which will be populated as the game progresses.",
+                    "The opposing army is a single Unit with strength equal to the total strength of all participating units. Each unit in the opposing army has a minimum STR of 1.",
+                    "The opposing army has a \"hand\" of three gold cards: two \"1-gold\" cards and one \"2-gold\" card at the start.",
+                    "After a siege is resolved, all surviving units in the opposing army remain in that army's play area.",
+                    "Abilities of the units in the opposing army are always ignored.",
+                    "When asked to choose units from your barracks to place in the opposing army, unless criteria is specified, any can be chosen.",
+                    "When calculating the cost of cards, it is their printed cost. Abilities that modify the cost of these cards do not apply.",
+                    "In the event of a tie for anything, you choose."
+                ],
+                cards: [
+                    // Stage 1
+                    {
+                        title: "Covert Agents",
+                        type: "Instant",
+                        stage: 1,
+                        text: "Take unit card(s) with total cost of 4 from your barracks and place them in the opposing army (you must spend as much of the 4 as possible)."
+                    },
+                    {
+                        title: "Instigator",
+                        type: "Enemy",
+                        stage: 1,
+                        strength: 9,
+                        attrition: 1,
+                        gold: 1,
+                        text: "While this card is in the central play area, the opposing army always receives (every combat) 1 Attrition die.\n\nIf defeated, claim this card as a REWARD.\n\nWhile you have this reward, whenever a friendly unit is wounded you may wound an opposing unit.\n\n[Substitute the GATA THE WHITE DEATH card (The Monument) as this REWARD]"
+                    },
+                    {
+                        title: "Renowned Hero",
+                        type: "Enemy",
+                        stage: 1,
+                        strength: 7,
+                        attrition: 1,
+                        influence: 1,
+                        text: "If you defeat this Enemy, claim it as a REWARD.\n\nWhile this card is in the central play area, you may not refresh your cities at the start of your turn.\n\n[Substitute the DUSTSTEP, RUIN GUARD card (The Quest for Power) as this REWARD]"
+                    },
+                    {
+                        title: "Guided Desertion",
+                        type: "Instant",
+                        stage: 1,
+                        text: "Deal 1 damage to you Home Realm for each exhausted city or stronghold you control.\n\nThen take the same number of units from your barracks and place them in the opposing army."
+                    },
+                    // Stage 2
+                    {
+                        title: "Diplomacy",
+                        type: "Instant",
+                        stage: 2,
+                        text: "You may destroy any number of cities you control. For each city you destroy, deal 2 damage to your Home Realm.\n\nYou may then destroy any number of units in the opposing army up to the total strength equal to the influence generated by those destroyed cards.\n\nIf you have not destroyed at least 1 city, take one unit with the highest cost from your barracks and place it in the opposing army."
+                    },
+                    {
+                        title: "Propaganda",
+                        type: "Instant",
+                        stage: 2,
+                        text: "Choose one of the following. You must choose an option you can fully resolve:\n  - Take 4 units from your barracks and place them in the opposing army\n  - Destroy a city you control and deal 4 damage to your Home Realm"
+                    },
+                    {
+                        title: "Bait and Bribery",
+                        type: "Instant",
+                        stage: 2,
+                        text: "Take 5 of the lowest cost units from your barracks and place them in the opposing army.\n\nYou may discard any number of Gold cards in your hand to reduce the number of units placed in the opposing army by 1 per each multiple of 2 gold discarded in this way."
+                    },
+                    {
+                        title: "Traitor",
+                        type: "Instant",
+                        stage: 2,
+                        text: "Take 1 of your units with the highest cost from your barracks and place it in the opposing army."
+                    },
+                    {
+                        title: "Opposition Leader",
+                        type: "Enemy",
+                        stage: 2,
+                        strength: 10,
+                        attrition: 2,
+                        influence: 2,
+                        text: "If defeated, claim this card as a REWARD.\n\nWhile this card is in the central play area, all of your cards (Strongholds, Cities and Rewards) generate 1 fewer influence.\n\n[Substitute the WANDERLUST SIREN card (The Quest for Power) as this REWARD]"
+                    },
+                    {
+                        title: "Rebellion",
+                        type: "Instant",
+                        stage: 2,
+                        attrition: 1,
+                        text: "This card represents the opposing army. The opposing army conducts a siege against one of your cities with the highest influence (but the lowest auto-defense bonus).\n\nDestroy the city if you lose the siege. Otherwise, deal 4 damage to you Home Realm if you control no city.\n\nNOTE: This siege is in addition to the one at the end of each Event phase."
+                    }
+                ]
+            }
+        };
+
+        class EventDeck {
+            constructor(scenario, seed) {
+                this.scenario = scenario;
+                this.shuffleCount = 1;
+                this.persistentEnemies = [];
+                this.setSeed(seed);
+                this.reset();
+            }
+
+            setSeed(seed) {
+                this.seed = seed || this._generateSeed();
+                this.rng = new Math.seedrandom(this.seed);
+            }
+
+            _generateSeed() {
+                return Math.floor(Math.random() * 1000000000).toString();
+            }
+
+            reset() {
+                const stage1 = this.scenario.cards.filter(c => c.stage === 1);
+                const stage2 = this.scenario.cards.filter(c => c.stage === 2);
+
+                this.shuffle(stage1);
+                this.shuffle(stage2);
+
+                this.deck = [...stage1, ...stage2];
+                this.drawnCards = [];
+                this.persistentEnemies.length = 0;
+                this.shuffleCount = 1;
+            }
+
+            shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(this.rng() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            shuffleHighestStage() {
+                const allCards = [...this.deck, ...this.drawnCards];
+                if (allCards.length === 0) return;
+
+                const activePersistent = new Set(this.persistentEnemies);
+                const eligibleCards = allCards.filter(card => !activePersistent.has(card));
+                if (eligibleCards.length === 0) return;
+
+                const maxStage = Math.max(...eligibleCards.map(c => c.stage));
+                const highestStageCards = eligibleCards.filter(c => c.stage === maxStage);
+
+                this.shuffle(highestStageCards);
+                this.deck = highestStageCards;
+                this.drawnCards = [];
+                this.shuffleCount++;
+            }
+
+            draw() {
+                if (this.deck.length === 0) {
+                    this.shuffleHighestStage();
+                    if (this.deck.length === 0) return null;
+                }
+                
+                const card = this.deck.shift();
+                
+                if (!card) return null; // Safeguard
+
+                this.drawnCards.push(card);
+
+                if (card.type === 'Enemy') {
+                    this.persistentEnemies.push(card);
+                }
+
+                return card;
+            }
+            
+            removeEnemy(title) {
+                const index = this.persistentEnemies.findIndex(card => card.title === title);
+                if (index === -1) return;
+
+                const [card] = this.persistentEnemies.splice(index, 1);
+
+                const inDeck = this.deck.includes(card);
+                const inDrawn = this.drawnCards.includes(card);
+
+                if (!inDeck && !inDrawn) {
+                    this.drawnCards.push(card);
+                }
+
+                if (this.deck.length === 0) {
+                    this.shuffleHighestStage();
+                }
+            }
+
+            getRemainingCount() {
+                return this.deck.length;
+            }
+        }
+
+        let currentDeck = null;
+        let currentScenario = null;
+
+        function updateSeedDisplay() {
+            document.getElementById('seed-input').value = currentDeck.seed;
+        }
+
+        function renderCard(card, element, color) {
+            element.innerHTML = '';
+            element.className = 'card';
+
+            if (!card) {
+                element.innerHTML = '<div class="empty-card">No more cards in deck</div>';
+                return;
+            }
+
+            element.style.borderColor = color;
+            element.style.border = `4px solid ${color}`;
+
+            element.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-btn')) return;
+                openModal(card, color)
+            });
+
+            // Reward badges (top-left) - gold or influence
+            if (card.gold) {
+                const goldBadge = document.createElement('div');
+                goldBadge.className = 'reward-badge gold';
+                goldBadge.textContent = card.gold;
+                element.appendChild(goldBadge);
+            } else if (card.influence) {
+                // Influence badges for rewards go in upper left
+                const influenceBadge = document.createElement('div');
+                influenceBadge.className = 'reward-badge influence';
+                influenceBadge.textContent = card.influence;
+                element.appendChild(influenceBadge);
+            }
+
+            // Title
+            const title = document.createElement('div');
+            title.className = 'card-title';
+            title.style.borderBottomColor = color;
+            title.textContent = card.title;
+            element.appendChild(title);
+
+            // Type
+            const type = document.createElement('div');
+            type.className = 'card-type';
+            type.textContent = card.type;
+            element.appendChild(type);
+
+            // Text (process Substitute text to make it italic and convert dash lists to bullets)
+            const text = document.createElement('div');
+            text.className = 'card-text';
+
+            // Process text: convert dash-prefixed lines to bullet lists
+            let processedText = card.text;
+
+            // Replace [Substitute...] text with italic styling
+            processedText = processedText.replace(/(\[Substitute[^\]]*\])/g, '<span class="substitute-text">$1</span>');
+
+            // Replace parenthetical text with italic styling
+            processedText = processedText.replace(/(\([^)]+\))/g, '<span class="parenthetical-text">$1</span>');
+
+            // Convert dash-prefixed lines to HTML lists
+            // Match patterns like ":\n  - item\n  - item" or ":\n- item\n- item"
+            processedText = processedText.replace(/(.*:)\n((?:\s*-\s+.+\n?)+)/g, (match, prefix, listItems) => {
+                // Split by newline and dash, then filter out empty items
+                const items = listItems.split(/\n/).map(item => item.replace(/^\s*-\s*/, '').trim()).filter(item => item);
+                const listHTML = items.map(item => `<li>${item}</li>`).join('');
+                return `${prefix}<ul>${listHTML}</ul>`;
+            });
+
+            // Convert remaining newlines to <br>
+            processedText = processedText.replace(/\n/g, '<br>');
+
+            text.innerHTML = processedText;
+            element.appendChild(text);
+
+            // Stage indicators
+            if (card.stage) {
+                const stageIndicators = document.createElement('div');
+                stageIndicators.className = 'stage-indicators';
+                for (let i = 0; i < card.stage; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'stage-dot';
+                    dot.style.borderColor = color;
+                    dot.style.backgroundColor = color;
+                    stageIndicators.appendChild(dot);
+                }
+                element.appendChild(stageIndicators);
+            }
+
+            // Strength badge (bottom-right)
+            if (card.strength) {
+                const strengthBadge = document.createElement('div');
+                strengthBadge.className = 'strength-badge';
+                strengthBadge.textContent = card.strength;
+                element.appendChild(strengthBadge);
+            }
+
+            // Attrition dice (bottom-left)
+            if (card.attrition) {
+                const diceContainer = document.createElement('div');
+                diceContainer.className = 'attrition-dice';
+                for (let i = 0; i < card.attrition; i++) {
+                    const die = document.createElement('div');
+                    die.className = 'die';
+
+                    // Create 3D cube faces
+                    const front = document.createElement('div');
+                    front.className = 'die-face die-front';
+                    die.appendChild(front);
+
+                    const top = document.createElement('div');
+                    top.className = 'die-face die-top';
+                    die.appendChild(top);
+
+                    const right = document.createElement('div');
+                    right.className = 'die-face die-right';
+                    die.appendChild(right);
+
+                    const left = document.createElement('div');
+                    left.className = 'die-face die-left';
+                    die.appendChild(left);
+
+                    diceContainer.appendChild(die);
+                }
+                element.appendChild(diceContainer);
+            }
+        }
+
+        function renderObjective(objective, color) {
+            const element = document.getElementById('objective-card');
+            element.innerHTML = '';
+            element.className = 'card objective';
+            element.style.borderColor = color;
+            element.style.border = `4px solid ${color}`;
+
+            element.addEventListener('click', () => openModal(objective, color));
+
+            // Influence badge (bottom-right for objective)
+            const influenceBadge = document.createElement('div');
+            influenceBadge.className = 'influence-badge objective';
+            influenceBadge.textContent = objective.influence;
+            element.appendChild(influenceBadge);
+
+            // Title
+            const title = document.createElement('div');
+            title.className = 'card-title';
+            title.style.borderBottomColor = color;
+            title.textContent = objective.title;
+            element.appendChild(title);
+
+            // Type
+            const type = document.createElement('div');
+            type.className = 'card-type';
+            type.textContent = objective.type;
+            element.appendChild(type);
+
+            // Text
+            const text = document.createElement('div');
+            text.className = 'card-text';
+            text.textContent = objective.text;
+            element.appendChild(text);
+        }
+
+        function renderRules(scenario, color) {
+            const rulesSection = document.getElementById('rules-section');
+            rulesSection.innerHTML = '';
+
+            const title = document.createElement('h2');
+            title.textContent = 'Rules & Setup';
+            title.style.borderBottomColor = color;
+            rulesSection.appendChild(title);
+
+            // Setup
+            const setupTitle = document.createElement('h3');
+            setupTitle.textContent = scenario.setup.title;
+            rulesSection.appendChild(setupTitle);
+
+            const setupList = document.createElement('ul');
+            scenario.setup.rules.forEach(rule => {
+                const li = document.createElement('li');
+                li.textContent = rule;
+                setupList.appendChild(li);
+            });
+            rulesSection.appendChild(setupList);
+
+            // End of Event
+            const eventTitle = document.createElement('h3');
+            eventTitle.textContent = scenario.endOfEvent.title;
+            rulesSection.appendChild(eventTitle);
+
+            const eventList = document.createElement('ul');
+            scenario.endOfEvent.rules.forEach(rule => {
+                const li = document.createElement('li');
+                li.textContent = rule;
+                eventList.appendChild(li);
+            });
+            rulesSection.appendChild(eventList);
+
+            // Notes
+            const notesTitle = document.createElement('h3');
+            notesTitle.textContent = 'Notes';
+            rulesSection.appendChild(notesTitle);
+
+            const notesList = document.createElement('ul');
+            scenario.notes.forEach(note => {
+                const li = document.createElement('li');
+                li.textContent = note;
+                notesList.appendChild(li);
+            });
+            rulesSection.appendChild(notesList);
+        }
+
+        function renderEnemyCards() {
+            const enemyCardsContainer = document.getElementById('enemy-cards');
+            enemyCardsContainer.innerHTML = '';
+
+            currentDeck.persistentEnemies.forEach(card => {
+                const cardElement = document.createElement('div');
+                renderCard(card, cardElement, currentScenario.color);
+                cardElement.classList.add('enemy');
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '&times;';
+                deleteBtn.onclick = () => {
+                    currentDeck.removeEnemy(card.title);
+                    renderEnemyCards();
+                };
+                cardElement.appendChild(deleteBtn);
+
+                enemyCardsContainer.appendChild(cardElement);
+            });
+        }
+
+        function updateDeckCounter() {
+            const counter = document.getElementById('deck-counter');
+            if (currentDeck) {
+                counter.textContent = `Cards remaining: ${currentDeck.getRemainingCount()}`;
+            } else {
+                counter.textContent = '';
+            }
+        }
+
+        function loadScenario(scenarioKey, seed) {
+            currentScenario = scenarios[scenarioKey];
+            currentDeck = new EventDeck(currentScenario, seed);
+
+            renderObjective(currentScenario.objective, currentScenario.color);
+            renderRules(currentScenario, currentScenario.color);
+            renderEnemyCards();
+
+            const currentCard = document.getElementById('current-card');
+            currentCard.innerHTML = '<div class="empty-card">Draw a card to begin</div>';
+            currentCard.style.border = `4px solid ${currentScenario.color}`;
+
+            updateDeckCounter();
+            updateSeedDisplay();
+        }
+
+        // Event listeners
+        document.getElementById('scenario-select').addEventListener('change', (e) => {
+            loadScenario(e.target.value);
+        });
+
+        document.getElementById('draw-btn').addEventListener('click', () => {
+            if (!currentDeck) return;
+
+            const card = currentDeck.draw();
+
+            if (card && card.type === 'Enemy') {
+                const currentCardEl = document.getElementById('current-card');
+                currentCardEl.innerHTML = '<div class="empty-card">An enemy was drawn. Draw again for a new event.</div>';
+            } else {
+                renderCard(card, document.getElementById('current-card'), currentScenario.color);
+            }
+            
+            renderEnemyCards();
+            updateDeckCounter();
+        });
+
+        document.getElementById('shuffle-btn').addEventListener('click', () => {
+            if (!currentDeck) return;
+            currentDeck.reset();
+            renderEnemyCards();
+            const currentCard = document.getElementById('current-card');
+            currentCard.innerHTML = '<div class="empty-card">Deck reshuffled - Draw a card to begin</div>';
+            currentCard.style.border = `4px solid ${currentScenario.color}`;
+            updateDeckCounter();
+        });
+
+        document.getElementById('new-game-btn').addEventListener('click', () => {
+            loadScenario(document.getElementById('scenario-select').value, null);
+        });
+
+        document.getElementById('apply-seed-btn').addEventListener('click', () => {
+            const seed = document.getElementById('seed-input').value;
+            loadScenario(document.getElementById('scenario-select').value, seed);
+        });
+
+
+        // Initialize
+        loadScenario('civil_war');
+
+        // Modal functionality
+        const modal = document.getElementById('zoom-modal');
+        const closeModalBtn = document.querySelector('.close-btn');
+
+        function openModal(card, color) {
+            renderCard(card, document.getElementById('zoomed-card'), color);
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        closeModalBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
