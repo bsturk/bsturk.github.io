@@ -1,0 +1,199 @@
+<html>
+<head>
+
+   <meta name="author"        content="Brian Sturk">
+   <meta name="description"   content="crustyBASIC">
+   <meta name="keywords"      content="crustybasic basic compiler rust 8-bit apple ii atari commodore c64 vic-20 plus/4 nes coco dos pcjr tandy">
+   <meta name="revisit-after" content="30 days">
+
+   <style type="text/css">
+   <!--
+   a:hover      { color: #FFFFFF }
+   body         { font-family: verdana, arial, sans-serif }
+   pre          { font-family: courier, monospace }
+   -->
+   </style>
+
+   <title>crustyBASIC</title>
+
+</head>
+
+<body bgcolor="#000000" text="#FFFFFF" link="#E4BC06" vlink="#AFAFAF" alink="#FFFFFF" marginwidth="0" leftmargin="0" topmargin="0" marginheight="0">
+
+<! ****************     main title       *****************>
+
+<center>
+<table border="0" width="100%" cellspacing="5" cellpadding="0">
+<font face="Verdana">
+
+<h1><tr><td width="100%" align="center"><b>crustyBASIC</b></tr></h1>
+
+<p>
+<tr><td width="100%" align="center"><img SRC="pics/buttons/dkyel_bar.gif" NOSAVE height=2 width=500> </tr>
+
+</font>
+</table>
+</center>
+
+<! ****************        body          *****************>
+
+<table border="0" width="55%" cellspacing="5" cellpadding="5">
+<font face="Verdana">
+
+<tr><td width="100%" align="left">
+<p>
+    I have written a BASIC cross-compiler in Rust for 80s era computers and consoles.
+    It takes BASIC source and generates native machine code for the target machine
+    instead of leaving everything to the original interpreter.
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    Targets include Apple II, Atari 8-bit, Atari 5200, Atari 2600, Commodore 64,
+    VIC-20, TRS-80 Color Computer, and the NES.  Plus/4, DOS 16-bit, IBM PCjr,
+    and Tandy 1000 support is coming very soon.  The 6502 machines were the
+    original itch, but I also wanted the Color Computer in there because the 6809
+    deserves some attention too.
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    The compiler can stop at assembly if you want to poke around, or it can call
+    the target assembler and build a runnable program or cartridge image.  It
+    also has compatibility dialects for old BASIC listings and a detokenizer for
+    pulling source back out of tokenized programs.
+</td></tr>
+
+</font>
+</table>
+
+<p>
+<center>
+<table border="0" width="100%" cellspacing="5" cellpadding="5">
+<tr>
+<td align="center">
+    <a href="crustybasic/graphics-c64.png"><img SRC="crustybasic/graphics-c64.png" NOSAVE height=258 width=300 alt="C64 graphics example"></a>
+</td>
+<td align="center">
+    <a href="crustybasic/char_dungeon-coco.png"><img SRC="crustybasic/char_dungeon-coco.png" NOSAVE height=227 width=300 alt="Color Computer character dungeon example"></a>
+</td>
+<td align="center">
+    <a href="crustybasic/vga_burst-cb-dos16.png"><img SRC="crustybasic/vga_burst-cb-dos16.png" NOSAVE height=169 width=300 alt="DOS 16-bit VGA burst example"></a>
+</td>
+</tr>
+<tr>
+<td align="center">
+    <a href="crustybasic/ted_palette-cb-plus4.png"><img SRC="crustybasic/ted_palette-cb-plus4.png" NOSAVE height=198 width=300 alt="Plus/4 TED palette example"></a>
+</td>
+<td align="center">
+    <a href="crustybasic/snake-nes.png"><img SRC="crustybasic/snake-nes.png" NOSAVE height=153 width=300 alt="NES snake example"></a>
+</td>
+<td align="center">
+    <a href="crustybasic/sprite-cb-2600.png"><img SRC="crustybasic/sprite-cb-2600.png" NOSAVE height=228 width=300 alt="Atari 2600 sprite example"></a>
+</td>
+</tr>
+</table>
+</center>
+
+<table border="0" width="75%" cellspacing="5" cellpadding="0">
+<tr><td width="100%" align="left"><p><img SRC="pics/buttons/dkyel_bar.gif" NOSAVE height=2 width=700> </tr>
+</table>
+
+<table border="0" width="55%" cellspacing="5" cellpadding="5">
+<font face="Verdana">
+
+<tr><td width="100%" align="left">
+<p>
+<b><h3>Quick example:</h3></b>
+<font size=-1>
+<pre>
+@OPTION TARGET "c64"
+
+CLS
+POSITION 0, 0
+PRINT "HELLO, WORLD!"
+</pre>
+</font>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+    Build it into a C64 <b>.prg</b> like this:
+<font size=-1>
+<pre>
+crustybasic build hello.cbs -o hello.prg
+</pre>
+</font>
+</td></tr>
+
+</font>
+</table>
+
+<table border="0" width="75%" cellspacing="5" cellpadding="0">
+<tr><td width="100%" align="left"><p><img SRC="pics/buttons/dkyel_bar.gif" NOSAVE height=2 width=700> </tr>
+</table>
+
+<table border="0" width="55%" cellspacing="5" cellpadding="5">
+<font face="Verdana">
+
+<tr><td width="100%" align="left">
+<p>
+    Latest version 1.1.0 : Released 06/07/26
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+<font size=-1>
+    <img SRC="pics/buttons/dkyel_dot.gif" NOSAVE height=5 width=5>&nbsp
+    <a href="https://github.com/bsturk/crustybasic">GitHub source</a>
+</font>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+<font size=-1>
+    <img SRC="pics/buttons/dkyel_dot.gif" NOSAVE height=5 width=5>&nbsp
+    <a href="https://github.com/bsturk/crustybasic/releases">Windows, macOS, and Linux binaries</a>
+</font>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+<font size=-1>
+    <img SRC="pics/buttons/dkyel_dot.gif" NOSAVE height=5 width=5>&nbsp
+    <a href="https://telengard.itch.io/crustybasic">itch.io page</a>
+</font>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+<font size=-1>
+    <img SRC="pics/buttons/dkyel_dot.gif" NOSAVE height=5 width=5>&nbsp
+    <a href="https://github.com/bsturk/crustybasic/blob/main/doc/USAGE.md">Usage guide</a>
+</font>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+<font size=-1>
+    <img SRC="pics/buttons/dkyel_dot.gif" NOSAVE height=5 width=5>&nbsp
+    <a href="https://github.com/bsturk/crustybasic/blob/main/doc/LANGUAGE.md">Language reference</a>
+</font>
+</td></tr>
+
+<tr><td width="100%" align="left">
+<p>
+<font size=-1>
+    <img SRC="pics/buttons/dkyel_dot.gif" NOSAVE height=5 width=5>&nbsp
+    <a href="https://github.com/bsturk/crustybasic/tree/main/screenshots">More screenshots</a>
+</font>
+</td></tr>
+
+</font>
+</table>
+
+<p>
+<center><p><a href="index.html"><img SRC="pics/buttons/crustybasic_back_button_text.jpg" NOSAVE border=0 height=50 width=150 align=TEXTTOP></a></center>
+
+</body>
+</html>
