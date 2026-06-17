@@ -5,6 +5,90 @@ This file contains a listing of modifications to dreamblade.
 Dates are included.  All changes by <bsturk<-A-T->comcast.net> unless
 noted.  Newest changes are at the top.
 
+06/17/26 - 2.2.0
+
+    * Used correct piece when checking spawn cost with Grand Hive
+    * Fixed issue with Beacon passing immutable all_pieces for spawn actions
+    * Fixed issue with running with multiple threads
+    * New custom Rabble Rouser
+    * New custom Riot Haruspex
+    * New custom The Waiting Room
+    * Renamed Rubble -> Dismantle
+    * New custom False Cartographer
+    * Added new hook can_piece_be_sacrificed
+    * Made cant_be_disrupted generic ability cant_be_actioned
+    * Replaced context zone conquest calculation with piece zone conquest calculations
+    * New custom The Fourth Thought
+    * Added Mind Control 3 blade ability to Mind Weaver
+    * Fixed Deathswarm's ability resolution and keeps track of targets
+    * Fix issue with shield abilities assigning damage but an attack has 0 blades/damage
+    * Multiple pieces resolving their sacrifice are now not just sacrificed,
+      the player gets to choose the order.
+    * Frightwave now correctly "snapshots" eligible pieces at time of
+      activation
+    * Added showing lineage icons to the pieces, etc in wxUI
+    * Don't dedup spawn actions if they are from a different board location
+      or the controller isn't the same as the owner
+    * Fixed some 64 bit issues
+    * Fixed some wxUI issues
+    * Fixed issue with static abilities that can't stack
+    * Added missing <condition> tags to Mind Weaver
+    * conditions trigger_attacker_matches and trigger_declared_attackers
+      add all attacker trigger matching
+    * destroyed_more_match_pieces_this_turn now can track differences
+      either way player > opponent or vice versa
+    * controls_match_piece_in_each_scoring_cell supports the match
+      being opponent's pieces
+    * gambit whisper now tracks all banished pieces so it can resolve
+      specifying them all
+    * add_to_combat_damage_x_target now supports spawn cost
+    * Added support for damage types in effect_no_assigning_damage
+      and action_and_no_damage_assign.
+    * Added at_least and at_most to piece/zone distance
+      conditions
+    * New ability highest_spawn_cost_match_pieces
+    * New custom Barbed Sentinel
+    * New custom Famine Spirit
+    * New custom Geokinetic Shambler
+    * New custom Mnemonic Thief
+    * New custom Phalanx Stalwart
+    * New custom Plague Carrier
+    * New custom Pillar of Torment
+    * New custom Roaming Oasis
+    * Changed adjacent cell check to bitmask for big perf improvement
+    * Made Turbo ability copyable
+    * Fixed Sir Hope's num pieces calculation
+    * Fixed crash w/ Spur
+    * Optimization for action_continue_on
+    * Fixed issues with comparing abilities/effects
+    * Fixed issue w/ banish_piece ability, selected piece was not
+      going through undo engine
+    * Fixed issue with abilities that roll dice (e.g. Wail, Chaos Drive) and running
+      with multiple threads
+    * Fixed an issue with the Vortex ability
+    * Fixed 2 bugs in exchange_pieces ability
+    * Cleaned up ncurses UI a little bit
+    * Fixed bug where I was setting game state when getting actions
+    * Some optimizations around static abilities hook
+    * Added per-player Monte Carlo/UCT iteration flags (-j/-J) and removed -r option
+    * Added UCT AI player
+    * Improved command line handling
+    * Fixed issue with Nitro ability, it was activating on any initiative roll
+      for the ability controller
+    * Fixed issue with special_attack_single_when_entering_cell
+      There was a shadowing of the piece variable.  This
+      fixes pieces like Brighthammer Avenger
+    * Changed order of event messaging, this allows seeing things
+      as they happen in order. e.g. a 1 was rolled for initiative 
+      then seeing subsequent triggered abilities
+    * Fixed issue w/ activated abilities not honoring in_scoring_cell pre-condition
+    * Renumbered all of the actions/effects for the new neural net AI player
+    * Went over all customs and re-costed/tweaked based on linear regression
+      costing of abilities/stats
+    * Added a name for Patchwork Palace's ability [Assemble 1]
+    * Unknown Kadath - nonmadness -> non-Madness
+    * Hand of Oblivion - Grave Gift -> Grave Gift 1
+
 11/17/24 - 2.1.0
 
     * Switched to newest wxWidgets (3.2.6) and ported to 64 bits.
@@ -1361,7 +1445,6 @@ noted.  Newest changes are at the top.
       * New custom Bubblefudge.
       * New custom Meat Wagon.
       * New custom Brainboom.
-      * New calculation context_zone_conquest_value.
       * Deathblast now sets context piece/zone on triggering, also supports
         an amount calculation.
       * New ability action_and_victory_points.
